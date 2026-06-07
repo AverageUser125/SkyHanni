@@ -86,6 +86,7 @@ accessible method net/minecraft/client/gui/components/ChatComponent refreshTrimm
 accessible method net/minecraft/client/gui/screens/inventory/AbstractContainerScreen renderBg (Lnet/minecraft/client/gui/GuiGraphicsExtractor;FII)V
 accessible method net/minecraft/client/gui/screens/inventory/AbstractContainerScreen slotClicked (Lnet/minecraft/world/inventory/Slot;IILnet/minecraft/world/inventory/ContainerInput;)V
 accessible method net/minecraft/client/gui/screens/inventory/AbstractSignEditScreen setMessage (Ljava/lang/String;)V
+accessible method net/minecraft/client/gui/screens/inventory/AbstractContainerScreen init ()V
 accessible method net/minecraft/client/renderer/rendertype/RenderType <init> (Ljava/lang/String;Lnet/minecraft/client/renderer/rendertype/RenderSetup;)V
 accessible method net/minecraft/network/chat/TextColor <init> (ILjava/lang/String;)V
 accessible method net/minecraft/network/protocol/game/ServerboundInteractPacket$Action getType ()Lnet/minecraft/network/protocol/game/ServerboundInteractPacket$ActionType;
