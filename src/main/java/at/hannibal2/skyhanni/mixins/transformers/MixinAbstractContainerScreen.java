@@ -15,7 +15,6 @@ import at.hannibal2.skyhanni.features.inventory.wardrobe.CustomWardrobe;
 import at.hannibal2.skyhanni.utils.DelayedRun;
 import at.hannibal2.skyhanni.utils.KeyboardManager;
 import at.hannibal2.skyhanni.utils.compat.MinecraftCompat;
-import at.hannibal2.skyhanni.utils.compat.WrappedAbstractedContainerScreen;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import kotlin.Unit;
@@ -45,7 +44,7 @@ public abstract class MixinAbstractContainerScreen {
     private void renderHead(GuiGraphicsExtractor context, int mouseX, int mouseY, float deltaTicks, CallbackInfo ci) {
         if (GlobalRender.INSTANCE.getRenderDisabled()) return;
         AbstractContainerScreen<?> gui = (AbstractContainerScreen<?>) (Object) this;
-        if (new GuiContainerEvent.PreDraw(context, new WrappedAbstractedContainerScreen<>(gui), gui.getMenu(), mouseX, mouseY, deltaTicks).post()) {
+        if (new GuiContainerEvent.PreDraw(context, gui, gui.getMenu(), mouseX, mouseY, deltaTicks).post()) {
             GuiData.INSTANCE.setPreDrawEventCancelled(true);
             ci.cancel();
         } else {
@@ -83,7 +82,7 @@ public abstract class MixinAbstractContainerScreen {
         int keyCode = input.input();
         TextInput.Companion.onGuiInput(cir);
         boolean shouldCancelInventoryClose = KeyboardManager.checkIsInventoryClosure(keyCode);
-        if (new GuiKeyPressEvent(new WrappedAbstractedContainerScreen<>((AbstractContainerScreen<?>) (Object) this)).post() || shouldCancelInventoryClose) {
+        if (new GuiKeyPressEvent((AbstractContainerScreen<?>) (Object) this).post() || shouldCancelInventoryClose) {
             cir.setReturnValue(false);
         }
     }
@@ -91,7 +90,7 @@ public abstract class MixinAbstractContainerScreen {
     @Inject(method = "mouseClicked", at = @At(value = "HEAD"), cancellable = true)
     private void mouseClicked(MouseButtonEvent mouseButtonEvent, boolean bl, CallbackInfoReturnable<Boolean> cir) {
         AbstractContainerScreen<?> screen = (AbstractContainerScreen<?>) (Object) this;
-        if (new GuiKeyPressEvent(new WrappedAbstractedContainerScreen<>(screen)).post()) {
+        if (new GuiKeyPressEvent(screen).post()) {
             cir.setReturnValue(false);
         }
         if (new GuiMouseInputEvent(screen).post()) {
