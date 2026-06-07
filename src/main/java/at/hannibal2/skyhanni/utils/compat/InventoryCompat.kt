@@ -16,6 +16,7 @@ import kotlin.contracts.contract
 // TODO 26.1 REI compat needed
 //? if < 26.1
 //import at.hannibal2.skyhanni.compat.ReiCompat
+import net.minecraft.client.gui.screens.inventory.MenuAccess
 
 fun LocalPlayer.getItemOnCursor(): SafeItemStack? {
     val stack = this.containerMenu.carried
@@ -65,7 +66,7 @@ object InventoryCompat {
         }
     }
 
-    fun containerSlots(container: SkyHanniGuiContainer): List<Slot> =
+    fun containerSlots(container: MenuAccess<*>): List<Slot> =
         container.menu.slots
 
     fun getWindowIdOrNull(): Int? =

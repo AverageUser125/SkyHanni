@@ -20,6 +20,7 @@ import at.hannibal2.skyhanni.utils.compat.slotUnderCursor
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.screens.inventory.ContainerScreen
 import net.minecraft.client.gui.screens.inventory.InventoryScreen
+import net.minecraft.client.gui.screens.inventory.MenuAccess
 import net.minecraft.client.resources.language.I18n
 import net.minecraft.world.Container
 import net.minecraft.world.SimpleContainer
@@ -206,7 +207,7 @@ object InventoryUtils {
         InventoryCompat.mouseClickInventorySlot(slotId, mouseButton, mode)
     }
 
-    fun SkyHanniGuiContainer.slots(): List<Slot> {
+    fun MenuAccess<*>.slots(): List<Slot> {
         return InventoryCompat.containerSlots(this)
     }
 }
