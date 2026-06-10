@@ -1,0 +1,3 @@
+package at.hannibal2.skyhanni.features.itemabilities.abilitycooldown
+
+sealed interface AbilityDetectorDefinition
