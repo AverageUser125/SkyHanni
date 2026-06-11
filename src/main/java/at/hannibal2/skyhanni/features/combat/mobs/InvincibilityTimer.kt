@@ -89,15 +89,12 @@ object InvincibilityTimer {
         )
     }
 
-    private fun VanquisherApi.VanquisherData.toInvincibilityMob(
-        event: SkyHanniRenderWorldEvent,
-    ): InvincibilityMob? {
+    private fun VanquisherApi.VanquisherData.toInvincibilityMob(): InvincibilityMob? {
         if (!mob.baseEntity.canBeSeen()) return null
-        val aabb = event.exactBoundingBoxExtraEntities(mob)
 
         return InvincibilityMob(
             spawnTime = spawnTime,
-            pos = aabb.getBoxCenter(),
+            pos = mob.centerCords,
             isOwn = isOwn,
         )
     }
