@@ -13,6 +13,7 @@ import at.hannibal2.skyhanni.utils.ServerTimeMark
 import at.hannibal2.skyhanni.utils.TimeUtils.format
 import at.hannibal2.skyhanni.utils.render.WorldRenderUtils.drawDynamicText
 import at.hannibal2.skyhanni.utils.render.WorldRenderUtils.exactBoundingBoxExtraEntities
+import at.hannibal2.skyhanni.utils.render.WorldRenderUtils.exactLocation
 import kotlin.time.Duration.Companion.seconds
 
 @SkyHanniModule
@@ -55,7 +56,7 @@ object InvincibilityTimer {
         for (vanquisher in VanquisherApi.getVanquishers()) {
             val mob = vanquisher.mob
             val height = event.exactBoundingBoxExtraEntities(mob).ysize
-            val pos = mob.getLorenzVec().up(height)
+            val pos = event.exactLocation(mob).up(height)
 
             renderTimer(
                 event = event,
