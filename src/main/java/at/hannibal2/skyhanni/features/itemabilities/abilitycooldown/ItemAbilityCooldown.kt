@@ -1,6 +1,7 @@
 package at.hannibal2.skyhanni.features.itemabilities.abilitycooldown
 
 import at.hannibal2.skyhanni.SkyHanniMod
+import at.hannibal2.skyhanni.SkyHanniMod.launchCoroutine
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.config.ConfigUpdaterMigrator
 import at.hannibal2.skyhanni.events.ActionBarUpdateEvent
@@ -9,6 +10,7 @@ import at.hannibal2.skyhanni.events.PlaySoundEvent
 import at.hannibal2.skyhanni.events.RenderGuiItemOverlayEvent
 import at.hannibal2.skyhanni.events.RenderItemTipEvent
 import at.hannibal2.skyhanni.events.RenderObject
+import at.hannibal2.skyhanni.events.RepositoryReloadEvent
 import at.hannibal2.skyhanni.events.chat.SkyHanniChatEvent
 import at.hannibal2.skyhanni.events.minecraft.SkyHanniTickEvent
 import at.hannibal2.skyhanni.features.itemabilities.abilitycooldown.ItemAbility.Companion.getMultiplier
@@ -32,6 +34,7 @@ import at.hannibal2.skyhanni.utils.SkyBlockItemModifierUtils.getItemUuid
 import at.hannibal2.skyhanni.utils.SkyBlockUtils
 import at.hannibal2.skyhanni.utils.collection.CollectionUtils.equalsOneOf
 import at.hannibal2.skyhanni.utils.collection.CollectionUtils.mapKeysNotNull
+import at.hannibal2.skyhanni.utils.coroutines.CoroutineSettings
 import at.hannibal2.skyhanni.utils.repopatterns.RepoPattern
 import net.minecraft.client.Minecraft
 import kotlin.math.max
@@ -63,173 +66,113 @@ object ItemAbilityCooldown {
     private var lastAbility = ""
     private var items = mapOf<String, List<ItemText>>()
     private var abilityItems = mapOf<SafeItemStack, MutableList<ItemAbility>>()
-    private val WEIRD_TUBA = "WEIRD_TUBA".toInternalName()
-    private val WEIRDER_TUBA = "WEIRDER_TUBA".toInternalName()
     private val VOODOO_DOLL = "VOODOO_DOLL".toInternalName()
     private val VOODOO_DOLL_WILTED = "VOODOO_DOLL_WILTED".toInternalName()
     private val WARNING_FLARE = "WARNING_FLARE".toInternalName()
     private val ALERT_FLARE = "ALERT_FLARE".toInternalName()
     private val SOS_FLARE = "SOS_FLARE".toInternalName()
-    private val TOTEM_OF_CORRUPTION = "TOTEM_OF_CORRUPTION".toInternalName()
 
     @HandleEvent
     fun onPlaySound(event: PlaySoundEvent) {
-        when {
-            // Wither Shield Sound Solo and Wither Impact
-            event.soundName == "entity.zombie_villager.cure" && event.pitch == 0.6984127f && event.volume == 1f -> {
-                val scrolls = ItemAbility.getAllAbilityScrolls(InventoryUtils.getItemInHand())
-                if (scrolls.singleOrNull() == ItemAbility.WITHER_IMPACT) {
-                    ItemAbility.WITHER_IMPACT.sound()
-                } else {
-                    for (ability in scrolls) {
-                        if (ability == ItemAbility.WITHER_SHIELD_SCROLL) {
-                            ability.activate(null, 5_000)
+        for (ability in sounds) {
+            val sound = ability.sound!!
+            if (event.soundName != sound.soundName) continue
+            if (sound.pitch != null && event.pitch != sound.pitch) continue
+            if (sound.volume != null && event.volume != sound.volume) continue
+            ability.ability?.sound()
+        }
+        when (event.soundName) {
+            "entity.zombie_villager.cure" -> {
+                if (event.pitch == 0.6984127f && event.volume == 1f) {
+                    val scrolls = ItemAbility.getAllAbilityScrolls(InventoryUtils.getItemInHand())
+                    if (scrolls.singleOrNull() == ItemAbility.WITHER_IMPACT) {
+                        ItemAbility.WITHER_IMPACT.sound()
+                    } else {
+                        for (ability in scrolls) {
+                            if (ability == ItemAbility.WITHER_SHIELD_SCROLL) {
+                                ability.activate(null, 5_000)
+                            }
+                            ability.sound()
                         }
-                        ability.sound()
+                    }
+                }
+                // Tactical Insertion variant
+                else if (event.pitch == 1.8888888f && event.volume == 0.7f) {
+                    ItemAbility.TACTICAL_INSERTION.activate(null, 17_000)
+                }
+            }
+
+            "block.lava.extinguish" -> {
+                if (event.pitch == 0.4920635f && event.volume == 1f) {
+                    val scrolls = ItemAbility.getAllAbilityScrolls(InventoryUtils.getItemInHand())
+                    if (scrolls.contains(ItemAbility.SHADOW_WARP_SCROLL)) {
+                        ItemAbility.SHADOW_WARP_SCROLL.sound()
                     }
                 }
             }
 
-            event.soundName == "block.lava.extinguish" && event.pitch == 0.4920635f && event.volume == 1f -> {
-                val scrolls = ItemAbility.getAllAbilityScrolls(InventoryUtils.getItemInHand())
-                if (scrolls.contains(ItemAbility.SHADOW_WARP_SCROLL)) {
-                    ItemAbility.SHADOW_WARP_SCROLL.sound()
-                }
-            }
-            // Fire Fury Staff
-            event.soundName == "block.lava.pop" && event.pitch == 1f && event.volume == 1f -> {
-                ItemAbility.FIRE_FURY_STAFF.sound()
-            }
-            // Ice Spray Wand
-            event.soundName == "entity.ender_dragon.growl" && event.pitch == 1f && event.volume == 1f -> {
-                ItemAbility.ICE_SPRAY_WAND.sound()
-            }
-            // Gyrokinetic Wand & Shadow Fury
-            event.soundName == "entity.enderman.teleport" -> {
-                // Gryokinetic Wand
-                if (event.pitch == 0.61904764f && event.volume == 1f) {
-                    ItemAbility.GYROKINETIC_WAND_LEFT.sound()
-                }
-                // Shadow Fury
+            "entity.enderman.teleport" -> {
+                // Shadow Fury logic check (Custom check on hand item vs multiple IDs)
                 val internalName = InventoryUtils.getItemInHand()?.getInternalName() ?: return
-                if (!internalName.equalsOneOf(
-                        "SHADOW_FURY".toInternalName(),
-                        "STARRED_SHADOW_FURY".toInternalName(),
-                    )
-                ) return
-
-                ItemAbility.SHADOW_FURY.sound()
-            }
-            // Giant's Sword
-            event.soundName == "block.anvil.land" && event.pitch == 0.4920635f && event.volume == 1f -> {
-                ItemAbility.GIANTS_SWORD.sound()
-            }
-            // Atomsplit Katana
-            event.soundName == "entity.ghast.ambient" && event.pitch == 0.4920635f && event.volume == 0.15f -> {
-                ItemAbility.ATOMSPLIT_KATANA.sound()
-            }
-            // Wand of Atonement
-            event.soundName == "block.lava.pop" && event.pitch == 0.7619048f && event.volume == 0.15f -> {
-                ItemAbility.WAND_OF_ATONEMENT.sound()
-            }
-            // Starlight Wand
-            event.soundName == "entity.bat.hurt" && event.volume == 0.1f -> {
-                ItemAbility.STARLIGHT_WAND.sound()
-            }
-            // Voodoo Doll
-            event.soundName == "entity.ghast.hurt" && event.volume == 1f && event.pitch >= 1.6 && event.pitch <= 1.7 -> {
-                if (VOODOO_DOLL.recentlyHeld()) {
-                    ItemAbility.VOODOO_DOLL.sound()
-                } else if (VOODOO_DOLL_WILTED.recentlyHeld()) {
-                    ItemAbility.VOODOO_DOLL_WILTED.sound()
+                if (internalName.equalsOneOf("SHADOW_FURY".toInternalName(), "STARRED_SHADOW_FURY".toInternalName())) {
+                    ItemAbility.SHADOW_FURY.sound()
                 }
             }
-            // Golem Sword & Implosion Solo Scroll & Staff of the Volcano
-            event.soundName == "entity.generic.explode" -> {
+
+            "entity.ghast.hurt" -> {
+                // Voodoo Doll logic check (Pitch Interval processing)
+                if (event.volume == 1f && event.pitch in 1.6..1.7) {
+                    if (VOODOO_DOLL.recentlyHeld()) {
+                        ItemAbility.VOODOO_DOLL.sound()
+                    } else if (VOODOO_DOLL_WILTED.recentlyHeld()) {
+                        ItemAbility.VOODOO_DOLL_WILTED.sound()
+                    }
+                }
+            }
+
+            "entity.generic.explode" -> {
+                // Context scroll check sharing packet with Volcano Staff
                 if (event.pitch == 1f && event.volume == 1f) {
                     val scrolls = ItemAbility.getAllAbilityScrolls(InventoryUtils.getItemInHand())
                     if (scrolls.contains(ItemAbility.IMPLOSION_SCROLL)) {
                         ItemAbility.IMPLOSION_SCROLL.sound()
                     }
                 }
-                if (event.pitch == 4.047619f && event.volume == 0.2f) {
-                    ItemAbility.GOLEM_SWORD.sound()
-                }
-                if (event.pitch == 0.4920635f && event.volume == 0.5f) {
+                else if (event.pitch == 0.4920635f && event.volume == 0.5f) {
                     ItemAbility.STAFF_OF_THE_VOLCANO.sound()
                 }
             }
-            // Weird Tuba & Weirder Tuba
-            event.soundName == "entity.wolf.death" && event.volume == 0.5f -> {
-                if (WEIRD_TUBA.recentlyHeld()) {
-                    ItemAbility.WEIRD_TUBA.sound()
+
+            "entity.generic.eat" -> {
+                // Shared packet string logic differentiation
+                if (event.pitch == 1f && event.volume == 1f) {
+                    ItemAbility.STAFF_OF_THE_VOLCANO.sound()
                 }
-                if (WEIRDER_TUBA.recentlyHeld()) {
-                    ItemAbility.WEIRDER_TUBA.sound()
-                }
-            }
-            // End Stone Sword
-            event.soundName == "entity.zombie_villager.converted" && event.pitch == 2f && event.volume == 0.3f -> {
-                ItemAbility.END_STONE_SWORD.sound()
-            }
-            // Soul Esoward
-            event.soundName == "entity.wolf.pant" && event.pitch == 1.3968254f && event.volume == 0.4f -> {
-                ItemAbility.SOUL_ESOWARD.sound()
-            }
-            // Pigman Sword
-            event.soundName == "entity.piglin.angry" && event.pitch == 2f && event.volume == 0.3f -> {
-                ItemAbility.PIGMAN_SWORD.sound()
-            }
-            // Ember Rod
-            event.soundName == "entity.ghast.shoot" && event.pitch == 1f && event.volume == 0.3f -> {
-                ItemAbility.EMBER_ROD.sound()
-            }
-            // Fire Freeze Staff
-            event.soundName == "entity.elder_guardian.ambient" && event.pitch == 2f && event.volume == 0.2f -> {
-                ItemAbility.FIRE_FREEZE_STAFF.sound()
-            }
-            // Staff of the Volcano
-            event.soundName == "entity.generic.eat" && event.pitch == 1f && event.volume == 1f -> {
-                ItemAbility.STAFF_OF_THE_VOLCANO.sound()
-            }
-            // Holy Ice
-            event.soundName == "entity.generic.drink" && event.pitch.roundTo(1) == 1.8f && event.volume == 1f -> {
-                ItemAbility.HOLY_ICE.sound()
-            }
-            // Royal Pigeon
-            event.soundName == "entity.bat.ambient" && event.pitch == 0.4920635f && event.volume == 1f -> {
-                ItemAbility.ROYAL_PIGEON.sound()
-            }
-            // Wand of Strength
-            event.soundName == "entity.generic.eat" && event.pitch == 0.4920635f && event.volume == 1f -> {
-                ItemAbility.WAND_OF_STRENGTH.sound()
-            }
-            // Tactical Insertion
-            event.soundName == "item.flintandsteel.use" && event.pitch == 0.74603176f && event.volume == 1f -> {
-                ItemAbility.TACTICAL_INSERTION.activate(LorenzColor.DARK_PURPLE, 3_000)
             }
 
-            event.soundName == "entity.zombie_villager.cure" && event.pitch == 1.8888888f && event.volume == 0.7f -> {
-                ItemAbility.TACTICAL_INSERTION.activate(null, 17_000)
-            }
-            // Totem of Corruption
-            event.soundName == "block.lever.click" && event.pitch == 0.84126985f && event.volume == 0.5f -> {
-                if (TOTEM_OF_CORRUPTION.recentlyHeld()) {
-                    ItemAbility.TOTEM_OF_CORRUPTION.sound()
+            "entity.generic.drink" -> {
+                // Float precision approximation processing
+                if (event.pitch.roundTo(1) == 1.8f && event.volume == 1f) {
+                    ItemAbility.HOLY_ICE.sound()
                 }
-            }
-            // Enrager
-            event.soundName == "entity.ender_dragon.growl" && event.pitch == 0.4920635f && event.volume == 2f -> {
-                ItemAbility.ENRAGER.sound()
             }
 
-            // Blaze Slayer Flares
-            event.soundName == "entity.firework_rocket.launch" && event.pitch == 1f && event.volume == 3f -> {
-                if (WARNING_FLARE.recentlyHeld() || ALERT_FLARE.recentlyHeld()) {
-                    ItemAbility.ALERT_FLARE.sound()
+            "item.flintandsteel.use" -> {
+                // Direct object activation processing overrides
+                if (event.pitch == 0.74603176f && event.volume == 1f) {
+                    ItemAbility.TACTICAL_INSERTION.activate(LorenzColor.DARK_PURPLE, 3_000)
                 }
-                if (SOS_FLARE.recentlyHeld()) {
-                    ItemAbility.SOS_FLARE.sound()
+            }
+
+            "entity.firework_rocket.launch" -> {
+                // Ambiguous dynamic routing context checks
+                if (event.pitch == 1f && event.volume == 3f) {
+                    if (WARNING_FLARE.recentlyHeld() || ALERT_FLARE.recentlyHeld()) {
+                        ItemAbility.ALERT_FLARE.sound()
+                    }
+                    if (SOS_FLARE.recentlyHeld()) {
+                        ItemAbility.SOS_FLARE.sound()
+                    }
                 }
             }
         }
@@ -289,8 +232,7 @@ object ItemAbilityCooldown {
         abilityUsePattern.matchMatcher(message) {
             val name = group("type")
             if (name == lastAbility) return
-            lastAbility = name
-            for (ability in ItemAbility.entries) {
+            for (ability in actionBars) {
                 if (ability.abilityName == name) {
                     click(ability)
                     return
@@ -303,9 +245,9 @@ object ItemAbilityCooldown {
 
     private fun isEnabled(): Boolean = SkyBlockUtils.inSkyBlock && config.itemAbilityCooldown
 
-    private fun click(ability: ItemAbility) {
-        if (ability.actionBarDetection) {
-            ability.activate()
+    private fun click(ability: AbilityDefinition) {
+        if (ability.actionbar) {
+            ability.ability?.activate()
         }
     }
 
@@ -314,6 +256,22 @@ object ItemAbilityCooldown {
         if (!isEnabled()) return
 
         checkHotBar(event.isMod(10))
+    }
+
+    private var sounds = emptyList<AbilityDefinition>()
+    private var actionBars = emptyList<AbilityDefinition>()
+    @HandleEvent
+    fun onRepoReload(event: RepositoryReloadEvent) = CoroutineSettings("item abilities repo reload").launchCoroutine {
+        val abilities = event.getConstantAsync<List<AbilityDefinition>>("abilities")
+        abilities.forEach { ability ->
+            val itemAbility = ItemAbility.entries.firstOrNull { it.abilityName == ability.abilityName }
+            if (itemAbility != null) {
+                ability.ability = itemAbility
+            }
+        }
+
+        sounds = abilities.filter { it.sound != null }.toList()
+        actionBars = abilities.filter { it.actionbar }.toList()
     }
 
     private fun checkHotBar(recheckInventorySlots: Boolean = false) {
@@ -335,14 +293,14 @@ object ItemAbilityCooldown {
         return if (ability.isOnCooldown()) {
             val duration = ability.lastActivation + ability.getCooldown() - SimpleTimeMark.now()
             val color = specialColor ?: if (duration < 600.milliseconds) LorenzColor.RED else LorenzColor.YELLOW
-            ItemText(color, ability.getDurationText(), true, ability.alternativePosition)
+            ItemText(color, ability.getDurationText(), true, alternativePosition = false)
         } else {
             if (specialColor != null) {
                 ability.specialColor = null
                 tryHandleNextPhase(ability, specialColor)
                 return createItemText(ability)
             }
-            ItemText(LorenzColor.GREEN, readyText, false, ability.alternativePosition)
+            ItemText(LorenzColor.GREEN, readyText, false, alternativePosition = false)
         }
     }
 

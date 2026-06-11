@@ -1,0 +1,110 @@
+[
+    {
+        "ability_name": "FIRE_FURY_STAFF",
+        "item_ids": ["FIRE_FURY_STAFF"],
+        "base_cooldown": 20,
+        "sound": { "sound_name": "block.lava.pop", "pitch": 1.0, "volume": 1.0 }
+    },
+    {
+        "ability_name": "ICE_SPRAY_WAND",
+        "item_ids": ["ICE_SPRAY_WAND"],
+        "base_cooldown": 5,
+        "sound": { "sound_name": "entity.ender_dragon.growl", "pitch": 1.0, "volume": 1.0 }
+    },
+    {
+        "ability_name": "GYROKINETIC_WAND_LEFT",
+        "item_ids": ["GYROKINETIC_WAND"],
+        "base_cooldown": 30,
+        "sound": { "sound_name": "entity.enderman.teleport", "pitch": 0.61904764, "volume": 1.0 }
+    },
+    {
+        "ability_name": "GIANTS_SWORD",
+        "item_ids": ["GIANTS_SWORD"],
+        "base_cooldown": 30,
+        "sound": { "sound_name": "block.anvil.land", "pitch": 0.4920635, "volume": 1.0 }
+    },
+    {
+        "ability_name": "WAND_OF_ATONEMENT",
+        "item_ids": ["WAND_OF_HEALING", "WAND_OF_MENDING", "WAND_OF_RESTORATION", "WAND_OF_ATONEMENT"],
+        "base_cooldown": 7,
+        "sound": { "sound_name": "block.lava.pop", "pitch": 0.7619048, "volume": 0.15 }
+    },
+    {
+        "ability_name": "STARLIGHT_WAND",
+        "item_ids": ["STARLIGHT_WAND"],
+        "base_cooldown": 2,
+        "sound": { "sound_name": "entity.bat.hurt", "volume": 0.1 }
+    },
+    {
+        "ability_name": "GOLEM_SWORD",
+        "item_ids": ["GOLEM_SWORD"],
+        "base_cooldown": 3,
+        "sound": { "sound_name": "entity.generic.explode", "pitch": 4.047619, "volume": 0.2 }
+    },
+    {
+        "ability_name": "END_STONE_SWORD",
+        "item_ids": ["END_STONE_SWORD"],
+        "base_cooldown": 5,
+        "sound": { "sound_name": "entity.zombie_villager.converted", "pitch": 2.0, "volume": 0.3 }
+    },
+    {
+        "ability_name": "SOUL_ESOWARD",
+        "item_ids": ["SOUL_ESOWARD"],
+        "base_cooldown": 20,
+        "sound": { "sound_name": "entity.wolf.pant", "pitch": 1.3968254, "volume": 0.4 }
+    },
+    {
+        "ability_name": "PIGMAN_SWORD",
+        "item_ids": ["PIGMAN_SWORD"],
+        "base_cooldown": 5,
+        "sound": { "sound_name": "entity.piglin.angry", "pitch": 2.0, "volume": 0.3 }
+    },
+    {
+        "ability_name": "EMBER_ROD",
+        "item_ids": ["EMBER_ROD"],
+        "base_cooldown": 30,
+        "sound": { "sound_name": "entity.ghast.shoot", "pitch": 1.0, "volume": 0.3 }
+    },
+    {
+        "ability_name": "FIRE_FREEZE_STAFF",
+        "item_ids": ["FIRE_FREEZE_STAFF"],
+        "base_cooldown": 10,
+        "sound": { "sound_name": "entity.elder_guardian.ambient", "pitch": 2.0, "volume": 0.2 }
+    },
+    {
+        "ability_name": "ROYAL_PIGEON",
+        "item_ids": ["ROYAL_PIGEON"],
+        "base_cooldown": 5,
+        "sound": { "sound_name": "entity.bat.ambient", "pitch": 0.4920635, "volume": 1.0 }
+    },
+    {
+        "ability_name": "WAND_OF_STRENGTH",
+        "item_ids": ["WAND_OF_STRENGTH"],
+        "base_cooldown": 10,
+        "sound": { "sound_name": "entity.generic.eat", "pitch": 0.4920635, "volume": 1.0 }
+    },
+    {
+        "ability_name": "ENRAGER",
+        "item_ids": ["ENRAGER"],
+        "base_cooldown": 20,
+        "sound": { "sound_name": "entity.ender_dragon.growl", "pitch": 0.4920635, "volume": 2.0 }
+    },
+    {
+        "ability_name": "WEIRD_TUBA",
+        "item_ids": ["WEIRD_TUBA"],
+        "base_cooldown": 20,
+        "sound": { "sound_name": "entity.wolf.death", "volume": 0.5, "check_recently_held": true }
+    },
+    {
+        "ability_name": "WEIRDER_TUBA",
+        "item_ids": ["WEIRDER_TUBA"],
+        "base_cooldown": 30,
+        "sound": { "sound_name": "entity.wolf.death", "volume": 0.5, "check_recently_held": true }
+    },
+    {
+        "ability_name": "TOTEM_OF_CORRUPTION",
+        "item_ids": ["TOTEM_OF_CORRUPTION"],
+        "base_cooldown": 20,
+        "sound": { "sound_name": "block.lever.click", "pitch": 0.84126985, "volume": 0.5, "check_recently_held": true }
+    }
+]

@@ -20,19 +20,17 @@ enum class ItemAbility(
     val abilityName: String,
     private val cooldownInSeconds: Int,
     vararg val itemNames: String,
-    val alternativePosition: Boolean = false,
     var lastActivation: SimpleTimeMark = SimpleTimeMark.farPast(),
     var specialColor: LorenzColor? = null,
     var lastItemClick: SimpleTimeMark = SimpleTimeMark.farPast(),
-    val actionBarDetection: Boolean = true,
     private val ignoreMageCooldownReduction: Boolean = false,
 ) {
     // TODO add into repo
     WITHER_IMPACT(5, ignoreMageCooldownReduction = true),
-    WITHER_SHIELD_SCROLL(10, ignoreMageCooldownReduction = true, alternativePosition = true),
+    WITHER_SHIELD_SCROLL(10, ignoreMageCooldownReduction = true),
     SHADOW_WARP_SCROLL(10),
     IMPLOSION_SCROLL(10),
-    GYROKINETIC_WAND_LEFT(30, "GYROKINETIC_WAND", alternativePosition = true),
+    GYROKINETIC_WAND_LEFT(30, "GYROKINETIC_WAND"),
     GYROKINETIC_WAND_RIGHT(10, "GYROKINETIC_WAND"),
     GIANTS_SWORD(30),
     ICE_SPRAY_WAND(5),
@@ -82,13 +80,10 @@ enum class ItemAbility(
     constructor(
         cooldownInSeconds: Int,
         vararg alternateInternalNames: String,
-        alternativePosition: Boolean = false,
         ignoreMageCooldownReduction: Boolean = false,
     ) : this(
         "no name",
         cooldownInSeconds,
-        actionBarDetection = false,
-        alternativePosition = alternativePosition,
         ignoreMageCooldownReduction = ignoreMageCooldownReduction,
     ) {
         newVariant = true

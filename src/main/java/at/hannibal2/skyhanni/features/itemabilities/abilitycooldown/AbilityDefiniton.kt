@@ -1,18 +1,22 @@
 package at.hannibal2.skyhanni.features.itemabilities.abilitycooldown
 
 import at.hannibal2.skyhanni.utils.NeuInternalName
-import kotlin.time.Duration
+import com.google.gson.annotations.Expose
+import com.google.gson.annotations.SerializedName
 
 data class AbilityDefinition(
-    val abilityName: String,
+    @Expose @SerializedName("ability_name") val abilityName: String,
 
-    val itemIds: Set<NeuInternalName>,
+    @Expose @SerializedName("item_ids") val itemIds: Set<NeuInternalName>,
 
-    val baseCooldown: Duration,
-    val castTime: Duration,
-    val uptime: Duration,
+    @Expose @SerializedName("base_cooldown") val baseCooldown: Int,
+    @Expose @SerializedName("uptime") val uptime: Int,
 
-    val resourceCosts: List<AbilityCost>,
+    @Expose @SerializedName("alternative_position") val alternativePosition: Boolean,
 
-    val detectors: List<AbilityDetectorDefinition>,
+    @Expose @SerializedName("sound_detection") val sound: SoundDetectorDefinition?,
+    @Expose @SerializedName("actionbar_detection") val actionbar: Boolean,
+
+
+    @Transient var ability: ItemAbility? = null
 )
