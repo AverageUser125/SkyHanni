@@ -8,13 +8,13 @@ import at.hannibal2.skyhanni.events.minecraft.SkyHanniRenderWorldEvent
 import at.hannibal2.skyhanni.features.fishing.LivingSeaCreatureData
 import at.hannibal2.skyhanni.features.fishing.SeaCreatureDetectionApi
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
+import at.hannibal2.skyhanni.utils.EntityUtils.canBeSeen
 import at.hannibal2.skyhanni.utils.LorenzRarity
 import at.hannibal2.skyhanni.utils.LorenzVec
 import at.hannibal2.skyhanni.utils.ServerTimeMark
 import at.hannibal2.skyhanni.utils.TimeUtils.format
 import at.hannibal2.skyhanni.utils.render.WorldRenderUtils.drawDynamicText
 import at.hannibal2.skyhanni.utils.render.WorldRenderUtils.exactBoundingBoxExtraEntities
-import at.hannibal2.skyhanni.utils.render.WorldRenderUtils.exactLocation
 import net.minecraft.world.phys.AABB
 import kotlin.time.Duration.Companion.seconds
 
@@ -47,7 +47,7 @@ object InvincibilityTimer {
 
         if (config.mobTypes.contains(MobType.VANQUISHER)) {
             for (vanquisher in vanquishers) {
-                val mob = vanquisher.toInvincibilityMob(event)
+                val mob = vanquisher.toInvincibilityMob(event) ?: continue
                 renderTimer(event, mob)
             }
         }
@@ -65,7 +65,6 @@ object InvincibilityTimer {
             mob.pos,
             "§b${timeLeft.format(showMilliSeconds = true)}",
             scaleMultiplier = 1.3,
-            seeThroughBlocks = false,
         )
 
         if (mob.isOwn) {
@@ -73,13 +72,13 @@ object InvincibilityTimer {
                 mob.pos.up(0.5),
                 "§aOWN MOB",
                 scaleMultiplier = 1.3,
-                seeThroughBlocks = false,
             )
         }
     }
 
     private fun LivingSeaCreatureData.toInvincibilityMob(): InvincibilityMob? {
         if (!exists()) return null
+        if (!canBeSeen()) return null
         if (!rarity.isAtLeast(LorenzRarity.LEGENDARY)) return null
         val aabb = this.aabb ?: return null
 
@@ -92,7 +91,8 @@ object InvincibilityTimer {
 
     private fun VanquisherApi.VanquisherData.toInvincibilityMob(
         event: SkyHanniRenderWorldEvent,
-    ): InvincibilityMob {
+    ): InvincibilityMob? {
+        if (!mob.baseEntity.canBeSeen()) return null
         val aabb = event.exactBoundingBoxExtraEntities(mob)
 
         return InvincibilityMob(
@@ -102,11 +102,13 @@ object InvincibilityTimer {
         )
     }
 
+    // TODO: move this to a utils class
     private fun getMiddlePosition(aabb: AABB) = LorenzVec(
-        x = aabb.minX + aabb.xsize / 2,
+        x = aabb.minX - aabb.xsize / 2,
         y = aabb.minY + aabb.ysize / 2,
-        z = aabb.minZ + aabb.zsize / 2,
+        z = aabb.minZ - aabb.zsize / 2,
     )
+
 
     fun isEnabled() = config.enabled && config.mobTypes.isNotEmpty()
 }
