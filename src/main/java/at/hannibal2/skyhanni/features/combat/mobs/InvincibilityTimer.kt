@@ -47,7 +47,7 @@ object InvincibilityTimer {
 
         if (config.mobTypes.contains(MobType.VANQUISHER)) {
             for (vanquisher in vanquishers) {
-                val mob = vanquisher.toInvincibilityMob(event) ?: continue
+                val mob = vanquisher.toInvincibilityMob() ?: continue
                 renderTimer(event, mob)
             }
         }
