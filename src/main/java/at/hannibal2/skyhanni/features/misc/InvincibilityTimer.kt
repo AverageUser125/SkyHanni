@@ -34,7 +34,7 @@ object InvincibilityTimer {
         for (seaCreature in seaCreatures) {
             if (!seaCreature.exists()) continue
             val height = seaCreature.aabb?.ysize ?: continue
-            val pos = seaCreature.pos?.up(height + 1.5) ?: continue
+            val pos = seaCreature.pos?.up(height) ?: continue
             val time = seaCreature.spawnTime + INVINCIBILITY
             if (time.passedSince() > 1.seconds) continue
             val timeLeft = time.timeUntil()
@@ -50,9 +50,9 @@ object InvincibilityTimer {
             val time = vanquisher.spawnTime + INVINCIBILITY
             if (time.passedSince() > 1.seconds) continue
             val mob = vanquisher.mob
-            val height = mob.baseEntity.bbHeight
+            val height = mob.baseEntity.eyeHeight
             // TODO: confirm that this looks correct, TODO: confirm this TODO is needed
-            val pos = vanquisher.mob.getLorenzVec().up(height - 1)
+            val pos = vanquisher.mob.getLorenzVec().up(height)
             val timeLeft = time.timeUntil()
             event.drawDynamicText(pos, "§b${timeLeft.format(showMilliSeconds = true)}", scaleMultiplier = 1.3)
             if (!vanquisher.isOwn) continue
