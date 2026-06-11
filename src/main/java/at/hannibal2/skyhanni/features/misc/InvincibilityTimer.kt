@@ -63,5 +63,5 @@ object InvincibilityTimer {
         }
     }
 
-    fun isEnabled() = config.enabled && seaCreatures.isNotEmpty()
+    fun isEnabled() = config.enabled && config.mobTypes.isNotEmpty()
 }
