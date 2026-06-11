@@ -1,10 +1,9 @@
-package at.hannibal2.skyhanni.features.misc
+package at.hannibal2.skyhanni.features.combat.mobs
 
 import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.api.VanquisherApi
-import at.hannibal2.skyhanni.api.VanquisherApi.VanquisherData
 import at.hannibal2.skyhanni.api.event.HandleEvent
-import at.hannibal2.skyhanni.config.features.misc.InvincibilityTimerConfig.MobType
+import at.hannibal2.skyhanni.config.features.combat.InvincibilityTimerConfig.MobType
 import at.hannibal2.skyhanni.events.minecraft.SkyHanniRenderWorldEvent
 import at.hannibal2.skyhanni.features.fishing.LivingSeaCreatureData
 import at.hannibal2.skyhanni.features.fishing.SeaCreatureDetectionApi
@@ -21,7 +20,7 @@ import kotlin.time.Duration.Companion.seconds
 @SkyHanniModule
 object InvincibilityTimer {
 
-    private val config get() = SkyHanniMod.feature.misc.invincibilityTimer
+    private val config get() = SkyHanniMod.feature.combat.mobs.invincibilityTimer
 
     private val seaCreatures get() = SeaCreatureDetectionApi.getSeaCreatures()
     private val vanquishers get() = VanquisherApi.getVanquishers()
@@ -90,7 +89,7 @@ object InvincibilityTimer {
         )
     }
 
-    private fun VanquisherData.toInvincibilityMob(
+    private fun VanquisherApi.VanquisherData.toInvincibilityMob(
         event: SkyHanniRenderWorldEvent,
     ): InvincibilityMob {
         val height = event.exactBoundingBoxExtraEntities(mob).ysize

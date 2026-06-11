@@ -1,4 +1,4 @@
-package at.hannibal2.skyhanni.config.features.misc
+package at.hannibal2.skyhanni.config.features.combat
 
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
