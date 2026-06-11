@@ -64,6 +64,7 @@ object InvincibilityTimer {
             mob.pos,
             "§b${timeLeft.format(showMilliSeconds = true)}",
             scaleMultiplier = 1.3,
+            seeThroughBlocks = false,
         )
 
         if (mob.isOwn) {
@@ -71,6 +72,7 @@ object InvincibilityTimer {
                 mob.pos.up(0.5),
                 "§aOWN MOB",
                 scaleMultiplier = 1.3,
+                seeThroughBlocks = false,
             )
         }
     }
@@ -80,7 +82,6 @@ object InvincibilityTimer {
         if (!rarity.isAtLeast(LorenzRarity.LEGENDARY)) return null
 
         val height = aabb?.ysize ?: return null
-        val pos = this.pos?.up(height) ?: return null
 
         return InvincibilityMob(
             spawnTime = spawnTime,
