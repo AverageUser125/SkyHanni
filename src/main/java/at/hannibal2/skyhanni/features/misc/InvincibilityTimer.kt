@@ -19,10 +19,6 @@ import kotlin.time.Duration.Companion.seconds
 object InvincibilityTimer {
 
     private val config get() = SkyHanniMod.feature.misc.invincibilityTimer
-
-    private val seaCreatures get() = SeaCreatureDetectionApi.getSeaCreatures()
-    private val vanquishers get() = VanquisherApi.getVanquishers()
-
     private val INVINCIBILITY = 5.seconds
 
     @HandleEvent(onlyOnSkyblock = true)
@@ -39,7 +35,7 @@ object InvincibilityTimer {
     }
 
     private fun handleSeaCreatureRender(event: SkyHanniRenderWorldEvent) {
-        for (seaCreature in seaCreatures) {
+        for (seaCreature in SeaCreatureDetectionApi.getSeaCreatures()) {
             if (!seaCreature.exists()) continue
             if (!seaCreature.rarity.isAtLeast(LorenzRarity.LEGENDARY)) continue
 
@@ -56,7 +52,7 @@ object InvincibilityTimer {
     }
 
     private fun handleVanquisherRender(event: SkyHanniRenderWorldEvent) {
-        for (vanquisher in vanquishers) {
+        for (vanquisher in VanquisherApi.getVanquishers()) {
             val mob = vanquisher.mob
             val height = event.exactBoundingBoxExtraEntities(mob).ysize
             val pos = mob.getLorenzVec().up(height)
@@ -77,9 +73,7 @@ object InvincibilityTimer {
         isOwn: Boolean,
     ) {
         val invincibilityEnd = spawnTime + INVINCIBILITY
-
         if (invincibilityEnd.passedSince() > 1.seconds) return
-
         val timeLeft = invincibilityEnd.timeUntil()
 
         event.drawDynamicText(
