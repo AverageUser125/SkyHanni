@@ -2,6 +2,7 @@ package at.hannibal2.skyhanni.features.misc
 
 import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.api.VanquisherApi
+import at.hannibal2.skyhanni.api.VanquisherApi.VanquisherData
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.config.features.misc.InvincibilityTimerConfig.MobType
 import at.hannibal2.skyhanni.events.minecraft.SkyHanniRenderWorldEvent
@@ -57,9 +58,7 @@ object InvincibilityTimer {
         mob: InvincibilityMob,
     ) {
         val invincibilityEnd = mob.spawnTime + INVINCIBILITY
-
         if (invincibilityEnd.passedSince() > 1.seconds) return
-
         val timeLeft = invincibilityEnd.timeUntil()
 
         event.drawDynamicText(
@@ -91,7 +90,7 @@ object InvincibilityTimer {
         )
     }
 
-    private fun VanquisherApi.VanquisherData.toInvincibilityMob(
+    private fun VanquisherData.toInvincibilityMob(
         event: SkyHanniRenderWorldEvent,
     ): InvincibilityMob {
         val height = event.exactBoundingBoxExtraEntities(mob).ysize
