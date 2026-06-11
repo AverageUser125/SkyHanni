@@ -55,9 +55,9 @@ object InvincibilityTimer {
             val pos = vanquisher.mob.getLorenzVec().up(height)
             val timeLeft = time.timeUntil()
             event.drawDynamicText(pos, "§b${timeLeft.format(showMilliSeconds = true)}", scaleMultiplier = 1.3)
-            if (!vanquisher.isOwn) continue
-            event.drawDynamicText(pos.up(0.5), "§aOWN MOB", scaleMultiplier = 1.3)
-
+            if (vanquisher.isOwn) {
+                event.drawDynamicText(pos.up(0.5), "§aOWN MOB", scaleMultiplier = 1.3)
+            }
         }
     }
 
