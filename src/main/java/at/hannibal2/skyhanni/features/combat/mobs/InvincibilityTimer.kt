@@ -15,6 +15,7 @@ import at.hannibal2.skyhanni.utils.TimeUtils.format
 import at.hannibal2.skyhanni.utils.render.WorldRenderUtils.drawDynamicText
 import at.hannibal2.skyhanni.utils.render.WorldRenderUtils.exactBoundingBoxExtraEntities
 import at.hannibal2.skyhanni.utils.render.WorldRenderUtils.exactLocation
+import net.minecraft.world.phys.AABB
 import kotlin.time.Duration.Companion.seconds
 
 @SkyHanniModule
@@ -80,12 +81,11 @@ object InvincibilityTimer {
     private fun LivingSeaCreatureData.toInvincibilityMob(): InvincibilityMob? {
         if (!exists()) return null
         if (!rarity.isAtLeast(LorenzRarity.LEGENDARY)) return null
-
-        val height = aabb?.ysize ?: return null
+        val aabb = this.aabb ?: return null
 
         return InvincibilityMob(
             spawnTime = spawnTime,
-            pos = pos,
+            pos = getMiddlePosition(aabb),
             isOwn = isOwn,
         )
     }
@@ -93,15 +93,20 @@ object InvincibilityTimer {
     private fun VanquisherApi.VanquisherData.toInvincibilityMob(
         event: SkyHanniRenderWorldEvent,
     ): InvincibilityMob {
-        val height = event.exactBoundingBoxExtraEntities(mob).ysize
-        val pos = event.exactLocation(mob).up(height)
+        val aabb = event.exactBoundingBoxExtraEntities(mob)
 
         return InvincibilityMob(
             spawnTime = spawnTime,
-            pos = pos,
+            pos = getMiddlePosition(aabb),
             isOwn = isOwn,
         )
     }
+
+    private fun getMiddlePosition(aabb: AABB) = LorenzVec(
+        x = aabb.minX + aabb.xsize / 2,
+        y = aabb.minY + aabb.ysize / 2,
+        z = aabb.minZ + aabb.zsize / 2,
+    )
 
     fun isEnabled() = config.enabled && config.mobTypes.isNotEmpty()
 }
