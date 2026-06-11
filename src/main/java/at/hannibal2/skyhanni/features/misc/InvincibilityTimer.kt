@@ -7,6 +7,7 @@ import at.hannibal2.skyhanni.config.features.misc.InvincibilityTimerConfig.MobTy
 import at.hannibal2.skyhanni.events.minecraft.SkyHanniRenderWorldEvent
 import at.hannibal2.skyhanni.features.fishing.SeaCreatureDetectionApi
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
+import at.hannibal2.skyhanni.utils.LorenzRarity
 import at.hannibal2.skyhanni.utils.TimeUtils.format
 import at.hannibal2.skyhanni.utils.render.WorldRenderUtils.drawDynamicText
 import kotlin.time.Duration.Companion.seconds
@@ -33,6 +34,7 @@ object InvincibilityTimer {
     private fun handleSeaCreatureRender(event: SkyHanniRenderWorldEvent) {
         for (seaCreature in seaCreatures) {
             if (!seaCreature.exists()) continue
+            if (!seaCreature.rarity.isAtLeast(LorenzRarity.LEGENDARY)) return
             val height = seaCreature.aabb?.ysize ?: continue
             val pos = seaCreature.pos?.up(height) ?: continue
             val time = seaCreature.spawnTime + INVINCIBILITY
