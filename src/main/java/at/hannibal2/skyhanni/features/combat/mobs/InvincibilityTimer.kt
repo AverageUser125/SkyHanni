@@ -104,11 +104,10 @@ object InvincibilityTimer {
 
     // TODO: move this to a utils class
     private fun getMiddlePosition(aabb: AABB) = LorenzVec(
-        x = aabb.minX - aabb.xsize / 2,
-        y = aabb.minY + aabb.ysize / 2,
-        z = aabb.minZ - aabb.zsize / 2,
+        x = (aabb.minX - aabb.maxX) / 2,
+        y = (aabb.minY + aabb.maxY) / 2,
+        z = (aabb.minZ - aabb.maxZ) / 2,
     )
-
 
     fun isEnabled() = config.enabled && config.mobTypes.isNotEmpty()
 }
