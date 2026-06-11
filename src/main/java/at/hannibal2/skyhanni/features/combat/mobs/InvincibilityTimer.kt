@@ -9,13 +9,13 @@ import at.hannibal2.skyhanni.features.fishing.LivingSeaCreatureData
 import at.hannibal2.skyhanni.features.fishing.SeaCreatureDetectionApi
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.EntityUtils.canBeSeen
+import at.hannibal2.skyhanni.utils.LocationUtils.getBoxCenter
 import at.hannibal2.skyhanni.utils.LorenzRarity
 import at.hannibal2.skyhanni.utils.LorenzVec
 import at.hannibal2.skyhanni.utils.ServerTimeMark
 import at.hannibal2.skyhanni.utils.TimeUtils.format
 import at.hannibal2.skyhanni.utils.render.WorldRenderUtils.drawDynamicText
 import at.hannibal2.skyhanni.utils.render.WorldRenderUtils.exactBoundingBoxExtraEntities
-import net.minecraft.world.phys.AABB
 import kotlin.time.Duration.Companion.seconds
 
 @SkyHanniModule
@@ -84,7 +84,7 @@ object InvincibilityTimer {
 
         return InvincibilityMob(
             spawnTime = spawnTime,
-            pos = getMiddlePosition(aabb),
+            pos = aabb.getBoxCenter(),
             isOwn = isOwn,
         )
     }
@@ -97,17 +97,10 @@ object InvincibilityTimer {
 
         return InvincibilityMob(
             spawnTime = spawnTime,
-            pos = getMiddlePosition(aabb),
+            pos = aabb.getBoxCenter(),
             isOwn = isOwn,
         )
     }
-
-    // TODO: move this to a utils class
-    private fun getMiddlePosition(aabb: AABB) = LorenzVec(
-        x = (aabb.minX - aabb.maxX) / 2,
-        y = (aabb.minY + aabb.maxY) / 2,
-        z = (aabb.minZ - aabb.maxZ) / 2,
-    )
 
     fun isEnabled() = config.enabled && config.mobTypes.isNotEmpty()
 }
