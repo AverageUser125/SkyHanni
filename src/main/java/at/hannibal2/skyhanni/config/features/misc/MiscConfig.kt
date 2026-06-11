@@ -481,6 +481,10 @@ class MiscConfig {
     @FeatureToggle
     var fixDoubleClicks: Boolean = true
 
+    @Expose
+    @ConfigOption(name = "Entity Invincibility Timer", desc = "")
+    @Accordion
+    val invincibilityTimer: InvincibilityTimerConfig = InvincibilityTimerConfig()
 
     @ConfigOption(name = "Color Particle Warning", desc = "§c§lThis can break particle Coloring in parts of Skyblock where it is done properly.§f")
     @ConfigEditorInfoText
