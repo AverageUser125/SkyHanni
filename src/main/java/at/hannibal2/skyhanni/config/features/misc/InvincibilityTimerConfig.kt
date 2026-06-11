@@ -20,7 +20,8 @@ class InvincibilityTimerConfig {
 
     enum class MobType(val displayName: String) {
         SEA_CREATURE("Sea Creature"),
-        VANQUISHER("Vanquiser");
+        VANQUISHER("Vanquiser"),
+        ;
 
         override fun toString(): String {
             return displayName

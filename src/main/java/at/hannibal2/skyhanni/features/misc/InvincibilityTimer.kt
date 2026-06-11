@@ -4,13 +4,9 @@ import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.api.VanquisherApi
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.config.features.misc.InvincibilityTimerConfig.MobType
-import at.hannibal2.skyhanni.events.combat.VanquisherEvent
-import at.hannibal2.skyhanni.events.fishing.SeaCreatureEvent
 import at.hannibal2.skyhanni.events.minecraft.SkyHanniRenderWorldEvent
-import at.hannibal2.skyhanni.features.fishing.LivingSeaCreatureData
 import at.hannibal2.skyhanni.features.fishing.SeaCreatureDetectionApi
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
-import at.hannibal2.skyhanni.utils.LorenzRarity
 import at.hannibal2.skyhanni.utils.TimeUtils.format
 import at.hannibal2.skyhanni.utils.render.WorldRenderUtils.drawDynamicText
 import kotlin.time.Duration.Companion.seconds
@@ -43,8 +39,9 @@ object InvincibilityTimer {
             if (time.passedSince() > 1.seconds) continue
             val timeLeft = time.timeUntil()
             event.drawDynamicText(pos, "§b${timeLeft.format(showMilliSeconds = true)}", scaleMultiplier = 1.3)
-            if (!seaCreature.isOwn) continue
-            event.drawDynamicText(pos.up(0.5), "§aOWN MOB", scaleMultiplier = 1.3)
+            if (seaCreature.isOwn) {
+                event.drawDynamicText(pos.up(0.5), "§aOWN MOB", scaleMultiplier = 1.3)
+            }
         }
     }
 
