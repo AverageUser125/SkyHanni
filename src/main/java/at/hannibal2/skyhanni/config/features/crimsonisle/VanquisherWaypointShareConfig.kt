@@ -33,9 +33,9 @@ class VanquisherWaypointShareConfig {
     var readGlobalChat: Boolean = false
 
     @ConfigOption(
-        name = "Invincibility Timer Tracker",
-        desc = "Click to open the universal Invincibility Timer settings."
+        name = "Invincibility Timer",
+        desc = "Click to open the Invincibility Timer settings."
     )
     @ConfigEditorButton(buttonText = "OPEN")
-    val universalTracker: Runnable = Runnable { SkyHanniMod.feature.combat.mobs.invincibilityTimer::enabled.jumpToEditor() }
+    val invincibilityTracker: Runnable = Runnable { SkyHanniMod.feature.combat.mobs.invincibilityTimer::enabled.jumpToEditor() }
 }
