@@ -62,10 +62,7 @@ class PestTimerConfig {
     var cooldownOverWarning: Boolean = false
 
     @Expose
-    @ConfigOption(
-        name = "Repeat Warning",
-        desc = "Repeats the warning sound and title until the wardrobe is opened or the pest cooldown expires."
-    )
+    @ConfigOption(name = "Repeat Warning", desc = "Repeat the warning sound and title until wardrobe is opened or pest cooldown is over.")
     @ConfigEditorBoolean
     var repeatWarning: Boolean = false
 

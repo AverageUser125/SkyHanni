@@ -36,7 +36,7 @@ object HoppityAchievements {
             tiers = listOf(80, 90, 99),
         )
         val chocolateAchievement = Achievement(
-            "Waste of chocolate".asComponent(),
+            "Waste of chooclate".asComponent(),
             "Have 60 Billion Chocolate sitting in your Chocolate Factory".asComponent(),
             5f,
         )

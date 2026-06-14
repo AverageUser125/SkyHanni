@@ -76,7 +76,7 @@ object GraphParkour {
             return null
         }
         if (neighbors.size != 1) {
-            ChatUtils.userError("Start has more than one neighbor!")
+            ChatUtils.userError("Start has more than one neighbors!")
             return null
         }
 

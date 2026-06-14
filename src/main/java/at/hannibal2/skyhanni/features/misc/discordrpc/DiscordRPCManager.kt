@@ -191,7 +191,7 @@ object DiscordRPCManager {
     private fun start(progress: ChatProgressUpdates, fromCommand: Boolean = false) {
         progress.update("call start")
         if (isConnected()) {
-            progress.end("already connected")
+            progress.end("alr connected")
             return
         }
         updateDebugStatus("Starting...")

@@ -79,7 +79,7 @@ class SkillProgressConfig {
     val overflowConfig: SkillOverflowConfig = SkillOverflowConfig()
 
     @Expose
-    @Category(name = "Custom Goal", desc = "Define a custom goal for each skill.")
+    @Category(name = "Custom Goal", desc = "Define a custom goal for each skills.")
     val customGoalConfig: CustomGoalConfig = CustomGoalConfig()
 
     @Expose

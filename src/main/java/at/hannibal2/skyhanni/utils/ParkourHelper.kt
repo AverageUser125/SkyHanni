@@ -48,7 +48,7 @@ class ParkourHelper(
     fun render(event: SkyHanniRenderWorldEvent) {
         if (locations.isEmpty()) {
             ErrorManager.logErrorWithData(
-                IllegalArgumentException("locations are empty"),
+                IllegalArgumentException("locations is empty"),
                 "Trying to render an empty parkour",
             )
             return
