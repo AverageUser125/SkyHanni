@@ -89,6 +89,7 @@ object TrophyFishDisplay {
                 showCheckmark,
                 onlyShowMissing,
                 showCaughtHigher,
+                requireArmor,
             ) {
                 TrophyFishManager.loadMissingTrophyFish()
                 update()
@@ -266,8 +267,7 @@ object TrophyFishDisplay {
     fun onGuiRender() {
         if (!isEnabled() || !canRender()) return
         if (EstimatedItemValue.isCurrentlyShowing()) return
-        if (FishingApi.hasTreasureHook) return
-        if (!FishingApi.isTrophyFishing()) return
+        if (FishingApi.hasTreasureHook || !matchesArmorRequirement()) return
 
         config.position.renderRenderables(
             display,
@@ -275,6 +275,10 @@ object TrophyFishDisplay {
             posLabel = "Trophy Fishing Display",
         )
     }
+
+    private fun matchesArmorRequirement() = if (config.requireArmor.get()) {
+        FishingApi.wearingTrophyArmor || FishingApi.wearingEmberArmor
+    } else true
 
     private fun canRender(): Boolean = when (config.whenToShow.get()!!) {
         WhenToShow.ALWAYS -> true

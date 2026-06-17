@@ -222,5 +222,5 @@ object SeaCreatureTracker {
 
     private fun isEnabled() = SkyBlockUtils.inSkyBlock &&
         !FishingApi.hasTreasureHook &&
-        !FishingApi.isTrophyFishing()
+        !FishingApi.wearingTrophyArmor
 }
