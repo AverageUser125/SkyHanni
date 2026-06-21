@@ -26,7 +26,7 @@ import at.hannibal2.skyhanni.utils.NumberUtil.roundTo
 import at.hannibal2.skyhanni.utils.RegexUtils.matchMatcher
 import at.hannibal2.skyhanni.utils.RenderUtils.highlight
 import at.hannibal2.skyhanni.utils.SafeItemStack
-import at.hannibal2.skyhanni.utils.SimpleTimeMark
+import at.hannibal2.skyhanni.utils.ServerTimeMark
 import at.hannibal2.skyhanni.utils.SkyBlockItemModifierUtils.getItemId
 import at.hannibal2.skyhanni.utils.SkyBlockItemModifierUtils.getItemUuid
 import at.hannibal2.skyhanni.utils.SkyBlockUtils
@@ -254,7 +254,7 @@ object ItemAbilityCooldown {
     @HandleEvent
     fun onWorldChange() {
         for (ability in ItemAbility.entries) {
-            ability.lastActivation = SimpleTimeMark.farPast()
+            ability.lastActivation = ServerTimeMark.farPast()
             ability.specialColor = null
         }
     }
@@ -333,7 +333,7 @@ object ItemAbilityCooldown {
         val specialColor = ability.specialColor
         val readyText = if (config.itemAbilityShowWhenReady) "R" else ""
         return if (ability.isOnCooldown()) {
-            val duration = ability.lastActivation + ability.getCooldown() - SimpleTimeMark.now()
+            val duration = ability.getRemainingCooldown()
             val color = specialColor ?: if (duration < 600.milliseconds) LorenzColor.RED else LorenzColor.YELLOW
             ItemText(color, ability.getDurationText(), true, ability.alternativePosition)
         } else {

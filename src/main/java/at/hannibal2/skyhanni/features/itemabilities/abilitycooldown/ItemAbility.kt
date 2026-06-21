@@ -1,14 +1,16 @@
 package at.hannibal2.skyhanni.features.itemabilities.abilitycooldown
 
+import at.hannibal2.skyhanni.events.itemabilities.ItemAbilityActivateEvent
 import at.hannibal2.skyhanni.features.dungeon.DungeonApi
 import at.hannibal2.skyhanni.utils.LorenzColor
 import at.hannibal2.skyhanni.utils.NeuInternalName
 import at.hannibal2.skyhanni.utils.NeuInternalName.Companion.toInternalName
 import at.hannibal2.skyhanni.utils.NumberUtil.oneDecimal
 import at.hannibal2.skyhanni.utils.NumberUtil.roundTo
+import at.hannibal2.skyhanni.utils.ServerTimeMark
 import at.hannibal2.skyhanni.utils.SafeItemStack
-import at.hannibal2.skyhanni.utils.SimpleTimeMark
 import at.hannibal2.skyhanni.utils.SkyBlockItemModifierUtils.getAbilityScrolls
+import at.hannibal2.skyhanni.utils.StringUtils.allLettersFirstUppercase
 import at.hannibal2.skyhanni.utils.collection.CollectionUtils.takeIfNotEmpty
 import at.hannibal2.skyhanni.utils.inPartialSeconds
 import kotlin.math.floor
@@ -21,9 +23,9 @@ enum class ItemAbility(
     private val cooldownInSeconds: Int,
     vararg val itemNames: String,
     val alternativePosition: Boolean = false,
-    var lastActivation: SimpleTimeMark = SimpleTimeMark.farPast(),
+    var lastActivation: ServerTimeMark = ServerTimeMark.farPast(),
     var specialColor: LorenzColor? = null,
-    var lastItemClick: SimpleTimeMark = SimpleTimeMark.farPast(),
+    var lastItemClick: ServerTimeMark = ServerTimeMark.farPast(),
     val actionBarDetection: Boolean = true,
     private val ignoreMageCooldownReduction: Boolean = false,
 ) {
@@ -101,7 +103,9 @@ enum class ItemAbility(
     // TODO: change customCooldown to use Duration instead
     fun activate(color: LorenzColor? = null, customCooldown: Int = (cooldownInSeconds * 1000)) {
         specialColor = color
-        lastActivation = SimpleTimeMark.now() - ((cooldownInSeconds.seconds) - customCooldown.milliseconds)
+        lastActivation = ServerTimeMark.now() - ((cooldownInSeconds.seconds) - customCooldown.milliseconds)
+        ItemAbilityActivateEvent(this).post()
+        // TODO: add DelayedRun.runDelay(cooldown) { ItemAbilityReadyEvent(this).post() }
     }
 
     fun isOnCooldown(): Boolean = lastActivation.passedSince() < getCooldown()
@@ -114,7 +118,7 @@ enum class ItemAbility(
     }
 
     fun getDurationText(): String {
-        val duration = (lastActivation + getCooldown()).timeUntil()
+        val duration = getRemainingCooldown()
         return if (duration < 1.6.seconds) {
             val d = (duration.inPartialSeconds)
             d.roundTo(1).oneDecimal()
@@ -124,7 +128,7 @@ enum class ItemAbility(
     }
 
     fun setItemClick() {
-        lastItemClick = SimpleTimeMark.now()
+        lastItemClick = ServerTimeMark.now()
     }
 
     companion object {
@@ -169,5 +173,21 @@ enum class ItemAbility(
 
             return abilityCooldownMultiplier
         }
+    }
+
+    // TODO: separate cooldown and uptime
+    fun getRemainingCooldown(): Duration {
+        return (lastActivation + getCooldown()).timeUntil()
+    }
+
+    // TODO: give them all proper ability names and remove the fallback to the enum name
+    val displayName: String
+        get() {
+            if (abilityName != "no name") return abilityName
+            return name.allLettersFirstUppercase()
+        }
+
+    override fun toString(): String {
+        return displayName
     }
 }
