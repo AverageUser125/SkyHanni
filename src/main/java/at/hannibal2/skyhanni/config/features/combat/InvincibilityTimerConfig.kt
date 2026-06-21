@@ -16,7 +16,7 @@ class InvincibilityTimerConfig {
     @Expose
     @ConfigOption(name = "Mob Types", desc = "Which mob types to apply this to")
     @ConfigEditorDraggableList
-    var mobTypes: List<MobType> = mutableListOf(MobType.SEA_CREATURE, MobType.VANQUISHER)
+    val mobTypes = mutableListOf(MobType.SEA_CREATURE, MobType.VANQUISHER)
 
     enum class MobType(val displayName: String) {
         SEA_CREATURE("Sea Creature"),

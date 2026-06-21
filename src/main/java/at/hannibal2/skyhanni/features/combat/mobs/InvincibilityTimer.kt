@@ -15,7 +15,6 @@ import at.hannibal2.skyhanni.utils.LorenzVec
 import at.hannibal2.skyhanni.utils.ServerTimeMark
 import at.hannibal2.skyhanni.utils.TimeUtils.format
 import at.hannibal2.skyhanni.utils.render.WorldRenderUtils.drawDynamicText
-import at.hannibal2.skyhanni.utils.render.WorldRenderUtils.exactBoundingBoxExtraEntities
 import kotlin.time.Duration.Companion.seconds
 
 @SkyHanniModule
