@@ -105,7 +105,7 @@ class SkillTrackingTest {
     fun `when widget provides absolute data, it overrides action bar percentage`() {
         // Arrange: Widget says we have 500,000 / 1,000,000 XP (Level 10)
         // Action bar only says +100 XP (which would normally be ambiguous)
-        TabWidget.SKILLS.setLines(" Mining 10: 500,000/1m")
+        TabWidget.SKILLS.setLines(" Mining 10: 500,000/1M")
         val skillType = SkillType.MINING
         val actionBarEvent = createMockActionBarEvent("+100 Mining (50%)")
 
@@ -115,7 +115,7 @@ class SkillTrackingTest {
         // Assert: Result should match Widget Absolute data (500,000 + 100), not just Action Bar percentage
         val skillInfo = storage?.get(skillType)
         // 500,000 from widget + 100 from action bar = 500,100
-        assertEquals(500100, skillInfo!!.totalXp, "Storage should reconcile with Widget absolute data")
+        assertEquals(500100, skillInfo!!.currentXp, "Storage should reconcile with Widget absolute data")
     }
 
     @Test

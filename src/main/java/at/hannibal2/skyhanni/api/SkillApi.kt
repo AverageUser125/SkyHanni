@@ -530,12 +530,16 @@ object SkillApi {
         // Reconcile and get the absolute best source of truth
         when (val truth = getBestSkillData(skillType, actionBarState)) {
             is SkillTabResult.Maxed -> {
+                val startOfLevel = calculateLevelXP(truth.level - 1)
+                val newTotal = existingLevel.totalXp + gained
+                val currentProgress = (newTotal - startOfLevel).toLong()
+
                 updateSkillInfo(
                     existingLevel,
                     truth.level,
+                    currentProgress,
                     0L,
-                    0L,
-                    existingLevel.totalXp + gained,
+                    newTotal,
                     matcher.group("gained")
                 )
             }
@@ -544,7 +548,7 @@ object SkillApi {
                 updateSkillInfo(
                     existingLevel,
                     truth.level,
-                    truth.current,
+                    truth.current + gained,
                     truth.needed,
                     levelXP,
                     matcher.group("gained")
