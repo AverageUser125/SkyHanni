@@ -163,12 +163,13 @@ class SkillTrackingTest {
     fun `when multiple skill updates occur in succession, storage accumulates correctly`() {
         val skillType = SkillType.FARMING
 
-        onActionBarUpdate(createMockActionBarEvent("+100 Farming (10/1000)"))
-        onActionBarUpdate(createMockActionBarEvent("+200 Farming (210/1000)"))
+        onActionBarUpdate(createMockActionBarEvent("+100 Farming (10/50)"))
+        onActionBarUpdate(createMockActionBarEvent("+200 Farming (60/125)"))
 
         val skillInfo = storage?.get(skillType)
-        assertEquals(300, skillInfo!!.totalXp)
-        assertEquals(210, skillInfo.currentXp)
+        assertEquals(310, skillInfo!!.totalXp)
+        assertEquals(60, skillInfo.currentXp)
+        assertEquals(2, skillInfo.level)
     }
 
     @Test
