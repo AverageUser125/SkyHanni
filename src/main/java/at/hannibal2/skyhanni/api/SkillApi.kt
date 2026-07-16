@@ -6,7 +6,6 @@ import at.hannibal2.skyhanni.config.commands.CommandCategory
 import at.hannibal2.skyhanni.config.commands.CommandRegistrationEvent
 import at.hannibal2.skyhanni.data.ProfileStorageData
 import at.hannibal2.skyhanni.data.jsonobjects.repo.neu.NeuSkillLevelJson
-import at.hannibal2.skyhanni.data.model.TabWidget
 import at.hannibal2.skyhanni.events.AccessoryBagUpdateEvent
 import at.hannibal2.skyhanni.events.ActionBarUpdateEvent
 import at.hannibal2.skyhanni.events.DebugDataCollectEvent
@@ -15,6 +14,7 @@ import at.hannibal2.skyhanni.events.NeuRepositoryReloadEvent
 import at.hannibal2.skyhanni.events.SecondPassedEvent
 import at.hannibal2.skyhanni.events.SkillExpGainEvent
 import at.hannibal2.skyhanni.events.SkillOverflowLevelUpEvent
+import at.hannibal2.skyhanni.events.TabListUpdateEvent
 import at.hannibal2.skyhanni.events.chat.SkyHanniChatEvent
 import at.hannibal2.skyhanni.events.entity.ItemAddInInventoryEvent
 import at.hannibal2.skyhanni.features.skillprogress.SkillProgress
@@ -45,9 +45,9 @@ import at.hannibal2.skyhanni.utils.StringUtils.removeColor
 import at.hannibal2.skyhanni.utils.StringUtils.removeResets
 import at.hannibal2.skyhanni.utils.repopatterns.RepoPattern
 import com.google.gson.annotations.Expose
+import net.minecraft.network.chat.Component
 import java.util.LinkedList
 import java.util.regex.Matcher
-import kotlin.math.abs
 import kotlin.math.roundToLong
 import kotlin.time.Duration.Companion.seconds
 
@@ -151,6 +151,7 @@ object SkillApi {
     var showDisplay = false
     var lastUpdate = SimpleTimeMark.farPast()
 
+    private var lastTabComponents: List<Component> = emptyList()
     private var lastLilySplosion = SimpleTimeMark.farPast()
 
     private const val JERRY_BOX_SOURCE = "chat-jerry-box"
@@ -177,6 +178,11 @@ object SkillApi {
             skillStorage?.giftTalismanSkillXpBonus = value
         }
 
+    @HandleEvent(onlyOnSkyblock = true)
+    fun onTabListUpdate(event: TabListUpdateEvent) {
+        lastTabComponents = event.tabList
+    }
+
     @HandleEvent(SecondPassedEvent::class, onlyOnSkyblock = true)
     fun onSecondPassed() {
         val activeSkill = activeSkill ?: return
@@ -199,68 +205,22 @@ object SkillApi {
         }
     }
 
-    private sealed class SkillTabResult {
-        data class Absolute(val level: Int, val current: Long, val needed: Long) : SkillTabResult()
-        data class Maxed(val level: Int) : SkillTabResult()
-        data class Percentage(val level: Int, val progress: Double) : SkillTabResult() // Added back
-    }
-
-    private fun findSkillData(skillType: SkillType): SkillTabResult? {
-        for (line in TabWidget.SKILLS.lines) {
-            maxSkillTabPattern.matchMatcher(line) {
-                if (group("type") == skillType.displayName) {
-                    return SkillTabResult.Maxed(group("level").toInt())
-                }
-            }
-
-            skillTabNoPercentPattern.matchMatcher(line) {
-                if (group("type") == skillType.displayName) {
-                    return SkillTabResult.Absolute(
-                        group("level").toInt(),
-                        group("current").formatLong(),
-                        group("needed").formatLong()
-                    )
-                }
-            }
-
-            skillTabPattern.matchMatcher(line) {
-                if (group("type") == skillType.displayName) {
-                    return SkillTabResult.Percentage(
-                        group("level").toInt(),
-                        group("progress").formatDouble()
-                    )
-                }
-            }
-        }
-        return null
-    }
-
-    private fun getBestSkillData(skillType: SkillType, actionBarResult: SkillTabResult): SkillTabResult {
-        val widgetData = findSkillData(skillType)
-        if (widgetData != null) return widgetData
-        return actionBarResult
-    }
-
     @HandleEvent
     fun onActionBarUpdate(event: ActionBarUpdateEvent) {
         val actionBar = event.chatComponent.string.removeColor()
         val components = SPACE_SPLITTER.splitToList(actionBar)
-
         for (component in components) {
             val matcher = listOf(skillPercentPattern, skillMultiplierPattern).firstOrNull {
                 it.matcher(component).matches()
             }?.matcher(component)
 
             if (matcher?.matches() != true) continue
-
             val skillName = matcher.group("skillName")
-            val skillType = SkillType.getByNameOrNull(skillName) ?: continue
+            val skillType = SkillType.getByNameOrNull(skillName) ?: return
             val skillInfo = storage?.get(skillType) ?: SkillInfo()
             val skillXP = skillXPInfoMap[skillType] ?: SkillXPInfo()
             val previousTotalXp = skillInfo.totalXp.takeIf { it > 0 }?.toDouble()
-
             activeSkill = skillType
-
             when (matcher.pattern()) {
                 skillPercentPattern -> handleSkillPatternPercent(matcher, skillType)
                 skillMultiplierPattern -> handleSkillPatternMultiplier(matcher, skillType, skillInfo)
@@ -517,66 +477,59 @@ object SkillApi {
     }
 
     private fun handleSkillPatternPercent(matcher: Matcher, skillType: SkillType) {
-        val existingLevel = getSkillInfo(skillType) ?: SkillInfo()
-        val gained = matcher.group("gained").formatLong()
-        val actionBarPercent = matcher.group("progress").formatDouble()
+        var current = 0L
+        var needed = 0L
+        var isPercentPatternFound = false
+        var tablistLevel: Int? = null
 
-        // Package the Action Bar trigger data as our fallback state
-        val actionBarState = SkillTabResult.Percentage(
-            existingLevel.level,
-            actionBarPercent
-        )
-
-        // Reconcile and get the absolute best source of truth
-        when (val truth = getBestSkillData(skillType, actionBarState)) {
-            is SkillTabResult.Maxed -> {
-                val startOfLevel = calculateLevelXP(truth.level - 1)
-                val newTotal = existingLevel.totalXp + gained
-                val currentProgress = (newTotal - startOfLevel).toLong()
-
-                updateSkillInfo(
-                    existingLevel,
-                    truth.level,
-                    currentProgress,
-                    0L,
-                    newTotal,
-                    matcher.group("gained")
-                )
-            }
-            is SkillTabResult.Absolute -> {
-                val levelXP = calculateLevelXP(truth.level - 1).toLong() + truth.current
-                updateSkillInfo(
-                    existingLevel,
-                    truth.level,
-                    truth.current + gained,
-                    truth.needed,
-                    levelXP,
-                    matcher.group("gained")
-                )
-            }
-            is SkillTabResult.Percentage -> {
-                val levelXP = calculateLevelXP(truth.level - 1)
-                val nextLevelDiff = levelArray.getOrNull(truth.level)?.toDouble() ?: 7_600_000.0
-                val targetXP = levelXP + (nextLevelDiff * truth.progress / 100)
-
-                val currentTotal = existingLevel.totalXp
-                val newTotal = if (abs(currentTotal - targetXP) > 5000) {
-                    // Sync: If the difference is huge, trust the Tablist/Action Bar percentage
-                    targetXP.toLong()
-                } else {
-                    // Increment: Trust the accumulation
-                    (currentTotal + gained)
+        line@ for (line in lastTabComponents) {
+            skillTabPattern.matchMatcher(line) {
+                if (group("type") == skillType.displayName) {
+                    tablistLevel = group("level").toInt()
+                    isPercentPatternFound = true
+                    if (group("type").lowercase() != activeSkill?.lowercaseName) tablistLevel = null
+                    break@line
                 }
-
-                updateSkillInfo(
-                    existingLevel,
-                    truth.level,
-                    (newTotal - levelXP).toLong(), // progress
-                    nextLevelDiff.toLong(),
-                    newTotal,
-                    matcher.group("gained")
-                )
             }
+
+            maxSkillTabPattern.matchMatcher(line) {
+                if (group("type") == skillType.displayName) {
+                    tablistLevel = group("level").toInt()
+                    if (group("type").lowercase() != activeSkill?.lowercaseName) tablistLevel = null
+                    break@line
+                }
+            }
+
+            skillTabNoPercentPattern.matchMatcher(line) {
+                if (group("type") == skillType.displayName) {
+                    tablistLevel = group("level").toInt()
+                    current = group("current").formatLong()
+                    needed = group("needed").formatLong()
+                    isPercentPatternFound = false
+                    break@line
+                }
+            }
+        }
+
+        val xpPercentage = matcher.group("progress").formatDouble()
+        val existingLevel = getSkillInfo(skillType) ?: SkillInfo()
+        val level = tablistLevel ?: return
+        if (isPercentPatternFound) {
+            val levelXP = calculateLevelXP(level - 1)
+            val nextLevelDiff = levelArray.getOrNull(level)?.toDouble() ?: 7_600_000.0
+            val nextLevelProgress = nextLevelDiff * xpPercentage / 100
+            val totalXP = levelXP + nextLevelProgress
+            updateSkillInfo(
+                existingLevel,
+                level,
+                nextLevelProgress.toLong(),
+                nextLevelDiff.toLong(),
+                totalXP.toLong(),
+                matcher.group("gained"),
+            )
+        } else {
+            val levelXP = calculateLevelXP(level - 1).toLong() + current
+            updateSkillInfo(existingLevel, level, current, needed, levelXP, matcher.group("gained"))
         }
         storage?.set(skillType, existingLevel)
     }
@@ -608,21 +561,15 @@ object SkillApi {
     private fun handleSkillPatternMultiplier(matcher: Matcher, skillType: SkillType, skillInfo: SkillInfo) {
         val currentXP = matcher.group("current").formatLong()
         val maxXP = matcher.group("needed").formatLong()
-        val gained = matcher.group("gained").formatLong()
 
-        val isMaxed = findSkillData(skillType) is SkillTabResult.Maxed
-        val levelXP = if (isMaxed) {
-            skillInfo.totalXp + gained
-        } else {
-            val minus = if (maxXP == 0L) 0 else 1
-            val level = getLevelExact(maxXP) - minus
-            (if (maxXP == 0L) currentXP else calculateLevelXP(level - 1).toLong() + currentXP)
-        }
+        // when at overflow, we don't need to subtract one level in the logic below
+        val minus = if (maxXP == 0L) 0 else 1
+        val level = getLevelExact(maxXP) - minus
 
+        val levelXP = if (maxXP == 0L) currentXP else calculateLevelXP(level - 1).toLong() + currentXP
         val (currentLevel, currentOverflow, currentMaxOverflow, totalOverflow) =
             calculateSkillLevel(levelXP, skillType.maxLevel)
 
-        // Check for overflow level ups
         if (skillInfo.overflowLevel > skillType.maxLevel && currentLevel == skillInfo.overflowLevel + 1) {
             SkillOverflowLevelUpEvent(skillType, skillInfo.overflowLevel, currentLevel).post()
         }
@@ -636,12 +583,10 @@ object SkillApi {
             this.currentXp = currentXP
             this.currentXpMax = maxXP
             this.totalXp = levelXP
+            this.level = level
 
-            // If maxed, force level to max, otherwise calculate it
-            this.level = if (isMaxed) skillType.maxLevel else (getLevelExact(maxXP) - 1)
             this.lastGain = matcher.group("gained")
         }
-
         storage?.set(skillType, skillInfo)
     }
 
