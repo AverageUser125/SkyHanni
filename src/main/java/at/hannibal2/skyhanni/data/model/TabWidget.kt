@@ -410,7 +410,7 @@ enum class TabWidget(
             pattern.matchMatcher(lines.first().string, consumer)
         else null
 
-    private fun postNewEvent(lines: List<Component>) {
+    internal fun postNewEvent(lines: List<Component>) {
         // Prevent Post if lines are equal
         if (lines == this.lines) return
         this.lines = lines
@@ -418,7 +418,7 @@ enum class TabWidget(
         WidgetUpdateEvent(this, lines).post()
     }
 
-    private fun postClearEvent() {
+    internal fun postClearEvent() {
         lines = emptyList()
         WidgetUpdateEvent(this, lines).post()
     }

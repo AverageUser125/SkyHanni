@@ -47,6 +47,7 @@ import at.hannibal2.skyhanni.utils.repopatterns.RepoPattern
 import com.google.gson.annotations.Expose
 import java.util.LinkedList
 import java.util.regex.Matcher
+import kotlin.math.abs
 import kotlin.math.roundToLong
 import kotlin.time.Duration.Companion.seconds
 
@@ -351,8 +352,11 @@ object SkillApi {
     @HandleEvent
     fun onNeuRepoReload(event: NeuRepositoryReloadEvent) {
         val data = event.getConstant<NeuSkillLevelJson>("leveling")
+        updateLevelArray(data.levelingXP)
+    }
 
-        levelArray = data.levelingXP
+    internal fun updateLevelArray(data: List<Int>) {
+        levelArray = data
         levelingMap = levelArray.withIndex().associate { (index, xp) -> (index + 1) to xp }
         exactLevelingMap = levelArray.withIndex().associate { (index, xp) -> xp to (index + 1) }
     }
@@ -549,15 +553,23 @@ object SkillApi {
             is SkillTabResult.Percentage -> {
                 val levelXP = calculateLevelXP(truth.level - 1)
                 val nextLevelDiff = levelArray.getOrNull(truth.level)?.toDouble() ?: 7_600_000.0
-                val nextLevelProgress = nextLevelDiff * truth.progress / 100
-                val totalXP = levelXP + nextLevelProgress
+                val targetXP = levelXP + (nextLevelDiff * truth.progress / 100)
+
+                val currentTotal = existingLevel.totalXp
+                val newTotal = if (abs(currentTotal - targetXP) > 5000) {
+                    // Sync: If the difference is huge, trust the Tablist/Action Bar percentage
+                    targetXP.toLong()
+                } else {
+                    // Increment: Trust the accumulation
+                    (currentTotal + gained)
+                }
 
                 updateSkillInfo(
                     existingLevel,
                     truth.level,
-                    nextLevelProgress.toLong(),
+                    (newTotal - levelXP).toLong(), // progress
                     nextLevelDiff.toLong(),
-                    totalXP.toLong(),
+                    newTotal,
                     matcher.group("gained")
                 )
             }
