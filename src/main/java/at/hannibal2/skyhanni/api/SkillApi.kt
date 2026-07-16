@@ -608,15 +608,21 @@ object SkillApi {
     private fun handleSkillPatternMultiplier(matcher: Matcher, skillType: SkillType, skillInfo: SkillInfo) {
         val currentXP = matcher.group("current").formatLong()
         val maxXP = matcher.group("needed").formatLong()
+        val gained = matcher.group("gained").formatLong()
 
-        // when at overflow, we don't need to subtract one level in the logic below
-        val minus = if (maxXP == 0L) 0 else 1
-        val level = getLevelExact(maxXP) - minus
+        val isMaxed = findSkillData(skillType) is SkillTabResult.Maxed
+        val levelXP = if (isMaxed) {
+            skillInfo.totalXp + gained
+        } else {
+            val minus = if (maxXP == 0L) 0 else 1
+            val level = getLevelExact(maxXP) - minus
+            (if (maxXP == 0L) currentXP else calculateLevelXP(level - 1).toLong() + currentXP)
+        }
 
-        val levelXP = if (maxXP == 0L) currentXP else calculateLevelXP(level - 1).toLong() + currentXP
         val (currentLevel, currentOverflow, currentMaxOverflow, totalOverflow) =
             calculateSkillLevel(levelXP, skillType.maxLevel)
 
+        // Check for overflow level ups
         if (skillInfo.overflowLevel > skillType.maxLevel && currentLevel == skillInfo.overflowLevel + 1) {
             SkillOverflowLevelUpEvent(skillType, skillInfo.overflowLevel, currentLevel).post()
         }
@@ -630,10 +636,12 @@ object SkillApi {
             this.currentXp = currentXP
             this.currentXpMax = maxXP
             this.totalXp = levelXP
-            this.level = level
 
+            // If maxed, force level to max, otherwise calculate it
+            this.level = if (isMaxed) skillType.maxLevel else (getLevelExact(maxXP) - 1)
             this.lastGain = matcher.group("gained")
         }
+
         storage?.set(skillType, skillInfo)
     }
 

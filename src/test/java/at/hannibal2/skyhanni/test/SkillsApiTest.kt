@@ -88,14 +88,8 @@ class SkillTrackingTest {
 
     @Test
     fun `when action bar updates with percentage but no widget data, storage tracks gain`() {
-        // Arrange: No widget info, simulate a +100 XP gain at 50% progress
         val skillType = SkillType.MINING
-        val actionBarEvent = createMockActionBarEvent("+100 Mining (50%)")
-
-        // Act: Fire the update
-        onActionBarUpdate(actionBarEvent)
-
-        // Assert: Storage should have recorded the gain
+        onActionBarUpdate(createMockActionBarEvent("+100 Mining (50%)"))
         val skillInfo = storage?.get(skillType)
         assertNotNull(skillInfo, "Storage should contain skill data after update")
         assertEquals(100, skillInfo!!.totalXp, "Total XP should be 100")
@@ -103,59 +97,31 @@ class SkillTrackingTest {
 
     @Test
     fun `when widget provides absolute data, it overrides action bar percentage`() {
-        // Arrange: Widget says we have 500,000 / 1,000,000 XP (Level 10)
-        // Action bar only says +100 XP (which would normally be ambiguous)
         TabWidget.SKILLS.setLines(" Mining 10: 500,000/1M")
         val skillType = SkillType.MINING
-        val actionBarEvent = createMockActionBarEvent("+100 Mining (50%)")
-
-        // Act: Fire the update
-        onActionBarUpdate(actionBarEvent)
-
-        // Assert: Result should match Widget Absolute data (500,000 + 100), not just Action Bar percentage
+        onActionBarUpdate(createMockActionBarEvent("+100 Mining (50%)"))
         val skillInfo = storage?.get(skillType)
-        // 500,000 from widget + 100 from action bar = 500,100
         assertEquals(500100, skillInfo!!.currentXp, "Storage should reconcile with Widget absolute data")
     }
 
     @Test
     fun `when skill is maxed in widget, xp gain persists correctly`() {
-        // Arrange: Widget reports Mining 60 as MAX
         TabWidget.SKILLS.setLines(" Mining 60: MAX")
-
         val skillType = SkillType.MINING
-        // Pre-set existing storage to a high value
         val initialXP = 111_678_000L
         storage?.set(skillType, SkillApi.SkillInfo(totalXp = initialXP))
-
-        val actionBarEvent = createMockActionBarEvent("+500 Mining (MAX)")
-
-        // Act
-        onActionBarUpdate(actionBarEvent)
-
-        // Assert: Should just add to previous total
+        onActionBarUpdate(createMockActionBarEvent("+500 Mining (0/1000)"))
         val skillInfo = storage?.get(skillType)
         assertEquals(initialXP + 500, skillInfo!!.totalXp, "Maxed skill should correctly increment total XP")
     }
 
     @Test
     fun `when action bar is overwritten by item ability, widget holds source of truth`() {
-        // Arrange: Widget says we are at 25% (Level 20)
         TabWidget.SKILLS.setLines(" Combat 20: 25.0%")
-
-        // Simulate a "junk" action bar string (e.g., item ability text) that contains no skill data
-        // Then an update that contains the skill data
         val skillType = SkillType.COMBAT
-
-        // We act as if the ActionBar update triggers
         onActionBarUpdate(createMockActionBarEvent("+50 Combat (25%)"))
-
-        // Assert: Reconciled logic uses Widget, not just the Action Bar percentage
         val skillInfo = storage?.get(skillType)
-        // Logic: (Level 19 XP) + (Level 20 Diff * 0.25) + 50
-        // We verify the math structure is applied
         assertNotNull(skillInfo)
-        // Logic check: Is it roughly where we expect?
         val expectedMin = calculateLevelXP(19)
         val expectedMax = calculateLevelXP(19) + (7_600_000.0 * 0.25)
 
@@ -164,7 +130,6 @@ class SkillTrackingTest {
     }
 
     private fun createMockActionBarEvent(text: String): ActionBarUpdateEvent {
-        // Create a mock event object with the given text
         return ActionBarUpdateEvent(text, text.asComponent())
     }
 
