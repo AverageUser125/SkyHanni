@@ -6,6 +6,7 @@ import at.hannibal2.skyhanni.config.commands.CommandCategory
 import at.hannibal2.skyhanni.config.commands.CommandRegistrationEvent
 import at.hannibal2.skyhanni.data.ProfileStorageData
 import at.hannibal2.skyhanni.data.jsonobjects.repo.neu.NeuSkillLevelJson
+import at.hannibal2.skyhanni.data.model.TabWidget
 import at.hannibal2.skyhanni.events.AccessoryBagUpdateEvent
 import at.hannibal2.skyhanni.events.ActionBarUpdateEvent
 import at.hannibal2.skyhanni.events.DebugDataCollectEvent
@@ -14,7 +15,6 @@ import at.hannibal2.skyhanni.events.NeuRepositoryReloadEvent
 import at.hannibal2.skyhanni.events.SecondPassedEvent
 import at.hannibal2.skyhanni.events.SkillExpGainEvent
 import at.hannibal2.skyhanni.events.SkillOverflowLevelUpEvent
-import at.hannibal2.skyhanni.events.TabListUpdateEvent
 import at.hannibal2.skyhanni.events.chat.SkyHanniChatEvent
 import at.hannibal2.skyhanni.events.entity.ItemAddInInventoryEvent
 import at.hannibal2.skyhanni.features.skillprogress.SkillProgress
@@ -45,7 +45,6 @@ import at.hannibal2.skyhanni.utils.StringUtils.removeColor
 import at.hannibal2.skyhanni.utils.StringUtils.removeResets
 import at.hannibal2.skyhanni.utils.repopatterns.RepoPattern
 import com.google.gson.annotations.Expose
-import net.minecraft.network.chat.Component
 import java.util.LinkedList
 import java.util.regex.Matcher
 import kotlin.math.roundToLong
@@ -151,7 +150,6 @@ object SkillApi {
     var showDisplay = false
     var lastUpdate = SimpleTimeMark.farPast()
 
-    private var lastTabComponents: List<Component> = emptyList()
     private var lastLilySplosion = SimpleTimeMark.farPast()
 
     private const val JERRY_BOX_SOURCE = "chat-jerry-box"
@@ -177,11 +175,6 @@ object SkillApi {
         set(value) {
             skillStorage?.giftTalismanSkillXpBonus = value
         }
-
-    @HandleEvent(onlyOnSkyblock = true)
-    fun onTabListUpdate(event: TabListUpdateEvent) {
-        lastTabComponents = event.tabList
-    }
 
     @HandleEvent(SecondPassedEvent::class, onlyOnSkyblock = true)
     fun onSecondPassed() {
@@ -478,8 +471,7 @@ object SkillApi {
         var needed = 0L
         var isPercentPatternFound = false
         var tablistLevel: Int? = null
-
-        line@ for (line in lastTabComponents) {
+        line@ for (line in TabWidget.SKILLS.lines) {
             skillTabPattern.matchMatcher(line) {
                 if (group("type") == skillType.displayName) {
                     tablistLevel = group("level").toInt()
