@@ -128,6 +128,62 @@ class SkillTrackingTest {
         assert(skillInfo!!.totalXp >= expectedMin)
         assert(skillInfo.totalXp <= expectedMax + 1000)
     }
+    @Test
+    fun `when overflow occurs, storage correctly tracks total and overflow`() {
+        val skillType = SkillType.MINING
+        val maxLevelXP = calculateLevelXP(skillType.maxLevel - 1).toLong()
+        storage?.set(skillType, SkillApi.SkillInfo(totalXp = maxLevelXP, level = skillType.maxLevel))
+
+        onActionBarUpdate(createMockActionBarEvent("+1000 Mining (500/0)"))
+
+        val skillInfo = storage?.get(skillType)
+        assertEquals(maxLevelXP + 1000, skillInfo!!.totalXp)
+        assertEquals(500, skillInfo.currentXp)
+        assertEquals(0, skillInfo.currentXpMax)
+    }
+
+    @Test
+    fun `when significant xp gain triggers level up, storage updates level correctly`() {
+        val skillType = SkillType.MINING
+        val startLevel = 10
+        val startXP = calculateLevelXP(startLevel - 1).toLong()
+        storage?.set(skillType, SkillApi.SkillInfo(totalXp = startXP, level = startLevel))
+
+        val gain = 1000L
+        val nextLevelXP = calculateLevelXP(startLevel).toLong() // XP at start of level 11
+
+        onActionBarUpdate(createMockActionBarEvent("+$gain Mining (${gain}/10000)"))
+
+        val skillInfo = storage?.get(skillType)
+        assertEquals(startLevel + 1, skillInfo!!.level)
+        assertEquals(startXP + gain, skillInfo.totalXp)
+    }
+
+    @Test
+    fun `when multiple skill updates occur in succession, storage accumulates correctly`() {
+        val skillType = SkillType.FARMING
+
+        onActionBarUpdate(createMockActionBarEvent("+100 Farming (10/1000)"))
+        onActionBarUpdate(createMockActionBarEvent("+200 Farming (210/1000)"))
+
+        val skillInfo = storage?.get(skillType)
+        assertEquals(300, skillInfo!!.totalXp)
+        assertEquals(210, skillInfo.currentXp)
+    }
+
+    @Test
+    fun `when widget max state is delayed, storage corrects level upon next update`() {
+        TabWidget.SKILLS.setLines(" Mining 60: MAX")
+        val skillType = SkillType.MINING
+        val initialXP = calculateLevelXP(59).toLong()
+        storage?.set(skillType, SkillApi.SkillInfo(totalXp = initialXP, level = 59))
+
+        onActionBarUpdate(createMockActionBarEvent("+500 Mining (0/0)"))
+
+        val skillInfo = storage?.get(skillType)
+        assertEquals(60, skillInfo!!.level)
+        assertEquals(initialXP + 500, skillInfo.totalXp)
+    }
 
     private fun createMockActionBarEvent(text: String): ActionBarUpdateEvent {
         return ActionBarUpdateEvent(text, text.asComponent())
