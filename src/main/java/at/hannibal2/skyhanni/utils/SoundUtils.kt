@@ -13,6 +13,7 @@ import net.minecraft.client.resources.sounds.SimpleSoundInstance
 import net.minecraft.client.resources.sounds.SoundInstance
 import net.minecraft.resources.Identifier
 import net.minecraft.sounds.SoundEvent
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.delay
 
 @SkyHanniModule

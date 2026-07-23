@@ -2,6 +2,7 @@ package at.hannibal2.skyhanni.features.gui.customscoreboard
 
 import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.features.gui.customscoreboard.CustomScoreboardUtils.formatNumber
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 
