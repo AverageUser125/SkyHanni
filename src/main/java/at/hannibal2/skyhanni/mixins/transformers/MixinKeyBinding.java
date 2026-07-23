@@ -18,7 +18,6 @@ public class MixinKeyBinding {
     @Shadow
     private boolean isDown;
 
-    @SuppressWarnings("FieldCanBeLocal")
     @Mutable
     @Shadow
     private int clickCount;

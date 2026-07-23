@@ -187,7 +187,6 @@ object SkyHanniDebugsAndTests {
         }
     }
 
-    @Suppress("UNUSED_PARAMETER")
     private fun asyncTest(args: Array<String>) {
         ChatUtils.chat("§fTest successful!")
 

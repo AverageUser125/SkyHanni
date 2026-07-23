@@ -94,7 +94,7 @@ value class Graph(
                     out.endArray()
                 }
                 if (node.extraWeight != 0) out.name("ExtraWeight").value(node.extraWeight)
-                // JSON key intentionally kept as "Neighbours" for backward compatibility
+                // JSON key intentionally kept as "Neighbors" for backward compatibility
                 out.name("Neighbours").beginObject()
                 for ((neighbor, weight) in node.neighbors) {
                     out.name(neighbor.id.toString()).value(weight.roundTo(2))
@@ -158,7 +158,7 @@ value class Graph(
                         LorenzVec(it[0].toDouble(), it[1].toDouble(), it[2].toDouble())
                     }
                     "ExtraWeight" -> data.extraWeight = reader.nextInt()
-                    // JSON key intentionally kept as "Neighbours" for backward compatibility
+                    // JSON key intentionally kept as "Neighbors" for backward compatibility
                     "Neighbours" -> parseNeighbors(reader, data.neighbors)
                     "Name" -> data.name = reader.nextString()
                     "Tags" -> data.tags = parseTags(reader)

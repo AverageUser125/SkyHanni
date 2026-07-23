@@ -127,7 +127,6 @@ object PestTrapApi {
         return this.getTrapIndexSet()
     }
 
-    @Suppress("UnstableApiUsage")
     private fun baseWidgetStatus() = TimeLimitedCache<TabWidget, Boolean>(
         expireAfterWrite = 30.seconds,
         removalListener = { key, _, removalCause ->

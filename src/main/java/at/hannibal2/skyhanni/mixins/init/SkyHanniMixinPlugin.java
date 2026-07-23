@@ -2,8 +2,6 @@ package at.hannibal2.skyhanni.mixins.init;
 
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
-import org.spongepowered.asm.mixin.injection.InjectionPoint;
-
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;

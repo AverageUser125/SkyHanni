@@ -9,7 +9,7 @@ import java.util.regex.Pattern
  *
  * ## Usage
  *
- * RepoPattern is only available in kotlin. If you must use a regex from java code that you anticipate might need updating
+ * RepoPattern is only available in kotlin. If you must use a regex from Java code that you anticipate might need updating
  * in the future, please have a kotlin wrapper from which you pull the regex using a getter method of sorts.
  *
  * In order to use a RepoPattern, you need to obtain a reference to that repo pattern statically during pre init. This

@@ -7,6 +7,7 @@ import io.github.notenoughupdates.moulconfig.gui.GuiOptionEditor
 import io.github.notenoughupdates.moulconfig.gui.KeyboardEvent
 import io.github.notenoughupdates.moulconfig.gui.MouseEvent
 
+@Suppress("UnstableApiUsage")
 class GuiOptionEditorBlocked(private val base: GuiOptionEditor, private val extraMessage: String) : GuiOptionEditor(base.getOption()) {
 
     override fun render(context: RenderContext, x: Int, y: Int, width: Int) {

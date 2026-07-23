@@ -8,7 +8,6 @@ class SizeLimitedCache<K : Any, V : Any>(
     removalListener: ((K?, V?, RemovalCause) -> Unit)? = null,
 ) : CacheMap<K, V>() {
 
-    @Suppress("unused")
     constructor(maxSize: Int, removalListener: ((K?, V?, RemovalCause) -> Unit)? = null) :
         this(maxSize.toLong(), removalListener)
 

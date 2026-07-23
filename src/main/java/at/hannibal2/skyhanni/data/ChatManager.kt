@@ -22,7 +22,6 @@ import at.hannibal2.skyhanni.utils.chat.TextHelper.asComponent
 import at.hannibal2.skyhanni.utils.chat.TextHelper.send
 import at.hannibal2.skyhanni.utils.collection.CollectionUtils
 import at.hannibal2.skyhanni.utils.compat.MinecraftCompat
-import at.hannibal2.skyhanni.utils.compat.append
 import at.hannibal2.skyhanni.utils.compat.formattedTextCompat
 import at.hannibal2.skyhanni.utils.system.PlatformUtils.getModInstance
 import net.minecraft.ChatFormatting
@@ -158,7 +157,7 @@ object ChatManager {
     }
 
     /**
-     * If the message is cancelled return true.
+     * If the message is canceled return true.
      */
     fun onChatAllow(original: Component): Boolean {
         val message = original.formattedTextCompat().stripHypixelMessage()

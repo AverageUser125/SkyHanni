@@ -209,7 +209,6 @@ object ItemUtils {
     fun SafeItemStack.getCleanLore(): List<String> = components.getCleanLore()
 
     @Deprecated("Use getLoreComponent or getCleanLore unless you really need color codes")
-    @Suppress("Deprecation")
     fun SafeItemStack.getLore(): List<String> = components.getLore()
 
     fun List<String>.toSingleLineLore(): String =

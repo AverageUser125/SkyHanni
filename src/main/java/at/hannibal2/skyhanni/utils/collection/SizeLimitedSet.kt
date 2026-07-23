@@ -7,7 +7,6 @@ class SizeLimitedSet<T : Any>(
     removalListener: ((T?, RemovalCause) -> Unit)? = null,
 ) : CacheSet<T>() {
 
-    @Suppress("unused")
     constructor(maxSize: Int, removalListener: ((T?, RemovalCause) -> Unit)? = null) :
         this(maxSize.toLong(), removalListener)
 

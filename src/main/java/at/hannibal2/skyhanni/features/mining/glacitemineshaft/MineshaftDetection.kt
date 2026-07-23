@@ -28,6 +28,7 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.JsonPrimitive
 import net.minecraft.ChatFormatting
+import kotlin.enums.enumEntries
 
 @SkyHanniModule
 object MineshaftDetection {
@@ -211,7 +212,7 @@ object MineshaftDetection {
         return when (original.last()) {
             '1' -> {
                 newList.add("${type}_1")
-                enumValues<MineshaftType>().find { it.name == "${type}_2" }?.let {
+                enumEntries<MineshaftType>().find { it.name == "${type}_2" }?.let {
                     newList.add(it.name)
                 }
                 newList

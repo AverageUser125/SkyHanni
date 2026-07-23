@@ -83,7 +83,7 @@ object SoundUtils {
         SkyHanniMod.launchCoroutine("repeatSound") {
             repeat(repeat) {
                 sound.playSound()
-                delay(delay)
+                delay(delay.milliseconds)
             }
         }
     }

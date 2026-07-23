@@ -71,7 +71,6 @@ sealed class InternalNameArgumentType(
         }
     }
 
-    @Suppress("unused")
     companion object {
         fun itemName(isGreedy: Boolean = false): InternalNameArgumentType = ItemName(isGreedy)
 

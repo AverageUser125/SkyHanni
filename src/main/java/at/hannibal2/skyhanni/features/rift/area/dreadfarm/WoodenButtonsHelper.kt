@@ -123,7 +123,7 @@ object WoodenButtonsHelper {
         buttonLocations.values.flatten().forEach { buttonLocation ->
             val blockState = buttonLocation.getBlockStateAt()
             if (blockState.block is ButtonBlock &&
-                blockState.getValue(ButtonBlock.POWERED) == true &&
+                blockState.getValue(ButtonBlock.POWERED) &&
                 buttonLocation.canBeSeen(1..3) &&
                 lastHitButton != buttonLocation &&
                 !hitButtons.contains(buttonLocation)

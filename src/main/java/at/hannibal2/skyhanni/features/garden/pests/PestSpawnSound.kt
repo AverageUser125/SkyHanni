@@ -13,6 +13,7 @@ import at.hannibal2.skyhanni.utils.SoundUtils.createSound
 import at.hannibal2.skyhanni.utils.SoundUtils.playSound
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
+import kotlin.time.Duration.Companion.milliseconds
 
 @SkyHanniModule
 object PestSpawnSound {
@@ -64,17 +65,17 @@ object PestSpawnSound {
             val noteLowG = createSound(soundName, 0.529732f)
 
             noteE.playSound()
-            delay((166).toLong())
+            delay(166.milliseconds)
             noteE.playSound()
-            delay((333).toLong())
+            delay(333.milliseconds)
             noteE.playSound()
-            delay((333).toLong())
+            delay(333.milliseconds)
             noteC.playSound()
-            delay((166).toLong())
+            delay(166.milliseconds)
             noteE.playSound()
-            delay((333).toLong())
+            delay(333.milliseconds)
             noteG.playSound()
-            delay((666).toLong())
+            delay(666.milliseconds)
             noteLowG.playSound()
         }
     }

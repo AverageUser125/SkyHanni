@@ -19,6 +19,6 @@ enum class DateFormat(pattern: String) {
 
     private val formatter = DateTimeFormatter.ofPattern(pattern)
 
-    override fun toString() = LocalDate.now().format(formatter)
+    override fun toString(): String = LocalDate.now().format(formatter)
 }
 

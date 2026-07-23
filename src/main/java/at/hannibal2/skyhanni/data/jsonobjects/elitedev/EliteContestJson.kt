@@ -15,7 +15,6 @@ data class EliteContestsResponse(
     @Expose val complete: Boolean,
     @Expose private val contests: Map<String, List<String>>,
 ) {
-    @Suppress("Deprecation")
     val responseContests: List<EliteFarmingContest> = contests.mapNotNull { (timestampStr, cropStrList) ->
         val longTimeStamp = timestampStr.toLongOrNull() ?: return@mapNotNull null
         val crops = cropStrList.mapNotNull { cropStr ->

@@ -5,7 +5,6 @@ import com.google.common.cache.RemovalCause
 import java.util.concurrent.TimeUnit
 import kotlin.time.Duration
 
-@Suppress("unused")
 class TimeAndSizeLimitedCache<K : Any, V : Any>(
     maxSize: Long,
     expireAfterWrite: Duration,

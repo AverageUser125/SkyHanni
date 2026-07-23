@@ -5,7 +5,7 @@ import at.hannibal2.skyhanni.data.model.graph.GraphNodeTag
 import at.hannibal2.skyhanni.features.misc.pathfind.IslandAreaBackend.getAreaTag
 import at.hannibal2.skyhanni.utils.SkyBlockUtils
 
-// A GraphNode that has an area tag, representing a area border.
+// A GraphNode that has an area tag, representing an area border.
 data class AreaNode(
     val node: GraphNode,
     val name: String,

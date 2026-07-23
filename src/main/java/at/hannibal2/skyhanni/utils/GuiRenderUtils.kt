@@ -347,7 +347,6 @@ object GuiRenderUtils {
      * Returns either the stable ID of the custom render (if used) or -1 if the item was
      * rendered using the normal method (either is static, or 'small')
      */
-    @Suppress("unused")
     fun SafeItemStack.renderOnScreen(
         x: Float,
         y: Float,

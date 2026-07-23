@@ -217,7 +217,7 @@ class Mob(
 
     private fun makeRelativeBoundingBox() = baseEntity.boundingBox.union(
         extraEntities.filter { it !is ArmorStand }
-            .mapNotNull { it.boundingBox },
+            .map { it.boundingBox },
     )?.move(-baseEntity.position().x, -baseEntity.position().y, -baseEntity.position().z)
 
     fun fullEntityList() =
