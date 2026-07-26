@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicInteger
 object SkyHanniEvents {
 
     private val listeners: MutableMap<Class<out SkyHanniEvent>, EventListeners> = mutableMapOf()
-    private val handlers: MutableMap<Class<out SkyHanniEvent>, EventHandler<out SkyHanniEvent>> = mutableMapOf()
+    private val handlers: MutableMap<Class<out SkyHanniEvent>, AbstractEventHandler<out SkyHanniEvent>> = mutableMapOf()
     private var disabledHandlers = emptySet<String>()
     private var disabledHandlerInvokers = emptySet<String>()
 
@@ -34,12 +34,22 @@ object SkyHanniEvents {
     fun unregister(instance: Any) = instance.javaClass.declaredMethods.forEach(::unregisterMethod)
 
     @Suppress("UNCHECKED_CAST")
-    fun <T : SkyHanniEvent> getEventHandler(event: Class<T>): EventHandler<T> = handlers.getOrPut(event) {
-        EventHandler(
-            event,
-            getEventClasses(event).mapNotNull { listeners[it] }.flatMap(EventListeners::getListeners),
-        )
-    } as EventHandler<T>
+    fun <T : SkyHanniEvent> getEventHandler(event: Class<T>): AbstractEventHandler<T> = handlers.getOrPut(event) {
+        createEventHandler(event)
+    } as AbstractEventHandler<T>
+
+    private fun createEventHandler(event: Class<out SkyHanniEvent>): AbstractEventHandler<out SkyHanniEvent> {
+        val listeners = getListenersForEvent(event)
+        return if (GenericSkyHanniEvent::class.java.isAssignableFrom(event)) {
+            @Suppress("UNCHECKED_CAST")
+            GenericEventHandler(event as Class<out GenericSkyHanniEvent<*>>, listeners)
+        } else {
+            EventHandler(event, listeners)
+        }
+    }
+
+    private fun getListenersForEvent(event: Class<out SkyHanniEvent>): List<Listener> =
+        getEventClasses(event).mapNotNull { listeners[it] }.flatMap(EventListeners::getListeners)
 
     fun isDisabledHandler(handler: String): Boolean = handler in disabledHandlers
     fun isDisabledInvoker(invoker: String): Boolean = invoker in disabledHandlerInvokers
@@ -127,7 +137,7 @@ object SkyHanniEvents {
     }
 
     private val listenerCacheGeneration = AtomicInteger(0)
-    private val currentStateIndex = AtomicInteger(IslandBuckets.OUTSIDE)
+    private val currentIslandIndex = AtomicInteger(IslandBuckets.OUTSIDE)
 
     fun markEventCacheDirty(type: DirtyReason) {
         when (type) {
@@ -136,17 +146,17 @@ object SkyHanniEvents {
             -> listenerCacheGeneration.incrementAndGet()
 
             DirtyReason.LOCATION_CHANGED ->
-                currentStateIndex.set(IslandBuckets.currentIndex())
+                currentIslandIndex.set(IslandBuckets.currentIndex())
 
             DirtyReason.SERVER_DISCONNECTED -> {
                 listenerCacheGeneration.incrementAndGet()
-                currentStateIndex.set(IslandBuckets.OUTSIDE)
+                currentIslandIndex.set(IslandBuckets.OUTSIDE)
             }
         }
     }
 
     fun getListenerCacheGeneration(): Int = listenerCacheGeneration.get()
-    fun getCurrentStateIndex(): Int = currentStateIndex.get()
+    fun getCurrentIslandIndex(): Int = currentIslandIndex.get()
 
     enum class DirtyReason {
         LOCATION_CHANGED,

@@ -1,7 +1,6 @@
 package at.hannibal2.skyhanni.api.event
 
 import at.hannibal2.skyhanni.SkyHanniMod
-import at.hannibal2.skyhanni.api.event.EventListeners.Listener
 import at.hannibal2.skyhanni.test.command.ErrorManager
 import at.hannibal2.skyhanni.test.command.ErrorManager.maybeSkipError
 import at.hannibal2.skyhanni.utils.ChatUtils
@@ -11,26 +10,48 @@ import at.hannibal2.skyhanni.utils.compat.withColor
 import net.minecraft.ChatFormatting
 
 class EventHandler<T : SkyHanniEvent> private constructor(
-    val name: String,
-    private val listenerCollection: ListenerCollection,
+    name: String,
+    listeners: List<Listener>,
     private val canReceiveCancelled: Boolean,
-) {
+): AbstractEventHandler<T>(name) {
 
-    val invokeLog = SkyHanniEvents.EventInvokeLog()
+    private val buckets: Array<Array<Listener>?>
 
-    constructor(event: Class<T>, listeners: List<Listener>) : this(
+    init {
+        val sorted = listeners.sortedBy { it.priority }
+
+        val localBuckets = arrayOfNulls<MutableList<Listener>>(IslandBuckets.BUCKET_COUNT)
+
+        for (listener in sorted) {
+            for (index in listener.islandIndices) {
+                val bucket = localBuckets[index]
+                if (bucket != null) {
+                    bucket += listener
+                } else {
+                    localBuckets[index] = mutableListOf(listener)
+                }
+            }
+        }
+
+        buckets = Array(IslandBuckets.BUCKET_COUNT) {
+            localBuckets[it]?.toTypedArray()
+        }
+    }
+
+    constructor(event: Class<out SkyHanniEvent>, listeners: List<Listener>) : this(
         (event.name.split(".").lastOrNull() ?: event.name).replace("$", "."),
-        ListenerCollection(listeners),
+        listeners,
         listeners.any { it.receiveCancelled },
     )
 
-    fun post(event: T, onError: ((Throwable) -> Unit)? = null) {
+    override fun post(event: T, onError: ((Throwable) -> Unit)?) {
         invokeLog.invokeCount++
         if (SkyHanniEvents.isDisabledHandler(name)) return
+        val listeners = buckets.getOrNull(SkyHanniEvents.getCurrentIslandIndex()) ?: return
 
         var errors = 0
-        listenerCollection.forEachCurrent { listener ->
-            if (!listener.shouldInvoke(event)) return@forEachCurrent true
+        for (listener in listeners) {
+            if (!listener.shouldInvoke(event)) continue
 
             try {
                 listener.invoker.accept(event)
@@ -46,7 +67,9 @@ class EventHandler<T : SkyHanniEvent> private constructor(
                 onError?.invoke(throwable)
             }
 
-            !event.isCancelled || canReceiveCancelled
+            if (event.isCancelled && !canReceiveCancelled) {
+                break
+            }
         }
 
         if (errors > 3) {
