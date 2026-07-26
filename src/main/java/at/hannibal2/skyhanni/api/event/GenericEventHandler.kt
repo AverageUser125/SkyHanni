@@ -5,9 +5,11 @@ import at.hannibal2.skyhanni.test.command.ErrorManager
 import at.hannibal2.skyhanni.test.command.ErrorManager.maybeSkipError
 import at.hannibal2.skyhanni.utils.ChatUtils
 import at.hannibal2.skyhanni.utils.StringUtils
+import at.hannibal2.skyhanni.utils.collection.TimeAndSizeLimitedCache
 import at.hannibal2.skyhanni.utils.compat.componentBuilder
 import at.hannibal2.skyhanni.utils.compat.withColor
 import net.minecraft.ChatFormatting
+import kotlin.time.Duration.Companion.minutes
 
 class GenericEventHandler<T : GenericSkyHanniEvent<*>> private constructor(
     name: String,
@@ -21,6 +23,11 @@ class GenericEventHandler<T : GenericSkyHanniEvent<*>> private constructor(
     )
 
     private val buckets: Array<Array<TypeBucket>?>
+
+    private val resolvedTypes = TimeAndSizeLimitedCache<Class<*>, Array<Listener>>(
+        maxSize = 128,
+        expireAfterWrite = 10.minutes,
+    )
 
     init {
         val localBuckets = arrayOfNulls<MutableMap<Class<*>, MutableList<Listener>>>(IslandBuckets.BUCKET_COUNT)
@@ -65,32 +72,29 @@ class GenericEventHandler<T : GenericSkyHanniEvent<*>> private constructor(
         if (SkyHanniEvents.isDisabledHandler(name)) return
 
         val buckets = buckets.getOrNull(SkyHanniEvents.getCurrentIslandIndex()) ?: return
+        val listeners = resolvedTypes[event.type] ?: resolveListeners(event.type, buckets)
 
         var errors = 0
 
-        for (bucket in buckets) {
-            if (!bucket.type.isAssignableFrom(event.type)) continue
+        for (listener in listeners) {
+            if (!listener.shouldInvoke(event)) continue
 
-            for (listener in bucket.listeners) {
-                if (!listener.shouldInvoke(event)) continue
-
-                try {
-                    listener.invoker.accept(event)
-                } catch (originalThrowable: Throwable) {
-                    val throwable = originalThrowable.maybeSkipError()
-                    errors++
-                    if (errors <= 3) {
-                        val errorName = throwable::class.simpleName ?: "error"
-                        val aOrAn = StringUtils.optionalAn(errorName)
-                        val message = "Caught $aOrAn $errorName in ${listener.name} at $name: ${throwable.message}"
-                        ErrorManager.logErrorWithData(throwable, message, ignoreErrorCache = onError != null)
-                    }
-                    onError?.invoke(throwable)
+            try {
+                listener.invoker.accept(event)
+            } catch (originalThrowable: Throwable) {
+                val throwable = originalThrowable.maybeSkipError()
+                errors++
+                if (errors <= 3) {
+                    val errorName = throwable::class.simpleName ?: "error"
+                    val aOrAn = StringUtils.optionalAn(errorName)
+                    val message = "Caught $aOrAn $errorName in ${listener.name} at $name: ${throwable.message}"
+                    ErrorManager.logErrorWithData(throwable, message, ignoreErrorCache = onError != null)
                 }
+                onError?.invoke(throwable)
+            }
 
-                if (event.isCancelled && !canReceiveCancelled) {
-                    return
-                }
+            if (event.isCancelled && !canReceiveCancelled) {
+                return
             }
         }
 
@@ -103,5 +107,22 @@ class GenericEventHandler<T : GenericSkyHanniEvent<*>> private constructor(
                 }
             )
         }
+    }
+
+    private fun resolveListeners(
+        type: Class<*>,
+        buckets: Array<TypeBucket>,
+    ): Array<Listener> {
+        val listeners = buckets
+            .asSequence()
+            .filter { it.type.isAssignableFrom(type) }
+            .flatMap { it.listeners.asSequence() }
+            .sortedBy { it.priority }
+            .toList()
+            .toTypedArray()
+
+        resolvedTypes[type] = listeners
+
+        return listeners
     }
 }
