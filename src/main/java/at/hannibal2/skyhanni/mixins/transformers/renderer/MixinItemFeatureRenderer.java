@@ -48,7 +48,7 @@ public abstract class MixinItemFeatureRenderer {
         )
     )
     private VertexConsumer modifyOutlineVertexConsumerProvider(OutlineBufferSource outlineConsumer, RenderType renderType, Operation<VertexConsumer> original, @Local(argsOnly = true) SubmitNodeStorage.ItemSubmit itemCommand) {
-        Object obj = (Object) itemCommand;
+        Object obj = itemCommand;
         if (obj instanceof GlowingStateStore casted && casted.skyhanni$isUsingCustomOutline()) {
             return SkyHanniOutlineVertexConsumerProvider.getVertexConsumers().getBuffer(renderType);
         }
