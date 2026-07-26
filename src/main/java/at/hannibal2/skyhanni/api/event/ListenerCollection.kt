@@ -31,4 +31,14 @@ class ListenerCollection(
 
     fun current() =
         buckets.getOrNull(IslandBuckets.currentIndex())
+
+    inline fun forEachCurrent(
+        action: (Listener) -> Boolean,
+    ) {
+        val listeners = current() ?: return
+
+        for (listener in listeners) {
+            if (!action(listener)) return
+        }
+    }
 }

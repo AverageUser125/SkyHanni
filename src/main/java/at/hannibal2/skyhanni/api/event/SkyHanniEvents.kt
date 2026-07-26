@@ -127,7 +127,7 @@ object SkyHanniEvents {
     }
 
     private val listenerCacheGeneration = AtomicInteger(0)
-    private val currentStateIndex = AtomicInteger(ListenerCollection.OUTSIDE)
+    private val currentStateIndex = AtomicInteger(IslandBuckets.OUTSIDE)
 
     fun markEventCacheDirty(type: DirtyReason) {
         when (type) {
@@ -136,11 +136,11 @@ object SkyHanniEvents {
             -> listenerCacheGeneration.incrementAndGet()
 
             DirtyReason.LOCATION_CHANGED ->
-                currentStateIndex.set(ListenerCollection.getCurrentStateIndex())
+                currentStateIndex.set(IslandBuckets.currentIndex())
 
             DirtyReason.SERVER_DISCONNECTED -> {
                 listenerCacheGeneration.incrementAndGet()
-                currentStateIndex.set(ListenerCollection.OUTSIDE)
+                currentStateIndex.set(IslandBuckets.OUTSIDE)
             }
         }
     }
