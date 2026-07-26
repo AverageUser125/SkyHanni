@@ -15,12 +15,15 @@ object IslandBuckets {
     const val ISLAND_OFFSET = 1
     val BUCKET_COUNT = IslandType.entries.size + ISLAND_OFFSET
 
-    fun currentIndex(): Int {
+    /**
+     * Use [SkyHanniEvents.getCurrentIslandIndex] instead
+     */
+    internal fun currentIndex(): Int {
         if (!SkyBlockUtils.inSkyBlock) return OUTSIDE
         return SkyBlockUtils.currentIsland.ordinal + ISLAND_OFFSET
     }
 
-    fun createListenerIndices(options: HandleEvent): List<Int> {
+    internal fun createListenerIndices(options: HandleEvent): List<Int> {
         val islands = getIslands(options)
             .map { it.ordinal }
 
