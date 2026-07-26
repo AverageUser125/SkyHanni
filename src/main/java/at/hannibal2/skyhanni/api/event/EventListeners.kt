@@ -79,7 +79,7 @@ class EventListeners private constructor(val name: String, private val isGeneric
     ) {
         val priority: Int = options.priority
         val receiveCancelled: Boolean = options.receiveCancelled
-        val indices: List<Int> = ListenerCollection.createListenerIndices(options)
+        val islandIndices: List<Int> = IslandBuckets.createListenerIndices(options)
 
         @Suppress("JoinDeclarationAndAssignment")
         private val cachedPredicates: List<EventPredicate>
