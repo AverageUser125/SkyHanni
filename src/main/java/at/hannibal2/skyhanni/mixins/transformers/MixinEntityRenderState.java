@@ -10,10 +10,10 @@ import org.spongepowered.asm.mixin.Unique;
 public abstract class MixinEntityRenderState implements EntityRenderStateStore {
 
     @Unique
-    Entity skyhanni$savedEntity = null;
+    private Entity skyhanni$savedEntity = null;
 
     @Unique
-    boolean skyhanni$usingCustomOutline = false;
+    private boolean skyhanni$usingCustomOutline = false;
 
     @Override
     public void skyhanni$setEntity(Entity entity) {

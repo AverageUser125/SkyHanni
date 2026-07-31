@@ -8,6 +8,9 @@ import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.EntityUtils.hasVisibleEquipment
 import at.hannibal2.skyhanni.utils.collection.CollectionUtils.removeIfKey
 import at.hannibal2.skyhanni.utils.compat.deceased
+import net.fabricmc.fabric.api.client.rendering.v1.RenderStateDataKey
+import net.minecraft.client.renderer.entity.state.EntityRenderState
+import net.minecraft.util.ARGB
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.LivingEntity
 import java.awt.Color
@@ -16,12 +19,24 @@ import java.util.concurrent.ConcurrentHashMap
 @SkyHanniModule
 object RenderLivingEntityHelper {
 
+    /**
+     * Attached to EntityRenderState to apply SkyHanni custom glow colors.
+     */
+    @JvmField
+    val ENTITY_CUSTOM_GLOW_COLOUR: RenderStateDataKey<Int> =
+        RenderStateDataKey.create { "SkyHanni custom glow colour" }
+
     private val entityColorMap = mutableMapOf<LivingEntity, Color>()
     private val entityColorCondition = ConcurrentHashMap<LivingEntity, () -> Boolean>()
 
     @JvmStatic
     var isUsingCustomGlow = false
         private set
+
+    @JvmStatic
+    fun setUsingCustomGlow() {
+        isUsingCustomGlow = true
+    }
 
     private var currentGlowEvent: RenderEntityOutlineEvent? = null
 
@@ -46,6 +61,15 @@ object RenderLivingEntityHelper {
         }
         return getEntityGlowEventColor(entity)
     }
+
+    /**
+     * Returns the entity glow color formatted for EntityRenderState.
+     */
+    @JvmStatic
+    fun getEntityGlowColorARGB(entity: Entity): Int =
+        getEntityGlowColor(entity)
+            ?.let { ARGB.opaque(it) }
+            ?: EntityRenderState.NO_OUTLINE
 
     private fun getLivingEntityGlowColor(entity: LivingEntity): Int? =
         internalSetColorMultiplier(entity, 0).takeIf { it != 0 }

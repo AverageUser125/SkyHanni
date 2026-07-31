@@ -15,6 +15,9 @@ public abstract class MixinSubmitNodeStorage implements GlowingStateStore {
     @Unique
     private boolean skyhanni$usingCustomOutline = false;
 
+    @Unique
+    private int skyhanni$customGlowColour = 0;
+
     @Override
     public void skyhanni$setUsingCustomOutline() {
         this.skyhanni$usingCustomOutline = true;
@@ -23,5 +26,15 @@ public abstract class MixinSubmitNodeStorage implements GlowingStateStore {
     @Override
     public boolean skyhanni$isUsingCustomOutline() {
         return this.skyhanni$usingCustomOutline;
+    }
+
+    @Override
+    public void skyhanni$setCustomGlowColour(int color) {
+        this.skyhanni$customGlowColour = color;
+    }
+
+    @Override
+    public int skyhanni$getCustomGlowColour() {
+        return this.skyhanni$customGlowColour;
     }
 }
