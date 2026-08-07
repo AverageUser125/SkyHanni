@@ -42,11 +42,12 @@ object SeeThroughWindow {
     }
 
     private fun setOpacity() {
-        if (!isActive) {
-            setWindowOpacity(1f)
-            return
+        val alpha = if (isActive) {
+            (config.seeThroughFarming.get() / 100f).coerceIn(0.05f, 1f)
+        } else {
+            1f
         }
-        val alpha = (config.seeThroughFarming.get() / 100f).coerceAtLeast(0.05f).coerceAtMost(1f)
+
         setWindowOpacity(alpha)
     }
 
