@@ -10,12 +10,14 @@ gson = "2.13.2"
 guava = "33.5.0-jre"
 changelog-builder = "1.1.8"
 methanol = "1.9.0"
+serialization = "1.11.0"
 
 shadow = "9.6.0"
 loom = "1.17-SNAPSHOT"
 kotlin = "2.4.10"
 ksp = "2.3.10"
 detekt = "2.0.0-alpha.5"
+serialization-plugin = "2.3.20"
 
 devauth = "1.2.2"
 junit = "5.14.4"
@@ -53,6 +55,7 @@ detekt-test = { module = "dev.detekt:detekt-test", version.ref = "detekt" }
 detektrules-neu = { module = "org.notenoughupdates:detektrules", version.ref = "detektrules-neu" }
 detektrules-authors = { module = "dev.detekt:detekt-rules-ruleauthors", version.ref = "detekt" }
 ksp-api = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "ksp" }
+serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serialization" }
 
 [plugins]
 shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
@@ -60,3 +63,4 @@ loom = { id = "net.fabricmc.fabric-loom-remap", version.ref = "loom" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 detekt = { id = "dev.detekt", version.ref = "detekt" }
+serialization = { id = "plugin.serialization", version.ref = "serialization-plugin" }

@@ -25,6 +25,7 @@ plugins {
     id("com.google.devtools.ksp")
     `maven-publish`
     id("dev.detekt")
+    kotlin("plugin.serialization") version "2.3.20"
 }
 
 val target = ProjectTarget.entries.find { it.projectPath == project.path }!!
@@ -197,6 +198,8 @@ dependencies {
 
     shadowImpl(libs.httpclient)
     "minecraftTestClientRuntimeLibraries"(libs.httpclient)
+
+    implementation(libs.serialization)
 }
 
 fun DependencyHandler.includeImplementation(dep: Any, configure: ExternalModuleDependency.() -> Unit = {}) {
