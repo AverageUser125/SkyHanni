@@ -179,10 +179,6 @@ dependencies {
     compileOnly(libs.basicMath)
     "minecraftTestClientRuntimeLibraries"(libs.basicMath)
 
-    // getting clock offset
-    includeImplementation(libs.commons.net)
-    "minecraftTestClientRuntimeLibraries"(libs.commons.net)
-
     // Calculator
     includeImplementation(libs.keval) {
         exclude(group = "org.jetbrains.kotlin")
