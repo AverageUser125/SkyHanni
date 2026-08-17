@@ -13,7 +13,10 @@ import at.hannibal2.skyhanni.utils.DelayedRun
 import at.hannibal2.skyhanni.utils.RegexUtils.matchMatcher
 import at.hannibal2.skyhanni.utils.RegexUtils.matches
 import at.hannibal2.skyhanni.utils.SkyBlockUtils
+import at.hannibal2.skyhanni.utils.StringUtils.removeColor
 import at.hannibal2.skyhanni.utils.collection.CollectionUtils.editCopy
+import at.hannibal2.skyhanni.utils.collection.CompiledTrie
+import at.hannibal2.skyhanni.utils.collection.PatternSet
 import at.hannibal2.skyhanni.utils.repopatterns.RepoPattern
 import net.minecraft.network.chat.Component
 import java.util.regex.Matcher
@@ -388,8 +391,10 @@ enum class TabWidget(
     ;
 
     /** The pattern for the first line of the widget*/
-    val pattern by repoGroup.pattern(name.replace("_", ".").lowercase(), "\\s*(?:$pattern0)")
-
+    val pattern by repoGroup.pattern(
+        name.replace("_", ".").lowercase(),
+        "\\s*(?:$pattern0)"
+    )
     /** The current active information from tab list.
      *
      * When the widget isn't visible, it will be empty
@@ -449,6 +454,9 @@ enum class TabWidget(
 
         private var sentSinceWorldChange = false
 
+        /** A prefix index for the patterns of the widgets, used to quickly find a matching widget for a line */
+        private val patternIndex = PatternSet.of(entries.map { it.pattern to it })
+
         init {
             entries.forEach { it.pattern }
         }
@@ -501,7 +509,7 @@ enum class TabWidget(
             separatorIndexes.clear()
 
             for ((index, line) in tabList.withIndex()) {
-                val match = entries.firstOrNull { it.pattern.matches(line) }
+                val match = patternIndex.find(line)
                     ?: if (extraPatterns.any { it.matches(line) }) null else continue
                 separatorIndexes.add(index to match)
             }
