@@ -19,9 +19,9 @@ import net.azureaaron.renderchest.api.GlowConstants
 
 @SkyHanniModule
 object RenderLivingEntityHelper {
+    private data class EntityGlowData(val rgb: Int, val condition: () -> Boolean)
 
-    private val entityColorMap = mutableMapOf<LivingEntity, Color>()
-    private val entityColorCondition = ConcurrentHashMap<LivingEntity, () -> Boolean>()
+    private val entityGlowMap = ConcurrentHashMap<LivingEntity, EntityGlowData>()
     private var currentGlowEvent: RenderEntityOutlineEvent? = null
 
     @JvmStatic
@@ -44,7 +44,7 @@ object RenderLivingEntityHelper {
 
     @JvmStatic
     fun postNoXrayOutlineEvent() {
-        isUsingCustomGlow = entityColorCondition.values.any { it() } ||
+        isUsingCustomGlow = entityGlowMap.values.any { it.condition() } ||
             currentGlowEvent?.entitiesToOutline.orEmpty().isNotEmpty()
 
         val event = RenderEntityOutlineEvent()
@@ -66,16 +66,14 @@ object RenderLivingEntityHelper {
 
     private fun getLivingEntityGlowColor(entity: LivingEntity): Int? {
         if (GlobalRender.renderDisabled) return null
-        val entityColor = entityColorMap[entity] ?: return null
-        val condition = entityColorCondition[entity] ?: return null
-        if (!condition.invoke()) return null
-        return entityColor.rgb.takeIf { it != 0 }
+        val entityGlowData = entityGlowMap[entity] ?: return null
+        if (!entityGlowData.condition.invoke()) return null
+        return entityGlowData.rgb.takeIf { it != 0 }
     }
 
     @HandleEvent
     private fun onWorldChange() {
-        entityColorMap.clear()
-        entityColorCondition.clear()
+        entityGlowMap.clear()
     }
 
     @HandleEvent
@@ -84,13 +82,11 @@ object RenderLivingEntityHelper {
     }
 
     fun <T : LivingEntity> removeEntityColor(entity: T) {
-        entityColorMap.remove(entity)
-        entityColorCondition.remove(entity)
+        entityGlowMap.remove(entity)
     }
 
     fun <T : LivingEntity> setEntityColor(entity: T, color: Color, condition: () -> Boolean) {
         if (color.rgb == 0) return
-        entityColorMap[entity] = color
-        entityColorCondition[entity] = condition
+        entityGlowMap[entity] = EntityGlowData(color.rgb, condition)
     }
 }

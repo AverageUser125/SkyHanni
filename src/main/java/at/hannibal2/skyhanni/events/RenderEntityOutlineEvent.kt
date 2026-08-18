@@ -1,13 +1,13 @@
 package at.hannibal2.skyhanni.events
 
 import at.hannibal2.skyhanni.api.event.SkyHanniEvent
+import at.hannibal2.skyhanni.skyhannimodule.PrimaryFunction
 import at.hannibal2.skyhanni.utils.AllEntitiesGetter
 import at.hannibal2.skyhanni.utils.EntityUtils
 import at.hannibal2.skyhanni.utils.EntityUtils.isEmptyInvisibleArmorStand
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.decoration.ItemFrame
 import java.awt.Color
-import at.hannibal2.skyhanni.skyhannimodule.PrimaryFunction
 
 @PrimaryFunction("onRenderEntityOutline")
 class RenderEntityOutlineEvent(potentialEntities: HashSet<Entity> = hashSetOf()) : SkyHanniEvent() {
