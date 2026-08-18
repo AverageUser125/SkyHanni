@@ -125,6 +125,7 @@ dependencies {
 
     ksp(libs.autoservice.ksp)
     implementation(libs.autoservice.annotations)
+
     target.fabricLoaderVersion?.let {
         implementation(it)
         "productionRuntimeMods"(it)
