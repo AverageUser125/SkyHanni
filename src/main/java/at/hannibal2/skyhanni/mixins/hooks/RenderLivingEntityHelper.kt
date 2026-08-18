@@ -24,6 +24,8 @@ object RenderLivingEntityHelper {
     private val entityColorMap = mutableMapOf<LivingEntity, Color>()
     private val entityColorCondition = ConcurrentHashMap<LivingEntity, () -> Boolean>()
     private var currentGlowEvent: RenderEntityOutlineEvent? = null
+    var isUsingCustomGlow = false
+        private set
 
 //? if >= 26.2 {
     init {
@@ -34,14 +36,10 @@ object RenderLivingEntityHelper {
         entity: Entity,
         @Suppress("UNUSED_PARAMETER") state: EntityRenderState,
     ): Int {
+        if (!isUsingCustomGlow) return GlowConstants.NO_GLOW
         return getEntityGlowColor(entity) ?: GlowConstants.NO_GLOW
     }
-
-    //?} else {
-    /*@JvmStatic
-    var isUsingCustomGlow = false
-        private set
-
+///?}
 
     @JvmStatic
     fun postNoXrayOutlineEvent() {
@@ -52,7 +50,6 @@ object RenderLivingEntityHelper {
         currentGlowEvent = event
         event.post()
     }
-    *///?}
 
     @JvmStatic
     fun getEntityGlowColor(entity: Entity): Int? {
