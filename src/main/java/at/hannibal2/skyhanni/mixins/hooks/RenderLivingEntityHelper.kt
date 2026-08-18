@@ -34,7 +34,6 @@ object RenderLivingEntityHelper {
         entity: Entity,
         @Suppress("UNUSED_PARAMETER") state: EntityRenderState,
     ): Int {
-        if (GlobalRender.renderDisabled) return GlowConstants.NO_GLOW
         return getEntityGlowColor(entity) ?: GlowConstants.NO_GLOW
     }
 
