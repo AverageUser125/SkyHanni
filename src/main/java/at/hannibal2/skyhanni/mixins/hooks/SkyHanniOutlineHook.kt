@@ -99,14 +99,9 @@ object SkyHanniOutlineHook {
             val device = RenderSystem.getDevice()
             val depthAttachment = device.createTexture(
                 "SkyHanni Custom Depth",
-                GpuTexture.USAGE_RENDER_ATTACHMENT or
-                    GpuTexture.USAGE_COPY_DST or
-                    GpuTexture.USAGE_TEXTURE_BINDING,
+                GpuTexture.USAGE_RENDER_ATTACHMENT or GpuTexture.USAGE_COPY_DST or GpuTexture.USAGE_TEXTURE_BINDING,
                 format,
-                lastWidth,
-                lastHeight,
-                1,
-                1,
+                lastWidth, lastHeight, 1, 1,
             )
             customDepthAttachment = depthAttachment
             customDepthAttachmentView = device.createTextureView(depthAttachment)

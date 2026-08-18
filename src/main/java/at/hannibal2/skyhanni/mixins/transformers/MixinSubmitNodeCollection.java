@@ -72,11 +72,7 @@ public abstract class MixinSubmitNodeCollection<E> {
     @Unique
     private void skyhanni$markCustomOutline(Object submit) {
         EntityRenderState currentState = EntityRenderDispatcherHookKt.getEntityRenderState();
-
-        if (submit instanceof GlowingStateStore casted
-            && currentState != null
-            && currentState.skyhanni$isUsingCustomOutline()
-        ) {
+        if (submit instanceof GlowingStateStore casted && currentState != null && currentState.skyhanni$isUsingCustomOutline()) {
             casted.skyhanni$setUsingCustomOutline();
         }
     }
