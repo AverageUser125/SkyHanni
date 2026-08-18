@@ -17,6 +17,8 @@ object SeeThroughWindow {
 
     private var isActive = false
     private var opacityChanged = false
+
+    // TODO: SDL Actually supports see through windows on Wayland, GLFW doesn't.
     private val isWayland by lazy {
         GLFW.glfwGetPlatform() == GLFW.GLFW_PLATFORM_WAYLAND
     }
@@ -49,12 +51,10 @@ object SeeThroughWindow {
             }
             return
         }
-        val alpha = (config.seeThroughFarming.get() / 100f).coerceAtLeast(0.05f).coerceAtMost(1f)
-        if (alpha != 1f) {
-            setWindowOpacity(alpha)
-        } else if (opacityChanged) {
-            resetWindowOpacity()
-        }
+        val alpha = (config.seeThroughFarming.get() / 100f)
+            .coerceAtLeast(0.05f)
+            .coerceAtMost(1f)
+        setWindowOpacity(alpha)
     }
 
     private fun setWindowOpacity(alpha: Float) {
