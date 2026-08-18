@@ -7,7 +7,6 @@ import at.hannibal2.skyhanni.events.entity.EntityLeaveWorldEvent
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.DelayedRun
 import at.hannibal2.skyhanni.utils.EntityUtils.hasVisibleEquipment
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import net.minecraft.client.renderer.entity.state.EntityRenderState
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.LivingEntity
@@ -22,7 +21,7 @@ import net.azureaaron.renderchest.api.GlowConstants
 object RenderLivingEntityHelper {
     private data class EntityGlowData(val rgb: Int, val condition: () -> Boolean)
 
-    private val entityGlowMap = Int2ObjectOpenHashMap<EntityGlowData>(128)
+    private val entityGlowMap = mutableMapOf<Int, EntityGlowData>()
     private var currentGlowEvent: RenderEntityOutlineEvent? = null
 
     @JvmStatic
@@ -68,7 +67,7 @@ object RenderLivingEntityHelper {
     private fun getLivingEntityGlowColor(entity: LivingEntity): Int? {
         if (GlobalRender.renderDisabled) return null
         val entityGlowData = entityGlowMap[entity.id] ?: return null
-        if (!entityGlowData.condition.invoke()) return null
+        if (!entityGlowData.condition()) return null
         return entityGlowData.rgb
     }
 
