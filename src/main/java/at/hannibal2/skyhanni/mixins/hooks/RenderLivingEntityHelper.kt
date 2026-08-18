@@ -3,30 +3,46 @@ package at.hannibal2.skyhanni.mixins.hooks
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.data.GlobalRender
 import at.hannibal2.skyhanni.events.RenderEntityOutlineEvent
-import at.hannibal2.skyhanni.events.minecraft.SkyHanniTickEvent
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.EntityUtils.hasVisibleEquipment
 import at.hannibal2.skyhanni.utils.collection.CollectionUtils.removeIfKey
 import at.hannibal2.skyhanni.utils.compat.deceased
+import net.minecraft.client.renderer.entity.state.EntityRenderState
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.LivingEntity
 import java.awt.Color
 import java.util.concurrent.ConcurrentHashMap
+
+//? if >= 26.2 {
+import net.azureaaron.renderchest.api.CustomGlowCallback
+import net.azureaaron.renderchest.api.GlowConstants
+//?}
 
 @SkyHanniModule
 object RenderLivingEntityHelper {
 
     private val entityColorMap = mutableMapOf<LivingEntity, Color>()
     private val entityColorCondition = ConcurrentHashMap<LivingEntity, () -> Boolean>()
+    private var currentGlowEvent: RenderEntityOutlineEvent? = null
 
-    @JvmStatic
+//? if >= 26.2 {
+    init {
+        CustomGlowCallback.EVENT.register(::applyRenderChestGlow)
+    }
+
+    private fun applyRenderChestGlow(
+        entity: Entity,
+        @Suppress("UNUSED_PARAMETER") state: EntityRenderState,
+    ): Int {
+        if (GlobalRender.renderDisabled) return GlowConstants.NO_GLOW
+        return getEntityGlowColor(entity) ?: GlowConstants.NO_GLOW
+    }
+
+    //?} else {
+    /*@JvmStatic
     var isUsingCustomGlow = false
         private set
 
-    private var currentGlowEvent: RenderEntityOutlineEvent? = null
-
-    private fun getEntityGlowEventColor(entity: Entity): Int? =
-        currentGlowEvent?.entitiesToOutline?.get(entity)?.rgb?.takeIf { it != 0 }
 
     @JvmStatic
     fun postNoXrayOutlineEvent() {
@@ -37,6 +53,7 @@ object RenderLivingEntityHelper {
         currentGlowEvent = event
         event.post()
     }
+    *///?}
 
     @JvmStatic
     fun getEntityGlowColor(entity: Entity): Int? {
@@ -47,17 +64,20 @@ object RenderLivingEntityHelper {
         return getEntityGlowEventColor(entity)
     }
 
+    private fun getEntityGlowEventColor(entity: Entity): Int? =
+        currentGlowEvent?.entitiesToOutline?.get(entity)?.rgb?.takeIf { it != 0 }
+
     private fun getLivingEntityGlowColor(entity: LivingEntity): Int? =
         internalSetColorMultiplier(entity, 0).takeIf { it != 0 }
 
     @HandleEvent
-    fun onWorldChange() {
+    private fun onWorldChange() {
         entityColorMap.clear()
         entityColorCondition.clear()
     }
 
-    @HandleEvent(SkyHanniTickEvent::class)
-    fun onTick() {
+    @HandleEvent
+    private fun onTick() {
         entityColorMap.removeIfKey { it.deceased }
         entityColorCondition.removeIfKey { it.deceased }
     }
@@ -73,13 +93,12 @@ object RenderLivingEntityHelper {
         entityColorCondition[entity] = condition
     }
 
-    @JvmStatic
-    fun <T : LivingEntity> internalSetColorMultiplier(entity: T, default: Int): Int {
+    private fun <T : LivingEntity> internalSetColorMultiplier(entity: T, default: Int): Int {
         if (GlobalRender.renderDisabled) return default
         if (entityColorMap.containsKey(entity)) {
             val condition = entityColorCondition[entity] ?: return default
             if (condition.invoke()) {
-                return entityColorMap[entity]?.rgb ?: return default
+                return entityColorMap[entity]?.rgb ?: default
             }
         }
         return default
