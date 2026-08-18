@@ -3,7 +3,6 @@ package at.hannibal2.skyhanni.mixins.transformers;
 import at.hannibal2.skyhanni.data.entity.EntityTransparencyManager;
 import at.hannibal2.skyhanni.mixins.hooks.EntityRenderDispatcherHookKt;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-
 import net.minecraft.client.renderer.feature.ItemFeatureRenderer;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
@@ -16,15 +15,15 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 //? if >= 26.2 {
 import com.mojang.blaze3d.vertex.QuadInstance;
 //?} else {
-/*import at.hannibal2.skyhanni.mixins.hooks.SkyHanniOutlineHook;
+/*import at.hannibal2.skyhanni.mixins.hooks.GlowingStateStore;
+import at.hannibal2.skyhanni.mixins.hooks.SkyHanniOutlineHook;
+import com.llamalad7.mixinextras.injector.sugar.Local;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.OutlineBufferSource;
 import net.minecraft.client.renderer.SubmitNodeStorage;
-import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import com.llamalad7.mixinextras.sugar.Local;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import at.hannibal2.skyhanni.mixins.hooks.GlowingStateStore;
 *///?}
 
 @Mixin(ItemFeatureRenderer.class)
@@ -69,10 +68,8 @@ public abstract class MixinItemFeatureRenderer {
             original.call(instance, i);
         }
     }
-    *///?}
 
-//? if < 26.2 {
-/*    @WrapOperation(
+   @WrapOperation(
         method = "renderItem",
         at = @At(
             value = "INVOKE",

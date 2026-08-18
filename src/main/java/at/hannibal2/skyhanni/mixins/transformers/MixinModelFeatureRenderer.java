@@ -3,18 +3,18 @@ package at.hannibal2.skyhanni.mixins.transformers;
 //? if < 26.2 {
 /*import at.hannibal2.skyhanni.mixins.hooks.GlowingStateStore;
 import at.hannibal2.skyhanni.mixins.hooks.SkyHanniOutlineHook;
+import com.llamalad7.mixinextras.injector.sugar.Local;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.OutlineBufferSource;
 import net.minecraft.client.renderer.SubmitNodeStorage;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
+import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 
 @Mixin(ModelFeatureRenderer.class)
 public abstract class MixinModelFeatureRenderer {
