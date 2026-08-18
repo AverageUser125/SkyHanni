@@ -1,6 +1,7 @@
 package at.hannibal2.skyhanni.events
 
 import at.hannibal2.skyhanni.api.event.SkyHanniEvent
+import at.hannibal2.skyhanni.skyhannimodule.PrimaryFunction
 import at.hannibal2.skyhanni.utils.AllEntitiesGetter
 import at.hannibal2.skyhanni.utils.EntityUtils
 import at.hannibal2.skyhanni.utils.EntityUtils.isEmptyInvisibleArmorStand
@@ -8,12 +9,8 @@ import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.decoration.ItemFrame
 import java.awt.Color
 
-class RenderEntityOutlineEvent(theType: Type?, potentialEntities: HashSet<Entity> = hashSetOf()) : SkyHanniEvent() {
-
-    /**
-     * The phase of the event (see [Type]
-     */
-    var type: Type? = null
+@PrimaryFunction("onRenderEntityOutline")
+class RenderEntityOutlineEvent(potentialEntities: HashSet<Entity> = hashSetOf()) : SkyHanniEvent() {
 
     /**
      * The entities to outline. This is progressively cumulated from [.entitiesToChooseFrom]
@@ -35,13 +32,10 @@ class RenderEntityOutlineEvent(theType: Type?, potentialEntities: HashSet<Entity
      *
      *
      * This will modify {@param potentialEntities} internally, so make a copy before passing it if necessary.
-     *
-     * @param theType of the event (see [Type]
      */
     init {
-        type = theType
         entitiesToChooseFrom = potentialEntities
-        if (!potentialEntities.isEmpty()) {
+        if (potentialEntities.isNotEmpty()) {
             entitiesToOutline = HashMap(potentialEntities.size)
         }
     }
@@ -91,15 +85,5 @@ class RenderEntityOutlineEvent(theType: Type?, potentialEntities: HashSet<Entity
             }
         }
         entitiesToOutline = HashMap(entitiesToChooseFrom.size)
-    }
-
-    /**
-     * The phase of the event.
-     * [.XRAY] means that this directly precedes entities whose outlines are rendered through walls (Vanilla 1.9+)
-     * [.NO_XRAY] means that this directly precedes entities whose outlines are rendered only when visible to the client
-     */
-    enum class Type {
-        XRAY,
-        NO_XRAY
     }
 }
