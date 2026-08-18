@@ -125,7 +125,7 @@ dependencies {
 
     ksp(libs.autoservice.ksp)
     implementation(libs.autoservice.annotations)
-
+## Changelog Fixes
     target.fabricLoaderVersion?.let {
         implementation(it)
         "productionRuntimeMods"(it)
@@ -197,8 +197,6 @@ dependencies {
     shadowImpl(libs.httpclient)
     "minecraftTestClientRuntimeLibraries"(libs.httpclient)
 
-    // Add it as a shadowImpl dependency, we do want it in the final jar.
-    // Name: net.azureaaron.render-chest
     if (target.renderChestVersion != null) {
         shadowImpl("net.azureaaron:render-chest:${target.renderChestVersion}")
         "minecraftTestClientRuntimeLibraries"("net.azureaaron:render-chest:${target.renderChestVersion}")
