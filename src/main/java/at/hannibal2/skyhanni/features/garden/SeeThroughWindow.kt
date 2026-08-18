@@ -18,6 +18,9 @@ object SeeThroughWindow {
 
     private var isActive = false
     private var opacityChanged = false
+    private val isWayland by lazy {
+        GLFW.glfwGetPlatform() == GLFW.GLFW_PLATFORM_WAYLAND
+    }
 
     @HandleEvent
     fun onConfigLoad(event: ConfigLoadEvent) {
@@ -45,17 +48,27 @@ object SeeThroughWindow {
         if (!isActive) {
             if (opacityChanged) {
                 GLFW.glfwSetWindowOpacity(handle, 1f)
-                opacityChanged = false
             }
             return
         }
         val alpha = (config.seeThroughFarming.get() / 100f).coerceAtLeast(0.05f).coerceAtMost(1f)
         if (alpha != 1f) {
-            GLFW.glfwSetWindowOpacity(handle, alpha)
-            opacityChanged = true
+            setWindowOpacity(handle, alpha)
         } else if (opacityChanged) {
-            GLFW.glfwSetWindowOpacity(handle, 1f)
-            opacityChanged = false
+            setWindowOpacity(handle, 1f)
         }
+    }
+
+    private fun setWindowOpacity(handle: Long, alpha: Float) {
+        if (isWayland) {
+            ErrorManager.userError(
+                "Your platform doesn't support see through window",
+                "Window Opacity Unsupported",
+            )
+            return
+        }
+        opacityChanged = alpha == 1f
+
+        GLFW.glfwSetWindowOpacity(handle, alpha)
     }
 }
