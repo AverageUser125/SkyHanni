@@ -63,8 +63,9 @@ object SeeThroughWindow {
         val error = GLFW.glfwGetError(null)
         if (error == GLFW.GLFW_PLATFORM_ERROR) {
             unsupportedPlatform = true
-            ErrorManager.skyHanniError(
+            ErrorManager.logErrorStateWithData(
                 "Your platform doesn't support see through window",
+                "Unsupported platform for see through window",
             )
         }
     }
