@@ -59,7 +59,7 @@ object RenderLivingEntityHelper {
 
     @HandleEvent
     private fun onEntityLeaveWorld(event: EntityLeaveWorldEvent<LivingEntity>) {
-        removeEntityColor(event.entity)
+        entityGlowMap.remove(event.entity.id)
     }
 
     fun <T : LivingEntity> removeEntityColor(entity: T) {
