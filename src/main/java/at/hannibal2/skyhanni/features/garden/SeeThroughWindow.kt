@@ -5,7 +5,7 @@ import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.test.command.ErrorManager
 import at.hannibal2.skyhanni.utils.ConditionalUtils.afterChange
-import at.hannibal2.skyhanni.utils.KeyboardManager.isKeyClicked
+import at.hannibal2.skyhanni.utils.KeyboardManager.isKeyHeld
 import at.hannibal2.skyhanni.utils.compat.MinecraftCompat
 import net.minecraft.client.Minecraft
 import org.lwjgl.glfw.GLFW
@@ -28,7 +28,7 @@ object SeeThroughWindow {
 
     @HandleEvent
     private fun onKeyDown() {
-        if (!config.keybind.isKeyClicked()) return
+        if (!config.keybind.isKeyHeld()) return
         if (MinecraftCompat.screen != null) return
         isActive = !isActive
         setOpacity()
