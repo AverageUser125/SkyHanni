@@ -24,6 +24,8 @@ object RenderLivingEntityHelper {
     private val entityColorMap = mutableMapOf<LivingEntity, Color>()
     private val entityColorCondition = ConcurrentHashMap<LivingEntity, () -> Boolean>()
     private var currentGlowEvent: RenderEntityOutlineEvent? = null
+
+    @JvmStatic
     var isUsingCustomGlow = false
         private set
 
