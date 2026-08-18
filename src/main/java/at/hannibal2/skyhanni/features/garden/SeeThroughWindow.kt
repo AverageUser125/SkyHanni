@@ -61,7 +61,7 @@ object SeeThroughWindow {
         val handle = Minecraft.getInstance().window.handle()
         GLFW.glfwSetWindowOpacity(handle, alpha)
         val error = GLFW.glfwGetError(null)
-        if (error == GLFW.GLFW_PLATFORM_UNAVAILABLE) {
+        if (error == GLFW.GLFW_PLATFORM_ERROR) {
             unsupportedPlatform = true
             ErrorManager.logErrorStateWithData(
                 "Your platform doesn't support see through window",
