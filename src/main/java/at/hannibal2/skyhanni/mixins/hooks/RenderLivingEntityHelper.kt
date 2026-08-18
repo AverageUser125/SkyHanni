@@ -41,7 +41,7 @@ object RenderLivingEntityHelper {
         if (!isUsingCustomGlow) return GlowConstants.NO_GLOW
         return getEntityGlowColor(entity) ?: GlowConstants.NO_GLOW
     }
-///?}
+//?}
 
     @JvmStatic
     fun postNoXrayOutlineEvent() {
