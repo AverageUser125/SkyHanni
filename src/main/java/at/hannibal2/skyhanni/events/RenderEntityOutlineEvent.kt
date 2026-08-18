@@ -11,7 +11,6 @@ import java.awt.Color
 
 @PrimaryFunction("onRenderEntityOutline")
 class RenderEntityOutlineEvent(potentialEntities: HashSet<Entity> = hashSetOf()) : SkyHanniEvent() {
-
     /**
      * The entities to outline. This is progressively cumulated from [.entitiesToChooseFrom]
      */
@@ -29,7 +28,6 @@ class RenderEntityOutlineEvent(potentialEntities: HashSet<Entity> = hashSetOf())
 
     /**
      * Constructs the event, given the type and optional entities to outline.
-     *
      *
      * This will modify {@param potentialEntities} internally, so make a copy before passing it if necessary.
      */

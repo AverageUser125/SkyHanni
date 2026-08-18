@@ -48,7 +48,7 @@ object RenderLivingEntityHelper {
     private fun getLivingEntityGlowColor(entity: LivingEntity): Int? {
         if (GlobalRender.renderDisabled) return null
         val entityGlowData = entityGlowMap[entity.id] ?: return null
-        if (!entityGlowData.condition.invoke()) return null
+        if (!entityGlowData.condition()) return null
         return entityGlowData.rgb
     }
 
