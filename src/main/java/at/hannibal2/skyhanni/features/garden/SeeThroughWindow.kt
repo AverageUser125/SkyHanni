@@ -3,7 +3,7 @@ package at.hannibal2.skyhanni.features.garden
 import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
-import at.hannibal2.skyhanni.test.command.ErrorManager
+import at.hannibal2.skyhanni.utils.ChatUtils
 import at.hannibal2.skyhanni.utils.ConditionalUtils.afterChange
 import at.hannibal2.skyhanni.utils.KeyboardManager.isKeyHeld
 import at.hannibal2.skyhanni.utils.compat.MinecraftCompat
@@ -63,10 +63,7 @@ object SeeThroughWindow {
         val error = GLFW.glfwGetError(null)
         if (error.isGlfwPlatformError()) {
             unsupportedPlatform = true
-            ErrorManager.logErrorStateWithData(
-                "Your platform doesn't support see through window",
-                "Unsupported platform for see through window",
-            )
+            ChatUtils.userError("Your platform doesn't support see through window!")
         }
     }
 
