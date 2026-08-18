@@ -10,7 +10,7 @@ import net.minecraft.world.entity.decoration.ItemFrame
 import java.awt.Color
 
 @PrimaryFunction("onRenderEntityOutline")
-class RenderEntityOutlineEvent(potentialEntities: HashSet<Entity> = hashSetOf()) : SkyHanniEvent() {
+class RenderEntityOutlineEvent : SkyHanniEvent() {
     /**
      * The entities to outline. This is progressively cumulated from [.entitiesToChooseFrom]
      */
@@ -25,18 +25,6 @@ class RenderEntityOutlineEvent(potentialEntities: HashSet<Entity> = hashSetOf())
      * Whether [.entitiesToChooseFrom] has been computed already.
      */
     private var computed: Boolean = false
-
-    /**
-     * Constructs the event, given the type and optional entities to outline.
-     *
-     * This will modify {@param potentialEntities} internally, so make a copy before passing it if necessary.
-     */
-    init {
-        entitiesToChooseFrom = potentialEntities
-        if (potentialEntities.isNotEmpty()) {
-            entitiesToOutline = HashMap(potentialEntities.size)
-        }
-    }
 
     /**
      * Conditionally queue entities around which to render entities
