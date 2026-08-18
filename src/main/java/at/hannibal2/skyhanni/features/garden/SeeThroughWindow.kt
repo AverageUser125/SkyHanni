@@ -17,11 +17,7 @@ object SeeThroughWindow {
 
     private var isActive = false
     private var opacityChanged = false
-
-    // TODO: SDL Actually supports see through windows on Wayland, GLFW doesn't.
-    private val isWayland by lazy {
-        GLFW.glfwGetPlatform() == GLFW.GLFW_PLATFORM_WAYLAND
-    }
+    private var unsupportedPlatform = false
 
     @HandleEvent
     private fun onConfigLoad() {
@@ -45,6 +41,8 @@ object SeeThroughWindow {
     }
 
     private fun setOpacity() {
+        if (unsupportedPlatform) return
+
         if (!isActive) {
             if (opacityChanged) {
                 resetWindowOpacity()
@@ -58,15 +56,17 @@ object SeeThroughWindow {
     }
 
     private fun setWindowOpacity(alpha: Float) {
-        if (isWayland) {
-            ErrorManager.skyHanniError(
-                "Your platform doesn't support see through window",
-            )
-        }
         opacityChanged = alpha != 1f
 
         val handle = Minecraft.getInstance().window.handle()
         GLFW.glfwSetWindowOpacity(handle, alpha)
+        val error = GLFW.glfwGetError(null)
+        if (error == GLFW.GLFW_PLATFORM_ERROR) {
+            unsupportedPlatform = true
+            ErrorManager.skyHanniError(
+                "Your platform doesn't support see through window",
+            )
+        }
     }
 
     private fun resetWindowOpacity() {
