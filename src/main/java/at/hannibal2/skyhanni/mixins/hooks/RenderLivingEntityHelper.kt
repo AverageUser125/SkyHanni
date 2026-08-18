@@ -6,7 +6,7 @@ import at.hannibal2.skyhanni.events.RenderEntityOutlineEvent
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.EntityUtils.hasVisibleEquipment
 import at.hannibal2.skyhanni.utils.collection.CollectionUtils.removeIfKey
-import at.hannibal2.skyhanni.utils.compat.deceased
+import at.hannibal2.skyhanni.utils.compat.EntityCompat.deceased
 import net.minecraft.client.renderer.entity.state.EntityRenderState
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.LivingEntity
@@ -48,7 +48,7 @@ object RenderLivingEntityHelper {
         isUsingCustomGlow = entityColorCondition.values.any { it() } ||
             currentGlowEvent?.entitiesToOutline.orEmpty().isNotEmpty()
 
-        val event = RenderEntityOutlineEvent(NO_XRAY)
+        val event = RenderEntityOutlineEvent()
         currentGlowEvent = event
         event.post()
     }
@@ -65,8 +65,13 @@ object RenderLivingEntityHelper {
     private fun getEntityGlowEventColor(entity: Entity): Int? =
         currentGlowEvent?.entitiesToOutline?.get(entity)?.rgb?.takeIf { it != 0 }
 
-    private fun getLivingEntityGlowColor(entity: LivingEntity): Int? =
-        internalSetColorMultiplier(entity, 0).takeIf { it != 0 }
+    private fun getLivingEntityGlowColor(entity: LivingEntity): Int? {
+        if (GlobalRender.renderDisabled) return null
+        val entityColor = entityColorMap[entity] ?: return null
+        val condition = entityColorCondition[entity] ?: return null
+        if (!condition.invoke()) return null
+        return entityColor.rgb.takeIf { it != 0 }
+    }
 
     @HandleEvent
     private fun onWorldChange() {
@@ -89,16 +94,5 @@ object RenderLivingEntityHelper {
         if (color.rgb == 0) return
         entityColorMap[entity] = color
         entityColorCondition[entity] = condition
-    }
-
-    private fun <T : LivingEntity> internalSetColorMultiplier(entity: T, default: Int): Int {
-        if (GlobalRender.renderDisabled) return default
-        if (entityColorMap.containsKey(entity)) {
-            val condition = entityColorCondition[entity] ?: return default
-            if (condition.invoke()) {
-                return entityColorMap[entity]?.rgb ?: default
-            }
-        }
-        return default
     }
 }
