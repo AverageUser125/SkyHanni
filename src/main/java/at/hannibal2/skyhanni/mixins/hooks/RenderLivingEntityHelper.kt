@@ -5,12 +5,13 @@ import at.hannibal2.skyhanni.data.GlobalRender
 import at.hannibal2.skyhanni.events.RenderEntityOutlineEvent
 import at.hannibal2.skyhanni.events.entity.EntityLeaveWorldEvent
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
+import at.hannibal2.skyhanni.utils.DelayedRun
 import at.hannibal2.skyhanni.utils.EntityUtils.hasVisibleEquipment
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import net.minecraft.client.renderer.entity.state.EntityRenderState
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.LivingEntity
 import java.awt.Color
-import java.util.concurrent.ConcurrentHashMap
 
 //? if >= 26.2 {
 import net.azureaaron.renderchest.api.CustomGlowCallback
@@ -21,7 +22,7 @@ import net.azureaaron.renderchest.api.GlowConstants
 object RenderLivingEntityHelper {
     private data class EntityGlowData(val rgb: Int, val condition: () -> Boolean)
 
-    private val entityGlowMap = ConcurrentHashMap<LivingEntity, EntityGlowData>()
+    private val entityGlowMap = Int2ObjectOpenHashMap<EntityGlowData>(128)
     private var currentGlowEvent: RenderEntityOutlineEvent? = null
 
     @JvmStatic
@@ -62,13 +63,13 @@ object RenderLivingEntityHelper {
     }
 
     private fun getEntityGlowEventColor(entity: Entity): Int? =
-        currentGlowEvent?.entitiesToOutline?.get(entity)?.rgb?.takeIf { it != 0 }
+        currentGlowEvent?.entitiesToOutline?.get(entity)?.rgb
 
     private fun getLivingEntityGlowColor(entity: LivingEntity): Int? {
         if (GlobalRender.renderDisabled) return null
-        val entityGlowData = entityGlowMap[entity] ?: return null
+        val entityGlowData = entityGlowMap[entity.id] ?: return null
         if (!entityGlowData.condition.invoke()) return null
-        return entityGlowData.rgb.takeIf { it != 0 }
+        return entityGlowData.rgb
     }
 
     @HandleEvent
@@ -82,11 +83,17 @@ object RenderLivingEntityHelper {
     }
 
     fun <T : LivingEntity> removeEntityColor(entity: T) {
-        entityGlowMap.remove(entity)
+        val entityId = entity.id
+        DelayedRun.runOrNextTick {
+            entityGlowMap.remove(entityId)
+        }
     }
 
     fun <T : LivingEntity> setEntityColor(entity: T, color: Color, condition: () -> Boolean) {
-        if (color.rgb == 0) return
-        entityGlowMap[entity] = EntityGlowData(color.rgb, condition)
+        val rgb = color.rgb.takeUnless { it == 0 } ?: return
+        val entityId = entity.id
+        DelayedRun.runOrNextTick {
+            entityGlowMap[entityId] = EntityGlowData(rgb, condition)
+        }
     }
 }
