@@ -3,10 +3,9 @@ package at.hannibal2.skyhanni.mixins.hooks
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.data.GlobalRender
 import at.hannibal2.skyhanni.events.RenderEntityOutlineEvent
+import at.hannibal2.skyhanni.events.entity.EntityLeaveWorldEvent
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.EntityUtils.hasVisibleEquipment
-import at.hannibal2.skyhanni.utils.collection.CollectionUtils.removeIfKey
-import at.hannibal2.skyhanni.utils.compat.EntityCompat.deceased
 import net.minecraft.client.renderer.entity.state.EntityRenderState
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.LivingEntity
@@ -80,9 +79,8 @@ object RenderLivingEntityHelper {
     }
 
     @HandleEvent
-    private fun onTick() {
-        entityColorMap.removeIfKey { it.deceased }
-        entityColorCondition.removeIfKey { it.deceased }
+    private fun onEntityLeaveWorld(event: EntityLeaveWorldEvent<LivingEntity>) {
+        removeEntityColor(event.entity)
     }
 
     fun <T : LivingEntity> removeEntityColor(entity: T) {
