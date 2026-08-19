@@ -42,13 +42,13 @@ CACHE="$GRADLE/caches/modules-2/files-2.1"
 }
 
 [[ -f "$LIBRARIES" ]] || {
-    echo "ERROR: libraries.txt not found:"
+    echo "ERROR: libraries.txt not found, run the build task and remove the random lines:"
     echo "  $LIBRARIES"
     exit 1
 }
 
 [[ -f "$JAVA/jmods/java.base.jmod" ]] || {
-    echo "ERROR: Invalid JAVA_HOME:"
+    echo "ERROR: Invalid JAVA_HOME, try and install/download jmod:"
     echo "  $JAVA"
     exit 1
 }
