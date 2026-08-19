@@ -453,7 +453,29 @@ tasks.matching { it.name == "kspTestKotlin" || it.name == "kspTestJava" }.config
 tasks.withType<ValidateAccessWidenerTask>().configureEach {
     dependsOn("stonecutterPrepare")
 }
+tasks.register("printMinecraftLibraries") {
+    notCompatibleWithConfigurationCache("Temporary diagnostic task")
 
+    doLast {
+        println("=== Minecraft configuration ===")
+
+        configurations
+            .filter { it.isCanBeResolved && it.name.contains("minecraft", ignoreCase = true) }
+            .forEach { configuration ->
+                println("\n--- ${configuration.name} ---")
+
+                try {
+                    configuration.resolve()
+                        .filter { it.extension == "jar" }
+                        .forEach { jar ->
+                            println(jar.absolutePath)
+                        }
+                } catch (e: Exception) {
+                    println("Could not resolve: ${e.message}")
+                }
+            }
+    }
+}
 repositories {
     mavenLocal()
     mavenCentral()
