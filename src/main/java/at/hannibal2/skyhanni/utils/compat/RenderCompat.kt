@@ -1,9 +1,9 @@
 package at.hannibal2.skyhanni.utils.compat
 
-import com.mojang.blaze3d.pipeline.RenderPipeline
+import com.mojang.renderpearl.api.pipeline.RenderPipeline
 import com.mojang.blaze3d.pipeline.RenderTarget
-import com.mojang.blaze3d.systems.GpuDevice
-import com.mojang.blaze3d.systems.RenderPass
+import com.mojang.renderpearl.api.device.GpuDevice
+import com.mojang.renderpearl.api.commands.RenderPass
 import com.mojang.blaze3d.systems.RenderSystem
 import net.minecraft.client.renderer.RenderPipelines
 import java.util.OptionalDouble
@@ -45,7 +45,7 @@ object RenderCompat {
 
     private fun RenderTarget.findColorAttachment() = this.colorTextureView
 
-    private fun RenderTarget.findDepthAttachment() = if (this.useDepth) this.depthTextureView else null
+    private fun RenderTarget.findDepthAttachment() = if (this.depthFormat != null) this.depthTextureView else null
 
     fun GpuDevice.createRenderPass(name: String, framebuffer: RenderTarget): RenderPass {
         val colorAttachment = framebuffer.findColorAttachment() ?: error("color attachment is null")

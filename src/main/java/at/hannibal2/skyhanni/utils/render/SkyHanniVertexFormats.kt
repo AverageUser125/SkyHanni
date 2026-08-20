@@ -5,7 +5,7 @@ import com.mojang.blaze3d.vertex.VertexFormat
 import org.lwjgl.system.MemoryUtil
 
 //? if >= 26.2 {
-import com.mojang.blaze3d.GpuFormat
+import com.mojang.renderpearl.api.GpuFormat
 import com.mojang.blaze3d.vertex.DefaultVertexFormat
 //?} else {
 /*import at.hannibal2.skyhanni.test.command.ErrorManager

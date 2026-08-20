@@ -28,7 +28,7 @@ import net.minecraft.world.entity.animal.wolf.Wolf
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon
 import net.minecraft.world.entity.boss.wither.WitherBoss
 import net.minecraft.world.entity.monster.Blaze
-import net.minecraft.world.entity.monster.EnderMan
+import net.minecraft.world.entity.monster.Enderman
 import net.minecraft.world.entity.monster.Ghast
 import net.minecraft.world.entity.monster.Giant
 import net.minecraft.world.entity.monster.Guardian
@@ -102,7 +102,7 @@ class MobFinder {
                     is IronGolem -> tryAddEntityIronGolem(mob)
                     is ZombifiedPiglin -> tryAddEntityPigZombie(mob)
                     is MagmaCube -> tryAddEntityMagmaCube(mob)
-                    is EnderMan -> tryAddEntityEnderman(mob)
+                    is Enderman -> tryAddEntityEnderman(mob)
                     is AbstractSkeleton -> tryAddEntitySkeleton(mob)
                     is Guardian -> tryAddEntityGuardian(mob)
                     is Zombie -> tryAddEntityZombie(mob)

@@ -2,15 +2,15 @@ package at.hannibal2.skyhanni.utils.render.item
 
 import at.hannibal2.skyhanni.utils.compat.RenderCompat
 import com.mojang.blaze3d.systems.RenderSystem
-import com.mojang.blaze3d.textures.GpuTexture
-import com.mojang.blaze3d.textures.GpuTextureView
+import com.mojang.renderpearl.api.textures.GpuTexture
+import com.mojang.renderpearl.api.textures.GpuTextureView
 import net.minecraft.client.gui.render.GuiRenderer
 import net.minecraft.client.renderer.texture.AbstractTexture
 
 //? if >= 26.2 {
-import com.mojang.blaze3d.GpuFormat
+import com.mojang.renderpearl.api.GpuFormat
 //?} else {
-/*import com.mojang.blaze3d.textures.TextureFormat
+/*import com.mojang.renderpearl.api.textures.TextureFormat
 *///?}
 
 abstract class SkyHanniAbstractItemTexture : AbstractTexture(), AutoCloseable {

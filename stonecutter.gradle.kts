@@ -132,7 +132,7 @@ allprojects {
     }
 }
 
-stonecutter active "26.2"
+stonecutter active "26.3"
 
 stonecutter handlers {
     configure("fsh", "vsh") {
