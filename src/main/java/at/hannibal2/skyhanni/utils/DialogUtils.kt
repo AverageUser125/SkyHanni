@@ -1,16 +1,20 @@
 package at.hannibal2.skyhanni.utils
 
-import at.hannibal2.skyhanni.SkyHanniMod.launch
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.config.commands.CommandCategory
 import at.hannibal2.skyhanni.config.commands.CommandRegistrationEvent
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.test.command.ErrorManager
 import at.hannibal2.skyhanni.utils.coroutines.CoroutineSettings
-import org.lwjgl.util.tinyfd.TinyFileDialogs
-import kotlin.time.Duration
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.sync.Mutex
+import org.lwjgl.sdl.SDL3.SDL_GetError
+import org.lwjgl.sdl.SDL3.SDL_INIT_VIDEO
+import org.lwjgl.sdl.SDL3.SDL_InitSubSystem
+import org.lwjgl.sdl.SDL3.SDL_MESSAGEBOX_INFORMATION
+import org.lwjgl.sdl.SDL3.SDL_ShowSimpleMessageBox
+import org.lwjgl.sdl.SDL3.SDL_WasInit
+import kotlin.time.Duration
 
 @SkyHanniModule
 object DialogUtils {
@@ -24,27 +28,7 @@ object DialogUtils {
     ).withMutex(dialogMutex)
 
     /**
-     * tinyfd replaces the whole string with `INVALID MESSAGE WITH QUOTES` if any of these are present,
-     * as the Unix backends build a shell command line.
-     */
-    private val forbiddenCharacters = charArrayOf('"', '\'', '`')
-
-    /**
-     * Passing this as the title displays nothing and instead reports whether a graphical backend is available.
-     * Without a backend, tinyfd falls back to a console prompt that would block the thread on stdin forever.
-     */
-    private const val QUERY_TITLE = "tinyfd_query"
-
-    private val hasGraphicalBackend by lazy { messageBox(QUERY_TITLE, "") }
-
-    /**
-     * The backend the query selected, e.g. `applescript` or `basicinput` for the console fallback.
-     * Only meaningful directly after a call, so it is read while still holding [dialogMutex].
-     */
-    private fun currentBackend(): String? = TinyFileDialogs.tinyfd_getGlobalChar("tinyfd_response")
-
-    /**
-     * Opens a modal message box outside the game window.
+     * Opens a modal SDL message box outside the game window.
      *
      * [message] is plain text; only `\n` is supported for line breaks.
      */
@@ -56,33 +40,46 @@ object DialogUtils {
         runCatching {
             if (!condition()) return@runCatching
 
-            if (!hasGraphicalBackend) {
+            if (!ensureVideoInitialized()) {
                 ErrorManager.logErrorStateWithData(
                     "Failed to open a popup window",
-                    "No graphical dialog backend is available",
-                    "backend" to currentBackend(),
-                    // tinyfd unconditionally falls back to the console when this is set, even if empty
-                    "SSH_TTY" to System.getenv("SSH_TTY"),
+                    "Failed to initialize SDL video subsystem",
+                    "error" to SDL_GetError(),
                     "title" to title,
                     "message" to message,
                 )
                 return@runCatching
             }
 
-            messageBox(title.stripForbiddenChars(), message.stripForbiddenChars())
+            val result = SDL_ShowSimpleMessageBox(
+                SDL_MESSAGEBOX_INFORMATION,
+                title,
+                message,
+                0L,
+            )
+
+            if (!result) {
+                ErrorManager.logErrorStateWithData(
+                    "Failed to open a popup window",
+                    "SDL_ShowSimpleMessageBox failed",
+                    "error" to SDL_GetError(),
+                    "title" to title,
+                    "message" to message,
+                )
+            }
         }.onFailure { e ->
             ErrorManager.logErrorWithData(
-                e, "Failed to open a popup window",
+                e,
+                "Failed to open a popup window",
                 "title" to title,
                 "message" to message,
             )
         }
     }
 
-    private fun String.stripForbiddenChars(): String = filterNot { it in forbiddenCharacters }
-
-    private fun messageBox(title: String, message: String): Boolean {
-        return TinyFileDialogs.tinyfd_messageBox(title, message, "ok", "info", 1) != 0
+    private fun ensureVideoInitialized(): Boolean {
+        if (SDL_WasInit(SDL_INIT_VIDEO) != 0) return true
+        return SDL_InitSubSystem(SDL_INIT_VIDEO)
     }
 
     @HandleEvent
@@ -90,7 +87,9 @@ object DialogUtils {
         event.registerBrigadier("shtestdialog") {
             description = "Opens a test dialog."
             category = CommandCategory.DEVELOPER_TEST
-            simpleCallback { openPopupWindow("SkyHanni Test Dialog", "Hello World!") }
+            simpleCallback {
+                openPopupWindow("SkyHanni Test Dialog", "Hello World!")
+            }
         }
     }
 }

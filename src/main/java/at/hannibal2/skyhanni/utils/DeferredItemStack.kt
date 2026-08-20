@@ -83,7 +83,7 @@ internal class DeferredItemStack private constructor(
 
     override fun applyComponents(patch: DataComponentPatch) {
         if (!isBuilt) {
-            patch.entrySet().forEach { (type, value) ->
+            patch.map.entrySet().forEach { (type, value) ->
                 if (value.isPresent) removedComponents.remove(type)
                 else removedComponents.add(type)
             }

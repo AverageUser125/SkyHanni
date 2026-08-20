@@ -1,7 +1,7 @@
 package at.hannibal2.skyhanni.utils.render
 
 import com.mojang.blaze3d.vertex.BufferBuilder
-import com.mojang.blaze3d.vertex.VertexFormat
+import com.mojang.renderpearl.api.vertex.VertexFormat
 import org.lwjgl.system.MemoryUtil
 
 //? if >= 26.2 {
@@ -10,7 +10,7 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat
 //?} else {
 /*import at.hannibal2.skyhanni.test.command.ErrorManager
 import at.hannibal2.skyhanni.utils.system.PlatformUtils
-import com.mojang.blaze3d.vertex.VertexFormatElement
+import com.mojang.renderpearl.api.vertex.VertexFormatElement
 *///?}
 
 //? if < 26.2

@@ -11,7 +11,7 @@ import at.hannibal2.skyhanni.utils.render.SkyHanniRenderPipeline
 import com.mojang.renderpearl.api.buffers.GpuBuffer
 import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.MeshData
-import com.mojang.blaze3d.vertex.VertexFormat
+import com.mojang.renderpearl.api.vertex.VertexFormat
 import net.minecraft.client.renderer.rendertype.RenderSetup
 import net.minecraft.client.renderer.rendertype.RenderType
 import net.minecraft.resources.Identifier
