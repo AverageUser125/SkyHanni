@@ -8,7 +8,8 @@ import at.hannibal2.skyhanni.utils.ConditionalUtils.afterChange
 import at.hannibal2.skyhanni.utils.KeyboardManager.isKeyHeld
 import at.hannibal2.skyhanni.utils.compat.MinecraftCompat
 import net.minecraft.client.Minecraft
-import org.lwjgl.glfw.GLFW
+import org.lwjgl.sdl.SDL_GetError
+import org.lwjgl.sdl.SDL_SetWindowOpacity
 
 @SkyHanniModule
 object SeeThroughWindow {
@@ -59,9 +60,7 @@ object SeeThroughWindow {
         opacityChanged = alpha != 1f
 
         val handle = Minecraft.getInstance().window.handle()
-        GLFW.glfwSetWindowOpacity(handle, alpha)
-        val error = GLFW.glfwGetError(null)
-        if (error.isGlfwPlatformError()) {
+        if (!SDL_SetWindowOpacity(handle, alpha)) {
             unsupportedPlatform = true
             ChatUtils.userError("Your platform doesn't support see through window!")
         }
@@ -70,10 +69,4 @@ object SeeThroughWindow {
     private fun resetWindowOpacity() {
         setWindowOpacity(1f)
     }
-
-    private fun Int.isGlfwPlatformError(): Boolean =
-        this == GLFW.GLFW_PLATFORM_ERROR ||
-            this == GLFW.GLFW_NOT_INITIALIZED ||
-            this == GLFW.GLFW_FEATURE_UNAVAILABLE ||
-            this == GLFW.GLFW_FEATURE_UNIMPLEMENTED
 }

@@ -8,12 +8,12 @@ import at.hannibal2.skyhanni.test.command.ErrorManager
 import at.hannibal2.skyhanni.utils.coroutines.CoroutineSettings
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.sync.Mutex
-import org.lwjgl.sdl.SDL3.SDL_GetError
-import org.lwjgl.sdl.SDL3.SDL_INIT_VIDEO
-import org.lwjgl.sdl.SDL3.SDL_InitSubSystem
-import org.lwjgl.sdl.SDL3.SDL_MESSAGEBOX_INFORMATION
-import org.lwjgl.sdl.SDL3.SDL_ShowSimpleMessageBox
-import org.lwjgl.sdl.SDL3.SDL_WasInit
+import org.lwjgl.sdl.SDL_GetError
+import org.lwjgl.sdl.SDL_INIT_VIDEO
+import org.lwjgl.sdl.SDL_InitSubSystem
+import org.lwjgl.sdl.SDL_MESSAGEBOX_INFORMATION
+import org.lwjgl.sdl.SDL_ShowSimpleMessageBox
+import org.lwjgl.sdl.SDL_WasInit
 import kotlin.time.Duration
 
 @SkyHanniModule

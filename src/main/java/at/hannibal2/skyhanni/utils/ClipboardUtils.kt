@@ -31,18 +31,7 @@ object ClipboardUtils {
         } else copyToClipboardInternal(text, step + 1)
     }
 
-    fun readFromClipboard(step: Int = 0): String? {
-        var shouldRetry = false
-        val clipboard = ClipboardManager().getClipboard() { _, _ ->
-            shouldRetry = true
-        }
-        return if (!shouldRetry) clipboard
-        else if (step == 3) {
-            ErrorManager.logErrorStateWithData(
-                "can not read clipboard",
-                "clipboard can not be accessed after 3 retries",
-            )
-            null
-        } else readFromClipboard(step + 1)
+    fun readFromClipboard(step: Int = 0): String {
+        return ClipboardManager().getClipboard()
     }
 }
