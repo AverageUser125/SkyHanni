@@ -32,9 +32,28 @@ public abstract class MixinItemStack {
         }
     }
 
-    @Inject(method = "addToTooltip", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/component/TooltipProvider;addToTooltip(Lnet/minecraft/world/item/Item$TooltipContext;Ljava/util/function/Consumer;Lnet/minecraft/world/item/TooltipFlag;Lnet/minecraft/core/component/DataComponentGetter;)V"), cancellable = true)
-    public <T extends TooltipProvider> void blockVanillaEnchants(DataComponentType<T> componentType, TooltipContext context, TooltipDisplay displayComponent, Consumer<Component> textConsumer, TooltipFlag type, CallbackInfo ci) {
-        if (SkyBlockUtils.getInSkyBlock() && SkyHanniMod.feature.getInventory().getEnchantParsing().getHideVanillaEnchants().get() && componentType == DataComponents.ENCHANTMENTS) {
+    @Inject(
+        method = "addToTooltip(Lnet/minecraft/core/component/DataComponentType;Lnet/minecraft/world/item/component/TooltipProvider$Getter;Lnet/minecraft/world/item/Item$TooltipContext;Lnet/minecraft/world/item/component/TooltipDisplay;Ljava/util/function/Consumer;Lnet/minecraft/world/item/TooltipFlag;)V",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/item/component/TooltipProvider;addToTooltip(Lnet/minecraft/world/item/Item$TooltipContext;Ljava/util/function/Consumer;Lnet/minecraft/world/item/TooltipFlag;Lnet/minecraft/core/component/DataComponentGetter;)V"
+        ),
+        cancellable = true
+    )
+    public <T extends TooltipProvider> void blockVanillaEnchants(
+        DataComponentType<T> componentType,
+        TooltipProvider.Getter<T> tooltipGetter,
+        TooltipContext context,
+        TooltipDisplay displayComponent,
+        Consumer<Component> textConsumer,
+        TooltipFlag type,
+        CallbackInfo ci
+    ) {
+        if (
+            SkyBlockUtils.getInSkyBlock()
+                && SkyHanniMod.feature.getInventory().getEnchantParsing().getHideVanillaEnchants().get()
+                && componentType == DataComponents.ENCHANTMENTS
+        ) {
             ci.cancel();
         }
     }
