@@ -28,7 +28,7 @@ plugins {
 }
 
 val target = ProjectTarget.entries.find { it.projectPath == project.path }!!
-val primaryTarget = ProjectTarget.MODERN_26200
+val primaryTarget = ProjectTarget.MODERN_26300
 
 fun dependencyNotation(dep: Any): Any = (dep as? Provider<*>)?.get() ?: dep
 
@@ -75,6 +75,7 @@ val shadowOnly: Configuration by configurations.creating
 
 val mixinTestRuntime: Configuration by configurations.creating {
     isCanBeConsumed = false
+    isCanBeResolved = true
     extendsFrom(configurations.testRuntimeClasspath.get())
 }
 
@@ -129,7 +130,10 @@ dependencies {
     target.fabricLoaderVersion?.let {
         implementation(it)
         "productionRuntimeMods"(it)
-        mixinTestRuntime("net.fabricmc:fabric-loader-junit:${it.substringAfterLast(':')}")
+
+        testRuntimeOnly(
+            "net.fabricmc:fabric-loader-junit:${it.substringAfterLast(':')}"
+        )
     }
     target.fabricApiVersion?.let {
         implementation(it)
@@ -242,8 +246,13 @@ tasks.withType<Test> {
 val mixinTest by tasks.registering(Test::class) {
     description = "Audits mixin application under Fabric Loader."
     group = "verification"
+
     testClassesDirs = sourceSets.test.get().output.classesDirs
-    classpath = sourceSets.test.get().output + sourceSets.main.get().output + mixinTestRuntime
+
+    classpath = sourceSets.test.get().output +
+        sourceSets.main.get().output +
+        configurations.testRuntimeClasspath.get()
+
     filter {
         includeTestsMatching("at.hannibal2.skyhanni.test.MixinTest")
     }
