@@ -24,7 +24,7 @@ public abstract class MixinMouseHandler {
     private double accumulatedDY;
 
     @Inject(method = "onMove", at = @At("RETURN"))
-    private void onMouseButton(long window, double x, double y, CallbackInfo ci) {
+    private void onMouseButton(long handle, double xpos, double ypos, double xrel, double yrel, CallbackInfo ci) {
         MouseCompat.setDeltaMouseX(this.accumulatedDX);
         MouseCompat.setDeltaMouseY(this.accumulatedDY);
     }
