@@ -56,7 +56,7 @@ public abstract class MixinItemStack {
             ci.cancel();
         }
     }
-    //? else {
+    //? } else {
     /*@Inject(method = "addToTooltip", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/component/TooltipProvider;addToTooltip(Lnet/minecraft/world/item/Item$TooltipContext;Ljava/util/function/Consumer;Lnet/minecraft/world/item/TooltipFlag;Lnet/minecraft/core/component/DataComponentGetter;)V"), cancellable = true)
     public <T extends TooltipProvider> void blockVanillaEnchants(DataComponentType<T> componentType, TooltipContext context, TooltipDisplay displayComponent, Consumer<Component> textConsumer, TooltipFlag type, CallbackInfo ci) {
         if (ItemStackHook.shouldBlockVanillaEnchants(componentType)) {
