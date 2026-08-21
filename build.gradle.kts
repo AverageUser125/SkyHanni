@@ -203,9 +203,9 @@ dependencies {
     "minecraftTestClientRuntimeLibraries"(libs.httpclient)
 
     if (target.renderChestVersion != null) {
-        include("net.azureaaron:render-chest:${target.renderChestVersion}")
-        implementation("net.azureaaron:render-chest:${target.renderChestVersion}")
-        "minecraftTestClientRuntimeLibraries"("net.azureaaron:render-chest:${target.renderChestVersion}")
+        shadowImpl("net.azureaaron:render-chest:${target.renderChestVersion}") {
+            exclude("net.fabricmc")
+        }
     }
 }
 
