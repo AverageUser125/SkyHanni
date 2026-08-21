@@ -36,6 +36,7 @@ import net.minecraft.world.entity.Entity;
 import org.spongepowered.asm.mixin.injection.Slice;
 *///?}
 
+// TODO: 26.3 - Add back the 26.2 stuff
 // Adapted from Fabric API implementation
 // The Fabric API event makes our lines render strange
 @Mixin(LevelRenderer.class)

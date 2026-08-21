@@ -22,7 +22,7 @@ object ClipboardUtils {
     }
 
     private fun copyToClipboardInternal(text: String, step: Int = 0): Boolean = runCatching {
-        ClipboardManager().setClipboard(text)
+        ClipboardManager().clipboard = text
         true
     }.getOrElse {
         if (step == 3) {
@@ -31,6 +31,7 @@ object ClipboardUtils {
         } else copyToClipboardInternal(text, step + 1)
     }
 
+    // TODO: 26.3 better error handling
     fun readFromClipboard(step: Int = 0): String? {
         return ClipboardManager().clipboard
     }

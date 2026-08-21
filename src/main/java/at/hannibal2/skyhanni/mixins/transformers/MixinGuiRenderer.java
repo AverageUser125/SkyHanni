@@ -39,6 +39,7 @@ public abstract class MixinGuiRenderer {
         method = "executeDrawRange",
         at = @At(
             value = "INVOKE",
+            //~ if < 26.3 'Lnet/minecraft/client/renderer/state/gui/GuiElementRenderState;pipeline()Lcom/mojang/blaze3d/pipeline/RenderPipeline;' -> 'Lcom/mojang/renderpearl/api/commands/RenderPass;setUniform(Ljava/lang/String;Lcom/mojang/renderpearl/api/buffers/GpuBufferSlice;)V'
             target = "Lcom/mojang/renderpearl/api/commands/RenderPass;setUniform(Ljava/lang/String;Lcom/mojang/renderpearl/api/buffers/GpuBufferSlice;)V",
             shift = At.Shift.AFTER
         )
@@ -54,6 +55,7 @@ public abstract class MixinGuiRenderer {
         method = "addElementToMesh",
         at = @At(
             value = "INVOKE",
+            //~ if < 26.3 'Lcom/mojang/renderpearl/api/pipeline/RenderPipeline;' -> 'Lcom/mojang/blaze3d/pipeline/RenderPipeline;'
             target = "Lnet/minecraft/client/renderer/state/gui/GuiElementRenderState;pipeline()Lcom/mojang/renderpearl/api/pipeline/RenderPipeline;"
         )
     )

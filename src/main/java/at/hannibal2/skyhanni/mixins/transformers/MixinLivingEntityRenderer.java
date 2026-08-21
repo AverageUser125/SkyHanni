@@ -53,7 +53,11 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, S extend
         method = "submit(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;Lnet/minecraft/client/renderer/state/level/CameraRenderState;)V",
         at = @At(
             value = "INVOKE",
+            //? if >= 26.3 {
             target = "Lnet/minecraft/client/renderer/SubmitNodeCollector;submitModel(Lnet/minecraft/client/model/Model;Ljava/lang/Object;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/rendertype/RenderType;IIILnet/minecraft/client/renderer/texture/UvMapping;I)V"
+            //?} else {
+            /*target = "Lnet/minecraft/client/renderer/SubmitNodeCollector;submitModel(Lnet/minecraft/client/model/Model;Ljava/lang/Object;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/rendertype/RenderType;IIILnet/minecraft/client/renderer/texture/TextureAtlasSprite;ILnet/minecraft/client/renderer/feature/ModelFeatureRenderer$CrumblingOverlay;)V""
+            *///?}
         ),
         index = 6
     )
@@ -71,35 +75,12 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, S extend
         return argb;
     }
 
-    @WrapWithCondition(
-        method = "submit(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;Lnet/minecraft/client/renderer/state/level/CameraRenderState;)V",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/client/renderer/SubmitNodeCollector;submitModel(Lnet/minecraft/client/model/Model;Ljava/lang/Object;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/rendertype/RenderType;IIILnet/minecraft/client/renderer/texture/UvMapping;I)V"
-        )
-    )
-    private boolean shouldSubmitEntityModel(
-        SubmitNodeCollector submitNodeCollector,
-        Model<?> model,
-        Object state,
-        PoseStack poseStack,
-        RenderType renderType,
-        int lightCoords,
-        int overlayCoords,
-        int color,
-        UvMapping uvMapping,
-        int outlineColor
-    ) {
-        return !(state instanceof LivingEntityRenderState livingState &&
-            livingState.isInvisible &&
-            livingState.skyhanni$isUsingCustomOutline());
-    }
-
     @Inject(method = "getRenderType", at = @At("HEAD"), cancellable = true)
     public void getRenderState(LivingEntityRenderState state, boolean showBody, boolean translucent, boolean showOutline, CallbackInfoReturnable<RenderType> cir) {
         if (showBody && EntityRenderDispatcherHookKt.getEntity() instanceof LivingEntity livingEntity) {
             if (EntityTransparencyManager.getEntityTransparency(livingEntity) == null) return;
             // WRONG RenderType, FIGURE OUT CORRECT ONE
+            // TODO: 26.3
             cir.setReturnValue(RenderTypes.entityTranslucentCull(this.getTextureLocation(state)));
         }
     }

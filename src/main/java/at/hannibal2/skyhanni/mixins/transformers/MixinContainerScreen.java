@@ -22,6 +22,7 @@ abstract class MixinContainerScreen {
         method = "extractBackground",
         at = @At(
             value = "INVOKE",
+            //~ if < 26.3 'com/mojang/renderpearl/api/pipeline/RenderPipeline' -> 'com/mojang/blaze3d/pipeline/RenderPipeline'
             target = "Lnet/minecraft/client/gui/GuiGraphicsExtractor;blit(Lcom/mojang/renderpearl/api/pipeline/RenderPipeline;Lnet/minecraft/resources/Identifier;IIFFIIII)V"
         ),
         index = 1

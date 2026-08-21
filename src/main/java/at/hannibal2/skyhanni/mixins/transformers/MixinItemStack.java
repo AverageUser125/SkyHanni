@@ -1,6 +1,7 @@
 package at.hannibal2.skyhanni.mixins.transformers;
 
 import at.hannibal2.skyhanni.SkyHanniMod;
+import at.hannibal2.skyhanni.mixins.hooks.ItemStackHook;
 import at.hannibal2.skyhanni.utils.SkyBlockUtils;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponentType;
@@ -32,6 +33,8 @@ public abstract class MixinItemStack {
         }
     }
 
+
+    //? if >= 26.3
     @Inject(
         method = "addToTooltip(Lnet/minecraft/core/component/DataComponentType;Lnet/minecraft/world/item/component/TooltipProvider$Getter;Lnet/minecraft/world/item/Item$TooltipContext;Lnet/minecraft/world/item/component/TooltipDisplay;Ljava/util/function/Consumer;Lnet/minecraft/world/item/TooltipFlag;)V",
         at = @At(
@@ -49,12 +52,17 @@ public abstract class MixinItemStack {
         TooltipFlag type,
         CallbackInfo ci
     ) {
-        if (
-            SkyBlockUtils.getInSkyBlock()
-                && SkyHanniMod.feature.getInventory().getEnchantParsing().getHideVanillaEnchants().get()
-                && componentType == DataComponents.ENCHANTMENTS
-        ) {
+        if (ItemStackHook.shouldBlockVanillaEnchants(componentType)) {
             ci.cancel();
         }
     }
+    //? else {
+    /*
+        @Inject(method = "addToTooltip", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/component/TooltipProvider;addToTooltip(Lnet/minecraft/world/item/Item$TooltipContext;Ljava/util/function/Consumer;Lnet/minecraft/world/item/TooltipFlag;Lnet/minecraft/core/component/DataComponentGetter;)V"), cancellable = true)
+    public <T extends TooltipProvider> void blockVanillaEnchants(DataComponentType<T> componentType, TooltipContext context, TooltipDisplay displayComponent, Consumer<Component> textConsumer, TooltipFlag type, CallbackInfo ci) {
+        if (ItemStackHook.shouldBlockVanillaEnchants(componentType)) {
+            ci.cancel();
+        }
+    }
+    *///?}
 }

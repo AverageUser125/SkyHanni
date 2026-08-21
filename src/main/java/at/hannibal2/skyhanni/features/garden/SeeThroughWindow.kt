@@ -9,6 +9,7 @@ import at.hannibal2.skyhanni.utils.KeyboardManager.isKeyHeld
 import at.hannibal2.skyhanni.utils.compat.MinecraftCompat
 import net.minecraft.client.Minecraft
 
+// TODO: 26.3
 @SkyHanniModule
 object SeeThroughWindow {
 

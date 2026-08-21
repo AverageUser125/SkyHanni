@@ -82,6 +82,7 @@ public abstract class MixinAbstractContainerScreen<T extends AbstractContainerMe
         method = "extractTooltip",
         at = @At(
             value = "INVOKE",
+            //~ if < 26.3 'Z)V' -> ')V'
             target = "Lnet/minecraft/client/gui/GuiGraphicsExtractor;setTooltipForNextFrame(Lnet/minecraft/client/gui/Font;Ljava/util/List;Ljava/util/Optional;IILnet/minecraft/resources/Identifier;Z)V"
         ),
         index = 1
