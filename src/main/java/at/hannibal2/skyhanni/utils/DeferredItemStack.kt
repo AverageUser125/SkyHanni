@@ -110,8 +110,8 @@ internal class DeferredItemStack private constructor(
         if (removedComponents.isEmpty()) return pendingPatch
 
         val builder = DataComponentPatch.builder()
-        pendingPatch.entrySet().forEach { (type, value) ->
-            if (value.isPresent) builder.setUnchecked(type, value.get())
+        pendingPatch.map.reference2ObjectEntrySet().forEach { (type, value) ->
+            if (value != null) builder.setUnchecked(type, value)
             else builder.removeUnchecked(type)
         }
         removedComponents.forEach(builder::removeUnchecked)

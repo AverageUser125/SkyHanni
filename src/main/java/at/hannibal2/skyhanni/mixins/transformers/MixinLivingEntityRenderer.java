@@ -95,7 +95,8 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, S extend
     public void getRenderState(LivingEntityRenderState state, boolean showBody, boolean translucent, boolean showOutline, CallbackInfoReturnable<RenderType> cir) {
         if (showBody && EntityRenderDispatcherHookKt.getEntity() instanceof LivingEntity livingEntity) {
             if (EntityTransparencyManager.getEntityTransparency(livingEntity) == null) return;
-            cir.setReturnValue(RenderTypes.entityTranslucentCullItemTarget(this.getTextureLocation(state)));
+            // WRONG RenderType, FIGURE OUT CORRECT ONE
+            cir.setReturnValue(RenderTypes.entityTranslucentCull(this.getTextureLocation(state)));
         }
     }
 }

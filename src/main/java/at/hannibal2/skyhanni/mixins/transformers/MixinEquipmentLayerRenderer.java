@@ -20,7 +20,8 @@ public abstract class MixinEquipmentLayerRenderer {
          if (EntityRenderDispatcherHookKt.getEntity() instanceof LivingEntity livingEntity) {
              Integer entityAlpha = EntityTransparencyManager.getEntityTransparency(livingEntity);
              if (entityAlpha == null) return original;
-             return RenderTypes.armorTranslucent(identifier);
+            // WRONG RenderType, FIGURE OUT CORRECT ONE
+             return RenderTypes.armorCutoutNoCull(identifier);
          }
          return original;
      }

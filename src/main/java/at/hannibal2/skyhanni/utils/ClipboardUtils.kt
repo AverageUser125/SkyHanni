@@ -31,7 +31,7 @@ object ClipboardUtils {
         } else copyToClipboardInternal(text, step + 1)
     }
 
-    fun readFromClipboard(step: Int = 0): String {
-        return ClipboardManager().getClipboard()
+    fun readFromClipboard(step: Int = 0): String? {
+        return ClipboardManager().clipboard
     }
 }

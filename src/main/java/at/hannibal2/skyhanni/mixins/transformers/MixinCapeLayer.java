@@ -34,7 +34,8 @@ public abstract class MixinCapeLayer {
         if (skinTextures.cape() != null && EntityRenderDispatcherHookKt.getEntity() instanceof LivingEntity livingEntity) {
             Integer entityAlpha = EntityTransparencyManager.getEntityTransparency(livingEntity);
             if (entityAlpha == null) return original;
-            return RenderTypes.entityTranslucentCullItemTarget(skinTextures.cape().texturePath());
+            // WRONG RenderType, FIGURE OUT CORRECT ONE
+            return RenderTypes.entityTranslucentCull(skinTextures.cape().texturePath());
         }
         return original;
     }
