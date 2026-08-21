@@ -33,7 +33,7 @@ internal class SkyHanniItemAtlas : SkyHanniAbstractAtlas<SkyHanniAtlasKey, SkyHa
 
     private fun SkyHanniAnimatedAtlasKey.clearPreviousFrame() {
         val prevEntry = entries[this.copy(frameNumber = frameNumber - 1)] ?: return
-        renderer?.clearSlot(prevEntry.x, prevEntry.y, prevEntry.pixelSize)
+        // renderer?.clearSlot(prevEntry.x, prevEntry.y, prevEntry.pixelSize)
     }
 
     private fun recordPosition(key: SkyHanniAtlasKey, slotX: Int, slotY: Int, pixelSize: Int) {

@@ -9,41 +9,12 @@ import java.nio.ByteBuffer
 class SkyHanniChromaUniform : AutoCloseable {
     private val uniformSize = Std140SizeCalculator().putFloat().putFloat().putFloat().putInt().get()
 
-    val storage = DynamicGpuDataStorage<UniformValue>("SkyHanni Chroma UBO", uniformSize, 2)
-
-    fun writeWith(
-        chromaSize: Float,
-        timeOffset: Float,
-        saturation: Float,
-        forwardDirection: Int,
-    ): GpuBufferSlice {
-        return storage.writeUniform(
-            UniformValue(chromaSize, timeOffset, saturation, forwardDirection),
-        )
-    }
 
     // Imperative to clear DynamicUniformStorage every frame.
     // Handled in MixinRenderSystem.
     fun clear() {
-        storage.endFrame()
     }
 
     override fun close() {
-        storage.close()
-    }
-
-    data class UniformValue(
-        val chromaSize: Float,
-        val timeOffset: Float,
-        val saturation: Float,
-        val forwardDirection: Int,
-    ) : DynamicUniformStorage.DynamicUniform {
-        override fun write(buffer: ByteBuffer) {
-            Std140Builder.intoBuffer(buffer)
-                .putFloat(chromaSize)
-                .putFloat(timeOffset)
-                .putFloat(saturation)
-                .putInt(forwardDirection)
-        }
     }
 }

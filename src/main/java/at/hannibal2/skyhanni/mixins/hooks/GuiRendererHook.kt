@@ -46,8 +46,6 @@ object GuiRendererHook {
             Direction.FORWARD_RIGHT, Direction.FORWARD_LEFT -> 1
             Direction.BACKWARD_RIGHT, Direction.BACKWARD_LEFT -> 0
         }
-
-        chromaBufferSlice = chromaUniform.writeWith(chromaSize, timeOffset, saturation, forwardDirection)
     }
 
     @JvmStatic

@@ -35,14 +35,7 @@ internal class SkyHanniItemAtlasRenderer(
         projectionBuffer: ProjectionMatrixBuffer,
         block: () -> Unit,
     ) {
-        val size = sizePixels.toFloat()
-        val bufferSlice = projectionBuffer.getBuffer(Projection().apply { this.setupOrtho(-1000f, 1000f, size, size, true) })
-        RenderSystem.setProjectionMatrix(bufferSlice, ProjectionType.ORTHOGRAPHIC)
-        RenderSystem.outputColorTextureOverride = textureView
-        RenderSystem.outputDepthTextureOverride = depthTextureView
-        block()
-        RenderSystem.outputColorTextureOverride = null
-        RenderSystem.outputDepthTextureOverride = null
+
     }
 
     fun renderItemToAtlas(
@@ -94,13 +87,6 @@ internal class SkyHanniItemAtlasRenderer(
                 ((shState.alpha * 255).roundToInt() shl 24) or 0x00FFFFFF,
                 shState.scissorArea(),
             )
-        )
-    }
-
-    fun clearSlot(x: Int, y: Int, size: Int) {
-        RenderSystem.getDevice().createCommandEncoder().clearColorAndDepthTextures(
-            texture, GuiRenderer.CLEAR_COLOR, depthTexture, RenderCompat.CLEAR_DEPTH,
-            x, sizePixels - y - size, size, size,
         )
     }
 }

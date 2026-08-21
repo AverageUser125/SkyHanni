@@ -219,7 +219,7 @@ object HolographicEntities {
                     submitNodeCollector,
                 )
                 //? if >= 26.2
-                gameRenderer.featureRenderDispatcher().renderAllFeatures(submitNodeCollector)
+                // gameRenderer.featureRenderDispatcher().renderAllFeatures(submitNodeCollector)
             }
         } finally {
             activeHolographicEntities.remove(entity)

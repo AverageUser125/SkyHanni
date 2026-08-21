@@ -12,6 +12,7 @@ import net.minecraft.client.gui.screens.Screen
 import net.minecraft.client.gui.screens.inventory.AbstractSignEditScreen
 import net.minecraft.client.gui.screens.inventory.SignEditScreen
 import net.minecraft.network.chat.Component
+import net.minecraft.world.level.block.entity.SignTextSlot
 
 object SignUtils {
     private var pasteLastClicked = false
@@ -110,5 +111,5 @@ object SignUtils {
     }
 
     private val AbstractSignEditScreen.signText: Array<Component>
-        get() = this.text.getMessages(false)
+        get() = sign.getText(SignTextSlot.FRONT).getMessages(false).toTypedArray()
 }

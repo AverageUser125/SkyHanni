@@ -45,7 +45,7 @@ object KeyboardManager {
      * On macOS, this is the Command key.
      */
     private fun isSuperKeyDown() =
-        InputConstants.KEY_LSUPER.isKeyHeld() || InputConstants.KEY_RSUPER.isKeyHeld()
+        InputConstants.KEY_LGUI.isKeyHeld() || InputConstants.KEY_RGUI.isKeyHeld()
 
     /**
      * Represents whether either the left or right Alt key is down.
@@ -146,7 +146,7 @@ object KeyboardManager {
 
         this == -1 -> false
         MouseCompat.isMouseButton(this) -> MouseCompat.isButtonDown(this)
-        else -> InputConstants.isKeyDown(Minecraft.getInstance().window, this)
+        else -> InputConstants.isKeyDown(this)
     }
 
     private val lockedKeys = mutableSetOf<Int>()

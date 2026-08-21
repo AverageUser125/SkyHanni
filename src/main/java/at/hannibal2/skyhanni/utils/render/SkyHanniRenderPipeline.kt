@@ -16,7 +16,7 @@ import net.minecraft.resources.Identifier
 import java.util.Optional
 
 //? if >= 26.2 {
-import com.mojang.blaze3d.PrimitiveTopology
+import com.mojang.renderpearl.api.pipeline.PrimitiveTopology
 import com.mojang.renderpearl.api.pipeline.BindGroupLayout
 import net.minecraft.client.renderer.BindGroupLayouts
 //?}

@@ -120,7 +120,7 @@ data class SkyHanniGuiItemRenderState(
         //~ if < 26.2 'submitNodeStorage' -> 'featureRenderDispatcher.submitNodeStorage'
         trackingState.submit(ps, submitNodeStorage, FULL_BRIGHT, OverlayTexture.NO_OVERLAY, 0)
         //? if >= 26.2 {
-        featureRenderDispatcher.renderAllFeatures(submitNodeStorage)
+        //featureRenderDispatcher.renderAllFeatures(submitNodeStorage)
         //?} else {
         /*featureRenderDispatcher.renderAllFeatures()
         bufferSource.endBatch()

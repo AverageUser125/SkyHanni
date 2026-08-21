@@ -2,6 +2,7 @@
 
 package at.hannibal2.skyhanni.utils
 
+import it.unimi.dsi.fastutil.objects.Reference2ObjectMap
 import net.minecraft.core.Holder
 import net.minecraft.core.component.DataComponentMap
 import net.minecraft.core.component.DataComponentPatch
@@ -83,8 +84,9 @@ internal class DeferredItemStack private constructor(
 
     override fun applyComponents(patch: DataComponentPatch) {
         if (!isBuilt) {
-            patch.map.entrySet().forEach { (type, value) ->
-                if (value.isPresent) removedComponents.remove(type)
+            val map: Reference2ObjectMap<DataComponentType<*>, Any> = patch.map
+            map.reference2ObjectEntrySet().forEach { (type, value) ->
+                if (value != null) removedComponents.remove(type)
                 else removedComponents.add(type)
             }
         }
