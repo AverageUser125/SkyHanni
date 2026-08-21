@@ -121,7 +121,6 @@ allprojects {
 
         exclusiveContent {
             forRepositories(
-                repositories.mavenLocal(),
                 repositories.maven("https://maven.azureaaron.net/releases"),
             )
             filter {
@@ -132,7 +131,7 @@ allprojects {
     }
 }
 
-stonecutter active "26.3"
+stonecutter active "26.2"
 
 stonecutter handlers {
     configure("fsh", "vsh") {

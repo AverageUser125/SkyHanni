@@ -14,7 +14,7 @@ class RenderEntityOutlineEvent : SkyHanniEvent() {
     /**
      * The entities to outline. This is progressively cumulated from [.entitiesToChooseFrom]
      */
-    var entitiesToOutline: HashMap<Entity, Color> = hashMapOf()
+    var entitiesToOutline: HashMap<Entity, Int> = hashMapOf()
 
     /**
      * The entities we can outline. Note that this set and [.entitiesToOutline] are disjoint at all times.
@@ -42,13 +42,13 @@ class RenderEntityOutlineEvent : SkyHanniEvent() {
             return
         }
         computeAndCacheEntitiesToChooseFrom()
-        val itr: MutableIterator<Entity> = entitiesToChooseFrom.iterator()
-        while (itr.hasNext()) {
-            val e: Entity = itr.next()
-            val i: Color? = outlineColor(e)
-            if (i != null) {
-                entitiesToOutline[e] = i
-                itr.remove()
+        val iterator: MutableIterator<Entity> = entitiesToChooseFrom.iterator()
+        while (iterator.hasNext()) {
+            val entity: Entity = iterator.next()
+            val color: Color? = outlineColor(entity)
+            if (color != null) {
+                entitiesToOutline[entity] = color.rgb or 0xFF000000.toInt()
+                iterator.remove()
             }
         }
     }

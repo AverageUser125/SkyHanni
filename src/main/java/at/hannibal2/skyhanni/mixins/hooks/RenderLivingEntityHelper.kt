@@ -7,7 +7,6 @@ import at.hannibal2.skyhanni.events.entity.EntityLeaveWorldEvent
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.DelayedRun
 import at.hannibal2.skyhanni.utils.EntityUtils.hasVisibleEquipment
-import net.minecraft.client.renderer.entity.state.EntityRenderState
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.LivingEntity
 import java.awt.Color
@@ -24,29 +23,24 @@ object RenderLivingEntityHelper {
     private val entityGlowMap = mutableMapOf<Int, EntityGlowData>()
     private var currentGlowEvent: RenderEntityOutlineEvent? = null
 
-    @JvmStatic
+    //? if >= 26.2 {
+    init {
+        CustomGlowCallback.EVENT.register { entity, _ ->
+            getEntityGlowColor(entity) ?: GlowConstants.NO_GLOW
+        }
+    }
+    //?} else {
+    /*@JvmStatic
     var isUsingCustomGlow = false
         private set
-
-//? if >= 26.2 {
-    init {
-        CustomGlowCallback.EVENT.register(::applyRenderChestGlow)
-    }
-
-    private fun applyRenderChestGlow(
-        entity: Entity,
-        @Suppress("UNUSED_PARAMETER") state: EntityRenderState,
-    ): Int {
-        if (!isUsingCustomGlow) return GlowConstants.NO_GLOW
-        return getEntityGlowColor(entity) ?: GlowConstants.NO_GLOW
-    }
-//?}
+    *///?}
 
     @JvmStatic
     fun postNoXrayOutlineEvent() {
-        isUsingCustomGlow = entityGlowMap.values.any { it.condition() } ||
+        //? if < 26.2 {
+        /*isUsingCustomGlow = entityGlowMap.values.any { it.condition() } ||
             currentGlowEvent?.entitiesToOutline.orEmpty().isNotEmpty()
-
+        *///?}
         val event = RenderEntityOutlineEvent()
         currentGlowEvent = event
         event.post()
@@ -54,6 +48,7 @@ object RenderLivingEntityHelper {
 
     @JvmStatic
     fun getEntityGlowColor(entity: Entity): Int? {
+        if (GlobalRender.renderDisabled) return null
         if (entity is LivingEntity) {
             if (entity.isInvisible && !entity.hasVisibleEquipment()) return null
             getLivingEntityGlowColor(entity)?.let { return it }
@@ -62,10 +57,9 @@ object RenderLivingEntityHelper {
     }
 
     private fun getEntityGlowEventColor(entity: Entity): Int? =
-        currentGlowEvent?.entitiesToOutline?.get(entity)?.rgb
+        currentGlowEvent?.entitiesToOutline?.get(entity)
 
     private fun getLivingEntityGlowColor(entity: LivingEntity): Int? {
-        if (GlobalRender.renderDisabled) return null
         val entityGlowData = entityGlowMap[entity.id] ?: return null
         if (!entityGlowData.condition()) return null
         return entityGlowData.rgb
