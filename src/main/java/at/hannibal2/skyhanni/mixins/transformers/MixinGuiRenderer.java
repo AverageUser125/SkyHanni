@@ -35,19 +35,32 @@ public abstract class MixinGuiRenderer {
         GuiRendererHook.INSTANCE.computeChromaBufferSlice();
     }
 
-    //~ if < 26.2 'shift = At.Shift.AFTER' -> 'ordinal = 1'
-    @Inject(method = "executeDrawRange", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderPass;setUniform(Ljava/lang/String;Lcom/mojang/blaze3d/buffers/GpuBufferSlice;)V", shift = At.Shift.AFTER))
+    @Inject(
+        method = "executeDrawRange",
+        at = @At(
+            value = "INVOKE",
+            target = "Lcom/mojang/renderpearl/api/commands/RenderPass;setUniform(Ljava/lang/String;Lcom/mojang/renderpearl/api/buffers/GpuBufferSlice;)V",
+            shift = At.Shift.AFTER
+        )
+    )
     public void insertChromaSetUniform(
         CallbackInfo ci,
-        @Local RenderPass renderPass) {
+        @Local RenderPass renderPass
+    ) {
         GuiRendererHook.INSTANCE.insertChromaSetUniform(renderPass);
     }
 
     @WrapOperation(
         method = "addElementToMesh",
-        at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/state/gui/GuiElementRenderState;pipeline()Lcom/mojang/blaze3d/pipeline/RenderPipeline;")
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/renderer/state/gui/GuiElementRenderState;pipeline()Lcom/mojang/renderpearl/api/pipeline/RenderPipeline;"
+        )
     )
-    public RenderPipeline replacePipeline(GuiElementRenderState state, Operation<RenderPipeline> original) {
+    public RenderPipeline replacePipeline(
+        GuiElementRenderState state,
+        Operation<RenderPipeline> original
+    ) {
         return GuiRendererHook.INSTANCE.replacePipeline(state, original);
     }
 

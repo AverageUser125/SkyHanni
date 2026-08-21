@@ -4,15 +4,13 @@ import at.hannibal2.skyhanni.events.minecraft.SkyHanniRenderWorldEvent;
 import com.mojang.renderpearl.api.buffers.GpuBufferSlice;
 import com.mojang.blaze3d.resource.GraphicsResourceAllocator;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
-import org.joml.Matrix4fc;
+import net.minecraft.client.renderer.state.level.LevelRenderState;
 import org.joml.Vector4f;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -48,11 +46,9 @@ public abstract class MixinLevelRenderer {
     PoseStack contextMatrixStack;
     *///?}
 
-    @Unique
-    CameraRenderState currentCameraState;
-
-    @Unique
-    DeltaTracker currentTickCounter;
+    @Final
+    @Shadow
+    LevelRenderState levelRenderState;
 
     //? if >= 26.2 {
     @Final
@@ -64,24 +60,6 @@ public abstract class MixinLevelRenderer {
     private RenderBuffers renderBuffers;
     *///?}
 
-    //~ if < 26.2 'render' -> 'renderLevel'
-    @Inject(method = "render", at = @At("HEAD"))
-    private void beginRender(
-        GraphicsResourceAllocator resourceAllocator,
-        DeltaTracker deltaTracker, boolean renderOutline,
-        CameraRenderState cameraState,
-        Matrix4fc modelViewMatrix,
-        GpuBufferSlice terrainFog,
-        Vector4f fogColor,
-        boolean shouldRenderSky,
-        //? if < 26.2
-        //ChunkSectionsToRender chunkSectionsToRender,
-        CallbackInfo ci
-    ) {
-        currentCameraState = cameraState;
-        currentTickCounter = deltaTracker;
-    }
-
     //? if >= 26.2 {
     @Inject(
         method = "render",
@@ -91,21 +69,13 @@ public abstract class MixinLevelRenderer {
         )
     )
     private void postRenderWorldBeforePrepareFeatures(
-        GraphicsResourceAllocator resourceAllocator,
-        DeltaTracker deltaTracker,
-        boolean renderOutline,
-        CameraRenderState cameraState,
-        Matrix4fc modelViewMatrix,
-        GpuBufferSlice terrainFog,
-        Vector4f fogColor,
-        boolean shouldRenderSky,
-        CallbackInfo ci
+        GraphicsResourceAllocator resourceAllocator, boolean renderOutline, CameraRenderState cameraState, GpuBufferSlice terrainFog, Vector4f fogColor, boolean shouldRenderSky, boolean consistentDepthRequired, CallbackInfo ci
     ) {
         SkyHanniRenderWorldEvent event = new SkyHanniRenderWorldEvent(
             new PoseStack(),
             cameraState,
             submitNodeStorage,
-            deltaTracker.getGameTimeDeltaPartialTick(true),
+            levelRenderState.worldPartialTicks,
             true
         );
         event.post();
