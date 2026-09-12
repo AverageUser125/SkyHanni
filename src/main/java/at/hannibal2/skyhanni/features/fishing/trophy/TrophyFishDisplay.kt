@@ -51,15 +51,15 @@ object TrophyFishDisplay {
     private var display = emptyList<Renderable>()
 
     @HandleEvent(onlyOnIsland = CRIMSON_ISLE)
-    fun onIslandJoin() {
+    private fun onIslandJoin() {
         DelayedRun.runDelayed(200.milliseconds) {
             TrophyFishManager.loadMissingTrophyFish()
             update()
         }
     }
 
-    @HandleEvent
-    fun onTrophyFishCaught(event: TrophyFishCaughtEvent) {
+    @HandleEvent(onlyOnIsland = CRIMSON_ISLE)
+    private fun onTrophyFishCaught(event: TrophyFishCaughtEvent) {
         TrophyFishManager.loadMissingTrophyFish()
         recentlyDroppedTrophies[getInternalName(event.trophyFishName)] = event.rarity
         update()
@@ -69,14 +69,14 @@ object TrophyFishDisplay {
     }
 
     @HandleEvent
-    fun onProfileJoin() {
+    private fun onProfileJoin() {
         display = emptyList()
         TrophyFishManager.loadMissingTrophyFish()
         update()
     }
 
     @HandleEvent
-    fun onConfigLoad() {
+    private fun onConfigLoad() {
         with(config) {
             ConditionalUtils.onToggle(
                 enabled,
@@ -98,7 +98,7 @@ object TrophyFishDisplay {
     }
 
     fun update() {
-        if (!isEnabled()) return
+        if (!isEnabled() || !IslandType.CRIMSON_ISLE.isInIsland()) return
         val list = mutableListOf<Renderable>()
         list.addString("§e§lTrophy Fish Display")
         list.add(Renderable.table(createTable(), ySpacing = config.extraSpace.get()))
@@ -263,8 +263,8 @@ object TrophyFishDisplay {
         return null
     }
 
-    @HandleEvent
-    fun onGuiRenderTop() {
+    @HandleEvent(onlyOnIsland = CRIMSON_ISLE)
+    private fun onGuiRenderTop() {
         if (InventoryUtils.inAnyInventory()) {
             InventoryGuiScaleCompat.withOriginalHudScale {
                 renderDisplay()
@@ -296,10 +296,10 @@ object TrophyFishDisplay {
         WhenToShow.ONLY_WITH_KEYBIND -> config.keybind.isKeyHeld()
     }
 
-    private fun isEnabled() = (IslandType.CRIMSON_ISLE.isInIsland() || SkyBlockUtils.isStrandedProfile) && config.enabled.get()
+    private fun isEnabled() = config.enabled.get()
 
     @HandleEvent
-    fun onConfigFix(event: ConfigUpdaterMigrator.ConfigFixEvent) {
+    private fun onConfigFix(event: ConfigUpdaterMigrator.ConfigFixEvent) {
         val base = "fishing.trophyFishing.display"
         event.move(94, "$base.requireHunterArmor", "$base.requireArmor")
     }
