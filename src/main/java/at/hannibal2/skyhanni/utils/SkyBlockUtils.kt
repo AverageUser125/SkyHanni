@@ -33,7 +33,6 @@ object SkyBlockUtils {
 
     val noTradeMode get() = HypixelData.noTrade
 
-
     val isBingoProfile get() = inSkyBlock && (HypixelData.bingo || TestBingo.testBingo)
 
     val isIronmanProfile get() = inSkyBlock && HypixelData.ironman
