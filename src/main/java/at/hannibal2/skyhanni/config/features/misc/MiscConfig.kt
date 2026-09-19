@@ -10,7 +10,6 @@ import at.hannibal2.skyhanni.config.features.misc.frogmask.FrogMaskFeaturesConfi
 import at.hannibal2.skyhanni.config.features.misc.navigation.NavigationConfig
 import at.hannibal2.skyhanni.config.features.misc.tracker.UniversalTrackerConfig
 import at.hannibal2.skyhanni.config.features.pets.PetConfig
-import at.hannibal2.skyhanni.config.features.stranded.StrandedConfig
 import at.hannibal2.skyhanni.utils.SoundUtils
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.Accordion
@@ -43,10 +42,6 @@ class MiscConfig {
     @Expose
     @Category(name = "Minions", desc = "The minions on your private island.")
     val minions: MinionsConfig = MinionsConfig()
-
-    @Expose
-    @Category(name = "Stranded", desc = "Features designed for the Stranded game mode.")
-    val stranded: StrandedConfig = StrandedConfig()
 
     @Expose
     @Category(name = "Navigation", desc = "Navigation features and other related settings.")

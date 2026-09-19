@@ -224,13 +224,8 @@ object SlayerApi {
     }
 
     private fun updateArea() {
-        if (SkyBlockUtils.isStrandedProfile) {
-            isInAnyArea = true
-            isInCorrectArea = true
-        } else {
-            isInAnyArea = currentAreaType != null
-            isInCorrectArea = currentAreaType == activeType && currentAreaType != null
-        }
+        isInAnyArea = currentAreaType != null
+        isInCorrectArea = currentAreaType == activeType && currentAreaType != null
     }
 
     private fun getSlayerLines(): Pair<List<String>, SlayerLinesSource> {

@@ -54,7 +54,6 @@ object HoppityNpc {
     fun onSecondPassed(event: SecondPassedEvent) {
         if (!isReminderEnabled()) return
         if (ReminderUtils.isBusy()) return
-        if (SkyBlockUtils.isStrandedProfile) return
 
         if (hoppityYearOpened == SkyBlockTime.now().year) return
         if (!HoppityApi.isHoppityEvent()) return

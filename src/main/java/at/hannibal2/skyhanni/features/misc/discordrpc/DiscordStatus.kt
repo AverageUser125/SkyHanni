@@ -180,7 +180,6 @@ enum class DiscordStatus(private val displayMessageSupplier: DiscordStatus.() ->
                     when {
                         SkyBlockUtils.isIronmanProfile -> "♲"
                         SkyBlockUtils.isBingoProfile -> "Ⓑ"
-                        SkyBlockUtils.isStrandedProfile -> "☀"
                         else -> ""
                     }
                 )

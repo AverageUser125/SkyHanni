@@ -212,7 +212,6 @@ object BarnFishingTimer {
             IslandType.CRYSTAL_HOLLOWS -> config.crystalHollows.get()
             IslandType.CRIMSON_ISLE -> config.crimsonIsle.get()
             IslandType.WINTER -> config.winterIsland.get()
-            IslandType.PRIVATE_ISLAND -> config.forStranded.get() && SkyBlockUtils.isStrandedProfile
             else -> false
         }
     }

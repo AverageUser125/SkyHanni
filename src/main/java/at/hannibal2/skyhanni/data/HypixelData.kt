@@ -76,11 +76,10 @@ object HypixelData {
 
     val serverId get() = HypixelLocationApi.serverId
 
-    // Ironman, Stranded and Bingo
+    // Ironman and Bingo
     var noTrade = false
 
     var ironman = false
-    var stranded = false
     var bingo = false
 
     var profileName = ""
@@ -235,13 +234,9 @@ object HypixelData {
         val scoreboardTitle = getScoreboardTitle() ?: return
         if (scoreboardTitle.contains("GUEST")) return
         ironman = false
-        stranded = false
         bingo = false
 
-
-
         if (scoreboardTitle.contains("♲")) ironman = true
-        else if (scoreboardTitle.contains("☀")) stranded = true
 
         // remove once update is on main
         // make sure to keep the bingo part when you remove it
@@ -253,14 +248,10 @@ object HypixelData {
                 " §7♲ §7Ironman" -> {
                     ironman = true
                 }
-
-                " §a☀ §aStranded" -> {
-                    stranded = true
-                }
             }
         }
 
-        noTrade = ironman || stranded || bingo
+        noTrade = ironman || bingo
     }
 
     private var tabListDataDirty = false

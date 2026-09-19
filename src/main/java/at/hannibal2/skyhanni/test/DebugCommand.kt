@@ -88,9 +88,6 @@ object DebugCommand {
             if (HypixelData.ironman) {
                 event.addData("on ironman")
             }
-            if (HypixelData.stranded) {
-                event.addData("on stranded")
-            }
             if (HypixelData.bingo) {
                 event.addData("on bingo")
             }

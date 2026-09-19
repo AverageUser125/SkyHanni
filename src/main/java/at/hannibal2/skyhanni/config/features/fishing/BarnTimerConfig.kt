@@ -70,14 +70,6 @@ class BarnTimerConfig {
     val winterIsland: Property<Boolean> = Property.of(true)
 
     @Expose
-    @ConfigOption(
-        name = "Stranded Fishing",
-        desc = "Show the Barn Fishing Timer on all the different islands that Stranded players can visit.",
-    )
-    @ConfigEditorBoolean
-    val forStranded: Property<Boolean> = Property.of(true)
-
-    @Expose
     @ConfigLink(owner = BarnTimerConfig::class, field = "enabled")
     val pos: Position = Position(10, 10)
 }

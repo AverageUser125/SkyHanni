@@ -17,7 +17,6 @@ object ScoreboardElementProfile : ScoreboardElement() {
         } else {
             when {
                 HypixelData.ironman -> append(FixIronman.getIronmanName())
-                HypixelData.stranded -> append("Stranded")
                 HypixelData.bingo -> append("Bingo")
                 else -> append("Normal")
             }

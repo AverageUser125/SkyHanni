@@ -25,7 +25,6 @@ import at.hannibal2.skyhanni.utils.NeuItems
 import at.hannibal2.skyhanni.utils.NeuItems.getItemStack
 import at.hannibal2.skyhanni.utils.NumberUtil.addSeparators
 import at.hannibal2.skyhanni.utils.RenderUtils.renderRenderables
-import at.hannibal2.skyhanni.utils.SkyBlockUtils
 import at.hannibal2.skyhanni.utils.StringUtils.removeColor
 import at.hannibal2.skyhanni.utils.collection.CollectionUtils.sumAllValues
 import at.hannibal2.skyhanni.utils.collection.RenderableCollectionUtils.addSingleString
@@ -51,7 +50,7 @@ object TrophyFishDisplay {
     private var display = emptyList<Renderable>()
 
     @HandleEvent(onlyOnIsland = CRIMSON_ISLE)
-    fun onIslandJoin() {
+    private fun onIslandJoin() {
         DelayedRun.runDelayed(200.milliseconds) {
             TrophyFishManager.loadMissingTrophyFish()
             update()
@@ -59,7 +58,7 @@ object TrophyFishDisplay {
     }
 
     @HandleEvent
-    fun onTrophyFishCaught(event: TrophyFishCaughtEvent) {
+    private fun onTrophyFishCaught(event: TrophyFishCaughtEvent) {
         TrophyFishManager.loadMissingTrophyFish()
         recentlyDroppedTrophies[getInternalName(event.trophyFishName)] = event.rarity
         update()
@@ -69,14 +68,14 @@ object TrophyFishDisplay {
     }
 
     @HandleEvent
-    fun onProfileJoin() {
+    private fun onProfileJoin() {
         display = emptyList()
         TrophyFishManager.loadMissingTrophyFish()
         update()
     }
 
     @HandleEvent
-    fun onConfigLoad() {
+    private fun onConfigLoad() {
         with(config) {
             ConditionalUtils.onToggle(
                 enabled,
@@ -264,7 +263,7 @@ object TrophyFishDisplay {
     }
 
     @HandleEvent
-    fun onGuiRenderTop() {
+    private fun onGuiRenderTop() {
         if (InventoryUtils.inAnyInventory()) {
             InventoryGuiScaleCompat.withOriginalHudScale {
                 renderDisplay()
@@ -296,10 +295,10 @@ object TrophyFishDisplay {
         WhenToShow.ONLY_WITH_KEYBIND -> config.keybind.isKeyHeld()
     }
 
-    private fun isEnabled() = (IslandType.CRIMSON_ISLE.isInIsland() || SkyBlockUtils.isStrandedProfile) && config.enabled.get()
+    private fun isEnabled() = IslandType.CRIMSON_ISLE.isInIsland() && config.enabled.get()
 
     @HandleEvent
-    fun onConfigFix(event: ConfigUpdaterMigrator.ConfigFixEvent) {
+    private fun onConfigFix(event: ConfigUpdaterMigrator.ConfigFixEvent) {
         val base = "fishing.trophyFishing.display"
         event.move(94, "$base.requireHunterArmor", "$base.requireArmor")
     }

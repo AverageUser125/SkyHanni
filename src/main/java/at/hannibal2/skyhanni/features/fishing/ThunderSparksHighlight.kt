@@ -3,7 +3,6 @@ package at.hannibal2.skyhanni.features.fishing
 import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.config.ConfigUpdaterMigrator
-import at.hannibal2.skyhanni.data.IslandType
 import at.hannibal2.skyhanni.events.entity.EntityEquipmentChangeEvent
 import at.hannibal2.skyhanni.events.entity.EntityLeaveWorldEvent
 import at.hannibal2.skyhanni.events.minecraft.SkyHanniRenderWorldEvent
@@ -13,7 +12,6 @@ import at.hannibal2.skyhanni.utils.ColorUtils.toColor
 import at.hannibal2.skyhanni.utils.EntityUtils.holdingSkullTexture
 import at.hannibal2.skyhanni.utils.LocationUtils.distanceToPlayer
 import at.hannibal2.skyhanni.utils.SkullTextureHolder
-import at.hannibal2.skyhanni.utils.SkyBlockUtils
 import at.hannibal2.skyhanni.utils.compat.deceased
 import at.hannibal2.skyhanni.utils.getLorenzVec
 import at.hannibal2.skyhanni.utils.render.WorldRenderUtils.drawString
@@ -27,20 +25,20 @@ object ThunderSparksHighlight {
     private val THUNDER_SPARK_TEXTURE by SkullTextureHolder.texture("THUNDER_SPARK")
     private val sparks = mutableSetOf<ArmorStand>()
 
-    @HandleEvent
-    fun onEntityEquipmentChange(event: EntityEquipmentChangeEvent<ArmorStand>) {
+    @HandleEvent(onlyOnIsland = CRIMSON_ISLE)
+    private fun onEntityEquipmentChange(event: EntityEquipmentChangeEvent<ArmorStand>) {
         if (!isEnabled()) return
         val entity = event.entity
         if (entity.holdingSkullTexture(THUNDER_SPARK_TEXTURE)) sparks.add(entity)
     }
 
-    @HandleEvent
+    @HandleEvent(onlyOnIsland = CRIMSON_ISLE)
     private fun onEntityLeaveWorld(event: EntityLeaveWorldEvent<ArmorStand>) {
         sparks.remove(event.entity)
     }
 
-    @HandleEvent
-    fun onRenderWorld(event: SkyHanniRenderWorldEvent) {
+    @HandleEvent(onlyOnIsland = CRIMSON_ISLE)
+    private fun onRenderWorld(event: SkyHanniRenderWorldEvent) {
         if (!isEnabled()) return
 
         val color = config.color.toColor()
@@ -60,15 +58,14 @@ object ThunderSparksHighlight {
     }
 
     @HandleEvent
-    fun onWorldChange() {
+    private fun onWorldChange() {
         sparks.clear()
     }
 
-    private fun isEnabled() =
-        (IslandType.CRIMSON_ISLE.isInIsland() || SkyBlockUtils.isStrandedProfile) && config.highlight
+    private fun isEnabled() = config.highlight
 
-    @HandleEvent
-    fun onConfigFix(event: ConfigUpdaterMigrator.ConfigFixEvent) {
+    @HandleEvent(onlyOnIsland = CRIMSON_ISLE)
+    private fun onConfigFix(event: ConfigUpdaterMigrator.ConfigFixEvent) {
         event.move(3, "fishing.thunderSparkHighlight", "fishing.thunderSpark.highlight")
         event.move(3, "fishing.thunderSparkColor", "fishing.thunderSpark.color")
     }
