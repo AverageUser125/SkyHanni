@@ -24,11 +24,13 @@ object DungeonChatFilter {
 
     // <editor-fold desc="Patterns, Messages, and Maps">
     // TODO: Add regex tests
+    @Suppress("Kdoc")
     enum class MessageTypes(
         private val displayName: String,
         @Language("RegExp") vararg fallbacks: String,
     ) {
-        PREPARE("§bPreparation",
+        PREPARE(
+            "§bPreparation",
             ".* has started the dungeon countdown. The dungeon will begin in 1 minute.",
             "\\[NPC] Mort: Talk to me to change your class and ready up.",
             ".* is now ready!",
@@ -37,7 +39,8 @@ object DungeonChatFilter {
             "Dungeon starts in 1 second.",
             "You can no longer consume or splash any potions during the remainder of this Dungeon run!",
         ),
-        START("§aClass Buffs §r/ §cMort Dialogue",
+        START(
+            "§aClass Buffs §r/ §cMort Dialogue",
             /**
              * REGEX-TEST: [Berserk] Melee Damage 48% -> 88%
              * REGEX-TEST: [Berserk] Walk Speed 38 -> 68
@@ -48,10 +51,12 @@ object DungeonChatFilter {
             "\\[NPC] Mort: Good luck.",
             "\\[NPC] Mort: Talk to me to change your class and ready up.",
         ),
-        AMBIENCE("§bAmbience",
+        AMBIENCE(
+            "§bAmbience",
             "A shiver runs down your spine...",
         ),
-        PICKUP("§ePickup",
+        PICKUP(
+            "§ePickup",
             ".* has obtained Superboom TNT!",
             ".* has obtained Superboom TNT x2!",
             "RARE DROP! Hunk of Blue Ice \\(.*%? Magic Find!\\)",
@@ -67,11 +72,13 @@ object DungeonChatFilter {
             ".* has obtained Beating Heart!",
             "You found a Wither Essence! Everyone gains an extra essence!",
         ),
-        REMINDER("§cReminder",
+        REMINDER(
+            "§cReminder",
             "RIGHT CLICK on a WITHER door to open it. This key can only be used to open 1 door!",
             "RIGHT CLICK on the BLOOD DOOR to open it. This key can only be used to open 1 door!",
         ),
-        BUFF("§dBlessings",
+        BUFF(
+            "§dBlessings",
             "DUNGEON BUFF! .* found a Blessing of .*!.*",
             "DUNGEON BUFF! You found a Blessing of .*!.*",
             "DUNGEON BUFF! A Blessing of .* was found! .*",
@@ -85,7 +92,8 @@ object DungeonChatFilter {
             " {5}Granted you .* HP, .* Defense, .* Intelligence, and .* Strength.",
             "BUFF! You have gained Healing V!",
         ),
-        NOT_POSSIBLE("§cNot possible",
+        NOT_POSSIBLE(
+            "§cNot possible",
             "You cannot hit the silverfish while it's moving!",
             "You cannot move the silverfish in that direction!",
             "There are blocks in the way!",
@@ -97,7 +105,8 @@ object DungeonChatFilter {
             "You cannot use abilities in this room!",
             "A mystical force in this room prevents you from using that ability!",
         ),
-        DAMAGE("§cDamage",
+        DAMAGE(
+            "§cDamage",
             ".* used .* on you!",
             "The .* struck you for .* damage!",
             "The .* hit you for .* damage!",
@@ -112,7 +121,8 @@ object DungeonChatFilter {
             "Your .* hit .* (?:enemy|enemies) for .* damage.",
             "Mute silenced you!",
         ),
-        ABILITY("§dAbilities",
+        ABILITY(
+            "§dAbilities",
             "Your Guided Sheep hit .* enemy for .* damage.",
             "BUFF! You were splashed by .* with Healing VIII!",
             "You were healed for .* health by .*!",
@@ -140,7 +150,8 @@ object DungeonChatFilter {
             "Ragnarok is ready to use! Press DROP to activate it!",
             "Thunderstorm is ready to use! Press DROP to activate it!",
         ),
-        PUZZLE("§dPuzzle §r/ §cQuiz",
+        PUZZLE(
+            "§dPuzzle §r/ §cQuiz",
             "PUZZLE SOLVED! .* wasn't fooled by .*! Good job!",
             "PUZZLE SOLVED! .* tied Tic Tac Toe! Good job!",
             "\\[STATUE] Oruo the Omniscient: .* thinks the answer is .*! Lock in your party's answer in my Chamber!",
@@ -154,7 +165,8 @@ object DungeonChatFilter {
             "\\[STATUE] Oruo the Omniscient: I've had enough of you and your party fiddling with my buttons. Scram!",
             "\\[STATUE] Oruo the Omniscient: Enough! My buttons are not to be pressed with such lack of grace!",
         ),
-        END("§cEnd §a(End of run spam)",
+        END(
+            "§cEnd §a(End of run spam)",
             ".* unlocked .* Essence x.*!",
             " {4}.* Essence x.*",
             ".*Experience \\(Team Bonus\\)",
