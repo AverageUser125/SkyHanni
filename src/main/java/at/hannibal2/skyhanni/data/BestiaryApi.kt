@@ -6,6 +6,8 @@ import at.hannibal2.skyhanni.events.InventoryFullyOpenedEvent
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.ComponentMatcherUtils.intoSpan
 import at.hannibal2.skyhanni.utils.ComponentMatcherUtils.matchStyledMatcher
+import at.hannibal2.skyhanni.utils.InventoryUtils
+import at.hannibal2.skyhanni.utils.InventoryUtils.filterInnerSlots
 import at.hannibal2.skyhanni.utils.ItemUtils.cleanName
 import at.hannibal2.skyhanni.utils.ItemUtils.getCleanLore
 import at.hannibal2.skyhanni.utils.NumberUtil.formatInt
@@ -113,7 +115,7 @@ object BestiaryApi {
      */
     private val mobVariantPattern by patternGroup.pattern(
         "mob.variant.colorless",
-        """^\[Lv\d+] (?<name>.+)""",
+        """^\[Lv(?<level>\d+)] (?<name>.+)""",
     )
 
     /**
@@ -322,8 +324,7 @@ object BestiaryApi {
 
     private fun parseCategoryOfCategories(inventoryName: String, items: Map<Int, SafeItemStack>): Map<Int, Category> {
         val map = mutableMapOf<Int, Category>()
-        for ((index, stack) in items) {
-            if (!indexes.contains(index)) continue
+        for ((index, stack) in items.filterInnerSlots()) {
             val cleanName = stack.cleanName
             if (cleanName.isBlank()) continue
 
@@ -340,8 +341,7 @@ object BestiaryApi {
 
     private fun parseCategoryOfMobs(items: Map<Int, SafeItemStack>): Map<Int, BestiaryMob> {
         val map = mutableMapOf<Int, BestiaryMob>()
-        for ((index, stack) in items) {
-            if (!indexes.contains(index)) continue
+        for ((index, stack) in items.filterInnerSlots()) {
             val cleanName = stack.cleanName
             if (cleanName.isBlank()) continue
 
@@ -355,8 +355,7 @@ object BestiaryApi {
 
     private fun parseMobVariants(items: Map<Int, SafeItemStack>): Map<Int, BestiaryMobVariant> {
         val map = mutableMapOf<Int, BestiaryMobVariant>()
-        for ((index, stack) in items) {
-            if (!indexes.contains(index)) continue
+        for ((index, stack) in items.filterInnerSlots()) {
             val cleanName = stack.cleanName
             if (cleanName.isBlank()) continue
 
@@ -445,7 +444,7 @@ object BestiaryApi {
             return overallProgressShownPattern.anyMatches(stack.getCleanLore())
         }
 
-        indexes.forEach { index ->
+        InventoryUtils.innerInventorySlots.forEach { index ->
             val item = inventoryItems[index] ?: return@forEach
             val cleanLore = item.getCleanLore()
             val hasTierProgress = tierProgressPattern.anyMatches(cleanLore)
