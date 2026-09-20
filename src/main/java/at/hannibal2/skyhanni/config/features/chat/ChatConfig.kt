@@ -2,6 +2,7 @@ package at.hannibal2.skyhanni.config.features.chat
 
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
+import at.hannibal2.skyhanni.features.dungeon.DungeonChatFilter
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.Accordion
 import io.github.notenoughupdates.moulconfig.annotations.Category
@@ -44,24 +45,7 @@ class ChatConfig {
     @Expose
     @ConfigOption(name = "Dungeon Filters", desc = "Hide specific message types in Dungeons.")
     @ConfigEditorDraggableList
-    val dungeonFilteredMessageTypes: MutableList<DungeonMessageTypes> = mutableListOf()
-
-    enum class DungeonMessageTypes(private val displayName: String, val blockReason: String) {
-        PREPARE("§bPreparation", "prepare"),
-        START("§aClass Buffs §r/ §cMort Dialogue", "start"),
-        AMBIENCE("§bAmbience", "ambience"),
-        PICKUP("§ePickup", "pickup"),
-        REMINDER("§cReminder", "reminder"),
-        BUFF("§dBlessings", "buff"),
-        NOT_POSSIBLE("§cNot possible", "not_possible"),
-        DAMAGE("§cDamage", "damage"),
-        ABILITY("§dAbilities", "ability"),
-        PUZZLE("§dPuzzle §r/ §cQuiz", "puzzle"),
-        END("§cEnd §a(End of run spam)", "end"),
-        ;
-
-        override fun toString() = displayName
-    }
+    val dungeonFilteredMessageTypes: MutableList<DungeonChatFilter.DungeonMessageTypes> = mutableListOf()
 
     @Expose
     @ConfigOption(
