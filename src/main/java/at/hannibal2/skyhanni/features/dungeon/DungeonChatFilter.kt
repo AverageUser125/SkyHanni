@@ -1,5 +1,3 @@
-@file:Suppress("MaxLineLength", "RepoPatternRegexTestMissing")
-
 package at.hannibal2.skyhanni.features.dungeon
 
 import at.hannibal2.skyhanni.SkyHanniMod
@@ -24,7 +22,7 @@ object DungeonChatFilter {
 
     // <editor-fold desc="Patterns, Messages, and Maps">
     // TODO: Add regex tests
-    @Suppress("Kdoc")
+    @Suppress("Kdoc", "RepoPatternRegexTestMissing", "MaxLineLength")
     enum class MessageTypes(
         private val displayName: String,
         @Language("RegExp") vararg fallbacks: String,
