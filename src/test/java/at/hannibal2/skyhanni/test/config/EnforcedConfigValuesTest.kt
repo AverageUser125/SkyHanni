@@ -12,6 +12,8 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonPrimitive
 import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -62,15 +64,15 @@ class EnforcedConfigValuesTest {
             enforcedValue(ENABLED, false),
         )
 
-        assertEquals(false, enabled)
-        assertEquals(true, isEnforced(ENABLED))
+        assertFalse(enabled)
+        assertTrue(isEnforced(ENABLED))
         assertEquals(JsonPrimitive(true), userValues[ENABLED])
 
         update()
 
-        assertEquals(true, enabled)
-        assertEquals(false, isEnforced(ENABLED))
-        assertEquals(false, userValues.containsKey(ENABLED))
+        assertTrue(enabled)
+        assertFalse(isEnforced(ENABLED))
+        assertFalse(userValues.containsKey(ENABLED))
     }
 
     @Test
@@ -79,13 +81,13 @@ class EnforcedConfigValuesTest {
             enforcedValue(ENABLED, false, persist = true),
         )
 
-        assertEquals(false, enabled)
-        assertEquals(false, userValues.containsKey(ENABLED))
+        assertFalse(enabled)
+        assertFalse(userValues.containsKey(ENABLED))
 
         update()
 
-        assertEquals(false, enabled)
-        assertEquals(false, isEnforced(ENABLED))
+        assertFalse(enabled)
+        assertFalse(isEnforced(ENABLED))
     }
 
     @Test
@@ -104,25 +106,25 @@ class EnforcedConfigValuesTest {
         update()
 
         // Restore the value from before enforcement, not the intermediate value.
-        assertEquals(true, enabled)
+        assertTrue(enabled)
     }
 
     @Test
     fun `changing enforced value keeps original backup`() {
         update(
-            enforcedValue(ENABLED, false),
+            enforcedValue(ASSUME_MAYOR, ElectionCandidate.PAUL),
         )
 
         update(
-            enforcedValue(ENABLED, true),
+            enforcedValue(ASSUME_MAYOR, ElectionCandidate.AATROX),
         )
 
-        assertEquals(true, enabled)
+        assertEquals(ElectionCandidate.AATROX, assumeMayor)
 
         update()
 
         // The backup was made when enforcement started.
-        assertEquals(true, enabled)
+        assertEquals(ElectionCandidate.DIANA, assumeMayor)
     }
 
     @Test
@@ -132,20 +134,20 @@ class EnforcedConfigValuesTest {
             enforcedValue(ASSUME_MAYOR, ElectionCandidate.PAUL),
         )
 
-        assertEquals(false, enabled)
+        assertFalse(enabled)
         assertEquals(ElectionCandidate.PAUL, assumeMayor)
-        assertEquals(true, isEnforced(ENABLED))
-        assertEquals(true, isEnforced(ASSUME_MAYOR))
+        assertTrue(isEnforced(ENABLED))
+        assertTrue(isEnforced(ASSUME_MAYOR))
 
         update(
             enforcedValue(ASSUME_MAYOR, ElectionCandidate.PAUL),
         )
 
         // Only the expired enforcement is restored.
-        assertEquals(true, enabled)
+        assertTrue(enabled)
         assertEquals(ElectionCandidate.PAUL, assumeMayor)
-        assertEquals(false, isEnforced(ENABLED))
-        assertEquals(true, isEnforced(ASSUME_MAYOR))
+        assertFalse(isEnforced(ENABLED))
+        assertTrue(isEnforced(ASSUME_MAYOR))
     }
 
     @Test
@@ -155,14 +157,14 @@ class EnforcedConfigValuesTest {
             enforcedValue(ASSUME_MAYOR, ElectionCandidate.PAUL),
         )
 
-        assertEquals(false, enabled)
+        assertFalse(enabled)
         assertEquals(ElectionCandidate.PAUL, assumeMayor)
-        assertEquals(false, userValues.containsKey(ENABLED))
-        assertEquals(true, userValues.containsKey(ASSUME_MAYOR))
+        assertFalse(userValues.containsKey(ENABLED))
+        assertTrue(userValues.containsKey(ASSUME_MAYOR))
 
         update()
 
-        assertEquals(false, enabled)
+        assertFalse(enabled)
         assertEquals(ElectionCandidate.DIANA, assumeMayor)
     }
 
@@ -188,7 +190,7 @@ class EnforcedConfigValuesTest {
 
     @Test
     fun `unknown entries are ignored`() {
-        assertEquals(false, isEnforced("dev.debug.doesNotExist"))
+        assertFalse(isEnforced("dev.debug.doesNotExist"))
         userValues["dev.debug.doesNotExist"] = JsonPrimitive(false)
         assertDoesNotThrow { update() }
     }
@@ -196,8 +198,8 @@ class EnforcedConfigValuesTest {
     @Test fun `left over user values are restored`() {
         userValues[ENABLED] = JsonPrimitive(false)
         update()
-        assertEquals(false, enabled)
-        assertEquals(false, userValues.containsKey(ENABLED))
+        assertFalse(enabled)
+        assertFalse(userValues.containsKey(ENABLED))
     }
 
     private fun enforcedValue(

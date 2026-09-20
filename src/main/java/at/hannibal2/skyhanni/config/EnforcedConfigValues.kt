@@ -91,21 +91,25 @@ object EnforcedConfigValues {
     private fun enforceOntoConfig(enforcedValues: List<EnforcedValue>) {
         var dirtyUserValues = false
         for ((path, value, persist) in enforcedValues) {
-            val shimmy = Shimmy(config, path.split(".")) ?: try {
-                ErrorManager.skyHanniError("Could not create shimmy for path $path")
-            } catch (_: Exception) {
+            val shimmy = Shimmy(config, path.split(".")) ?: run {
+                SkyHanniMod.logger.warn("Could not create shimmy for path $path")
                 continue
             }
 
             val currentValue = shimmy.getJson()
 
+            if (currentValue != value) {
+                try {
+                    shimmy.setJson(value)
+                } catch (e: Exception) {
+                    SkyHanniMod.logger.warn("Could not set enforced value for path $path: ${e.message}")
+                    continue
+                }
+            }
+
             if (!persist && path !in userValues) {
                 userValues[path] = currentValue.deepCopy()
                 dirtyUserValues = true
-            }
-
-            if (currentValue != value) {
-                shimmy.setJson(value)
             }
         }
 
