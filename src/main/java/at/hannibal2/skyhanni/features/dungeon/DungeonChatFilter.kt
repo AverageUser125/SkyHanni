@@ -39,7 +39,11 @@ object DungeonChatFilter {
             "You can no longer consume or splash any potions during the remainder of this Dungeon run!"
         ),
         START("§aClass Buffs §r/ §cMort Dialogue", "start",
-            ".* .* \\d+%? -> \\d+%?",
+            /**
+             * REGEX-TEST: [Berserk] Melee Damage 48% -> 88%
+             * REGEX-TEST: [Berserk] Walk Speed 38 -> 68
+             */
+            "\\[\\w+] .* \\d+%? -> \\d+%?",
             "\\[NPC] Mort: Here, I found this map when I first entered the dungeon.",
             "\\[NPC] Mort: You should find it useful if you get lost.",
             "\\[NPC] Mort: Good luck.",
