@@ -19,12 +19,12 @@ object DungeonChatFilter {
     private val patternGroup = RepoPattern.group("dungeon-chat-filter")
 
     init {
-        DungeonMessageTypes.entries.forEach { it.patterns }
+        MessageTypes.entries.forEach { it.patterns }
     }
 
     // <editor-fold desc="Patterns, Messages, and Maps">
     // TODO: Add regex tests
-    enum class DungeonMessageTypes(
+    enum class MessageTypes(
         private val displayName: String,
         val blockReason: String,
         @Language("RegExp") vararg fallbacks: String,
