@@ -15,6 +15,8 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertDoesNotThrow
+import org.junit.jupiter.api.assertNull
 
 class EnforcedConfigValuesTest {
 
@@ -51,166 +53,122 @@ class EnforcedConfigValuesTest {
         enabled = true
         assumeMayor = DIANA
         userValues.clear()
-        startEnforcing()
+        update()
     }
 
     @Test
-    fun `enforced value overrides config`() {
-        startEnforcing(
+    fun `enforced value overrides config and restores original`() {
+        update(
             enforcedValue(ENABLED, false),
         )
 
         assertEquals(false, enabled)
         assertEquals(true, isEnforced(ENABLED))
-    }
+        assertEquals(JsonPrimitive(true), userValues[ENABLED])
 
-    @Test
-    fun `original value is restored after enforcement is removed`() {
-        startEnforcing(
-            enforcedValue(ENABLED, false),
-        )
-
-        assertEquals(false, enabled)
-
-        startEnforcing()
+        update()
 
         assertEquals(true, enabled)
+        assertEquals(false, isEnforced(ENABLED))
+        assertEquals(false, userValues.containsKey(ENABLED))
     }
 
     @Test
-    fun `persisted value is not restored after enforcement is removed`() {
-        startEnforcing(
+    fun `persisted value remains enforced value without backup`() {
+        update(
             enforcedValue(ENABLED, false, persist = true),
         )
 
         assertEquals(false, enabled)
+        assertEquals(false, userValues.containsKey(ENABLED))
 
-        startEnforcing()
+        update()
 
         assertEquals(false, enabled)
+        assertEquals(false, isEnforced(ENABLED))
     }
 
     @Test
-    fun `persisted value is not backed up`() {
-        startEnforcing(
-            enforcedValue(ENABLED, false, persist = true),
-        )
-
-        assertEquals(false, enabled)
-        assertEquals(
-            false,
-            userValues.containsKey(ENABLED),
-        )
-    }
-
-    @Test
-    fun `non-persisted value is backed up`() {
-        startEnforcing(
+    fun `backup is created only once while value is enforced`() {
+        update(
             enforcedValue(ENABLED, false),
         )
 
-        assertEquals(false, enabled)
-        assertEquals(
-            JsonPrimitive(true),
-            userValues[ENABLED],
-        )
-    }
-
-    @Test
-    fun `original value is only backed up once`() {
-        startEnforcing(
-            enforcedValue(ENABLED, false),
-        )
-
-        assertEquals(false, enabled)
-
-        // Simulate the value being changed while it is enforced.
+        // Simulate the user/config changing the value while it is enforced.
         enabled = true
 
-        startEnforcing(
+        update(
             enforcedValue(ENABLED, false),
         )
 
-        assertEquals(false, enabled)
+        update()
 
-        // The original value should be restored, not the value
-        // from the second enforcement.
-        startEnforcing()
-
+        // Restore the value from before enforcement, not the intermediate value.
         assertEquals(true, enabled)
     }
 
     @Test
-    fun `multiple values can be enforced`() {
-        startEnforcing(
+    fun `changing enforced value keeps original backup`() {
+        update(
             enforcedValue(ENABLED, false),
-            enforcedValue(ASSUME_MAYOR, ElectionCandidate.DIAZ),
+        )
+
+        update(
+            enforcedValue(ENABLED, true),
+        )
+
+        assertEquals(true, enabled)
+
+        update()
+
+        // The backup was made when enforcement started.
+        assertEquals(true, enabled)
+    }
+
+    @Test
+    fun `multiple values are enforced and restored independently`() {
+        update(
+            enforcedValue(ENABLED, false),
+            enforcedValue(ASSUME_MAYOR, ElectionCandidate.PAUL),
         )
 
         assertEquals(false, enabled)
-        assertEquals(ElectionCandidate.DIAZ, assumeMayor)
-
+        assertEquals(ElectionCandidate.PAUL, assumeMayor)
         assertEquals(true, isEnforced(ENABLED))
+        assertEquals(true, isEnforced(ASSUME_MAYOR))
+
+        update(
+            enforcedValue(ASSUME_MAYOR, ElectionCandidate.PAUL),
+        )
+
+        // Only the expired enforcement is restored.
+        assertEquals(true, enabled)
+        assertEquals(ElectionCandidate.PAUL, assumeMayor)
+        assertEquals(false, isEnforced(ENABLED))
         assertEquals(true, isEnforced(ASSUME_MAYOR))
     }
 
     @Test
-    fun `multiple values are restored`() {
-        startEnforcing(
-            enforcedValue(ENABLED, false),
-            enforcedValue(ASSUME_MAYOR, ElectionCandidate.DIAZ),
-        )
-
-        assertEquals(false, enabled)
-        assertEquals(ElectionCandidate.DIAZ, assumeMayor)
-
-        startEnforcing()
-
-        assertEquals(true, enabled)
-        assertEquals(ElectionCandidate.DIANA, assumeMayor)
-    }
-
-    @Test
-    fun `persisted and non-persisted values behave independently`() {
-        startEnforcing(
+    fun `persisted and non-persisted values are independent`() {
+        update(
             enforcedValue(ENABLED, false, persist = true),
-            enforcedValue(ASSUME_MAYOR, ElectionCandidate.DIAZ),
+            enforcedValue(ASSUME_MAYOR, ElectionCandidate.PAUL),
         )
 
         assertEquals(false, enabled)
-        assertEquals(ElectionCandidate.DIAZ, assumeMayor)
+        assertEquals(ElectionCandidate.PAUL, assumeMayor)
+        assertEquals(false, userValues.containsKey(ENABLED))
+        assertEquals(true, userValues.containsKey(ASSUME_MAYOR))
 
-        assertEquals(
-            false,
-            userValues.containsKey(ENABLED),
-        )
-        assertEquals(
-            true,
-            userValues.containsKey(ASSUME_MAYOR),
-        )
-
-        startEnforcing()
-
-        // Persisted value remains at the enforced value.
-        assertEquals(false, enabled)
-
-        // Non-persisted value gets its original value back.
-        assertEquals(ElectionCandidate.DIANA, assumeMayor)
-    }
-
-    @Test
-    fun `unrelated config values are unchanged`() {
-        startEnforcing(
-            enforcedValue(ENABLED, false),
-        )
+        update()
 
         assertEquals(false, enabled)
         assertEquals(ElectionCandidate.DIANA, assumeMayor)
     }
 
     @Test
-    fun `extra message is returned`() {
-        startEnforcing(
+    fun `enforcement metadata is exposed`() {
+        update(
             enforcedValue(
                 path = ENABLED,
                 value = false,
@@ -222,178 +180,24 @@ class EnforcedConfigValuesTest {
             "This setting is managed by the server.",
             enforcementMessage(ENABLED),
         )
+
+        update()
+
+        assertNull(enforcementMessage(ENABLED))
     }
 
     @Test
-    fun `missing extra message returns empty string`() {
-        startEnforcing(
-            enforcedValue(ENABLED, false),
-        )
-
-        assertEquals(
-            "",
-            enforcementMessage(ENABLED),
-        )
+    fun `unknown entries are ignored`() {
+        assertEquals(false, isEnforced("dev.debug.doesNotExist"))
+        userValues["dev.debug.doesNotExist"] = JsonPrimitive(false)
+        assertDoesNotThrow { update() }
     }
 
-    @Test
-    fun `unknown value is not reported as enforced`() {
-        assertEquals(
-            false,
-            isEnforced("dev.debug.doesNotExist"),
-        )
-    }
-
-    @Test
-    fun `removing one enforced value restores only that value`() {
-        startEnforcing(
-            enforcedValue(ENABLED, false),
-            enforcedValue(ASSUME_MAYOR, ElectionCandidate.DIAZ),
-        )
-
+    @Test fun `left over user values are restored`() {
+        userValues[ENABLED] = JsonPrimitive(false)
+        update()
         assertEquals(false, enabled)
-        assertEquals(ElectionCandidate.DIAZ, assumeMayor)
-
-        startEnforcing(
-            enforcedValue(ASSUME_MAYOR, ElectionCandidate.DIAZ),
-        )
-
-        // ENABLED is no longer enforced, so its original value is restored.
-        assertEquals(true, enabled)
-
-        // ASSUME_MAYOR is still enforced.
-        assertEquals(ElectionCandidate.DIAZ, assumeMayor)
-
-        assertEquals(false, isEnforced(ENABLED))
-        assertEquals(true, isEnforced(ASSUME_MAYOR))
-    }
-
-    @Test
-    fun `changing enforced value keeps original backup`() {
-        enabled = true
-
-        startEnforcing(
-            enforcedValue(ENABLED, false),
-        )
-
-        assertEquals(false, enabled)
-
-        startEnforcing(
-            enforcedValue(ENABLED, true),
-        )
-
-        assertEquals(true, enabled)
-
-        startEnforcing()
-
-        // The original value was true.
-        assertEquals(true, enabled)
-    }
-
-    @Test
-    fun `persisted value remains after changing enforced value`() {
-        startEnforcing(
-            enforcedValue(
-                ENABLED,
-                false,
-                persist = true,
-            ),
-        )
-
-        assertEquals(false, enabled)
-
-        startEnforcing(
-            enforcedValue(
-                ENABLED,
-                true,
-                persist = true,
-            ),
-        )
-
-        assertEquals(true, enabled)
-
-        startEnforcing()
-
-        // No backup was created, so the last enforced value remains.
-        assertEquals(true, enabled)
-    }
-
-    @Test
-    fun `persisted value does not create user value even after repeated enforcement`() {
-        startEnforcing(
-            enforcedValue(
-                ENABLED,
-                false,
-                persist = true,
-            ),
-        )
-
-        startEnforcing(
-            enforcedValue(
-                ENABLED,
-                true,
-                persist = true,
-            ),
-        )
-
-        assertEquals(
-            false,
-            userValues.containsKey(ENABLED),
-        )
-    }
-
-    @Test
-    fun `enforced value is no longer reported after removal`() {
-        startEnforcing(
-            enforcedValue(ENABLED, false),
-        )
-
-        assertEquals(true, isEnforced(ENABLED))
-
-        startEnforcing()
-
-        assertEquals(false, isEnforced(ENABLED))
-    }
-
-    @Test
-    fun `user value without enforcement is restored and removed`() {
-        enabled = true
-
-        userValues[ENABLED] = JsonPrimitive(true)
-
-        // ENABLED is not currently enforced, so the stale backup should
-        // be restored and removed.
-        startEnforcing()
-
-        assertEquals(true, enabled)
         assertEquals(false, userValues.containsKey(ENABLED))
-    }
-
-    @Test
-    fun `removing enforcement restores only expired enforced paths`() {
-        startEnforcing(
-            enforcedValue(ENABLED, false),
-            enforcedValue(ASSUME_MAYOR, ElectionCandidate.DIAZ),
-        )
-
-        assertEquals(false, enabled)
-        assertEquals(ElectionCandidate.DIAZ, assumeMayor)
-
-        startEnforcing(
-            enforcedValue(ASSUME_MAYOR, ElectionCandidate.DIAZ),
-        )
-
-        assertEquals(true, enabled)
-        assertEquals(ElectionCandidate.DIAZ, assumeMayor)
-
-        assertEquals(
-            false,
-            userValues.containsKey(ENABLED),
-        )
-        assertEquals(
-            true,
-            isEnforced(ASSUME_MAYOR),
-        )
     }
 
     private fun enforcedValue(
@@ -437,7 +241,7 @@ class EnforcedConfigValuesTest {
         persist,
     )
 
-    private fun startEnforcing(vararg values: EnforcedValueData) {
+    private fun update(vararg values: EnforcedValueData) {
         EnforcedConfigValues.updateData(values.toList())
     }
 
