@@ -195,6 +195,20 @@ class EnforcedConfigValuesTest {
         assertDoesNotThrow { update() }
     }
 
+    @Test
+    fun `invalid entries for type are ignored`() {
+        // Gson converts any random string to false without throwing an exception,
+        // so don't try and test ENABLED with a string value.
+        update(
+            enforcedValue(ASSUME_MAYOR, false),
+        )
+
+        // The enforced value is not applied because it's of the wrong type.
+        assertEquals(ElectionCandidate.DIANA, assumeMayor)
+        // This is not required behavior, if this ever changes just update the test to reflect the new behavior.
+        assertTrue(isEnforced(ASSUME_MAYOR))
+    }
+
     @Test fun `left over user values are restored`() {
         userValues[ENABLED] = JsonPrimitive(false)
         update()
