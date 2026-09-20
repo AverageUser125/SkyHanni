@@ -172,12 +172,10 @@ object DungeonChatFilter {
 
     @HandleEvent(onlyOnIsland = CATACOMBS)
     private fun onChat(event: SkyHanniChatEvent.Allow) {
-        if (config.dungeonFilteredMessageTypes.isEmpty()) return
         val blockReason = block(event.cleanMessage) ?: return
         event.blockedReason = "dungeon_$blockReason"
     }
 
-    private fun block(message: String): String? {
-        return config.dungeonFilteredMessageTypes.firstOrNull { it.patterns.anyMatches(message) }?.blockReason
-    }
+    private fun block(message: String): String? =
+        config.dungeonFilteredMessageTypes.firstOrNull { it.patterns.anyMatches(message) }?.blockReason
 }
