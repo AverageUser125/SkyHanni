@@ -5,7 +5,6 @@ package at.hannibal2.skyhanni.features.dungeon
 import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.config.features.chat.ChatConfig
-import at.hannibal2.skyhanni.data.IslandType
 import at.hannibal2.skyhanni.data.model.SkyblockStat
 import at.hannibal2.skyhanni.events.chat.SkyHanniChatEvent
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
@@ -191,18 +190,14 @@ object DungeonChatFilter {
         END -> endPatterns
     }
 
-    @HandleEvent(onlyOnIsland = IslandType.CATACOMBS)
-    fun onChat(event: SkyHanniChatEvent.Allow) {
+    @HandleEvent(onlyOnIsland = CATACOMBS)
+    private fun onChat(event: SkyHanniChatEvent.Allow) {
         if (config.dungeonFilteredMessageTypes.isEmpty()) return
         val blockReason = block(event.cleanMessage) ?: return
         event.blockedReason = "dungeon_$blockReason"
     }
 
     private fun block(message: String): String? {
-        return MessageTypes.entries.firstOrNull { message.isFiltered(it) }?.blockReason
+        return config.dungeonFilteredMessageTypes.firstOrNull { getPatterns(it).anyMatches(message) }?.blockReason
     }
-
-    private fun String.isFiltered(key: MessageTypes): Boolean = config.dungeonFilteredMessageTypes.contains(key) && isPresent(key)
-
-    private fun String.isPresent(key: MessageTypes): Boolean = getPatterns(key).anyMatches(this)
 }
