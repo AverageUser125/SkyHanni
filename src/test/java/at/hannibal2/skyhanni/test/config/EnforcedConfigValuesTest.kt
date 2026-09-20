@@ -117,6 +117,30 @@ class EnforcedConfigValuesTest {
     }
 
     @Test
+    fun `original value is only backed up once`() {
+        startEnforcing(
+            enforcedValue(ENABLED, false),
+        )
+
+        assertEquals(false, enabled)
+
+        // Simulate the value being changed while it is enforced.
+        enabled = true
+
+        startEnforcing(
+            enforcedValue(ENABLED, false),
+        )
+
+        assertEquals(false, enabled)
+
+        // The original value should be restored, not the value
+        // from the second enforcement.
+        startEnforcing()
+
+        assertEquals(true, enabled)
+    }
+
+    @Test
     fun `multiple values can be enforced`() {
         startEnforcing(
             enforcedValue(ENABLED, false),
@@ -339,8 +363,7 @@ class EnforcedConfigValuesTest {
 
         // ENABLED is not currently enforced, so the stale backup should
         // be restored and removed.
-        // Due to it skipping identical values, it will not change if we provide an empty enforcement list.
-        startEnforcing(enforcedValue(ASSUME_MAYOR, ElectionCandidate.DIAZ))
+        startEnforcing()
 
         assertEquals(true, enabled)
         assertEquals(false, userValues.containsKey(ENABLED))
@@ -415,7 +438,7 @@ class EnforcedConfigValuesTest {
     )
 
     private fun startEnforcing(vararg values: EnforcedValueData) {
-        EnforcedConfigValues.repoReload(values.toList())
+        EnforcedConfigValues.updateData(values.toList())
     }
 
     private fun isEnforced(path: String): Boolean =

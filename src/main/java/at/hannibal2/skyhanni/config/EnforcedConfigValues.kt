@@ -11,6 +11,8 @@ import at.hannibal2.skyhanni.events.RepositoryReloadEvent
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.test.command.ErrorManager
 import at.hannibal2.skyhanni.utils.ChatUtils
+import at.hannibal2.skyhanni.utils.DelayedRun
+import at.hannibal2.skyhanni.utils.SkyBlockUtils
 import at.hannibal2.skyhanni.utils.json.Shimmy
 import at.hannibal2.skyhanni.utils.system.PlatformUtils
 import com.google.gson.JsonElement
@@ -30,14 +32,22 @@ object EnforcedConfigValues {
 
     @HandleEvent
     private fun onRepoReload(event: RepositoryReloadEvent) {
-        val constant = event.getConstant<EnforcedConfigValuesJson>("misc/EnforcedConfigValues").enforcedConfigValues
-        repoReload(constant)
+        val json = event.getConstant<EnforcedConfigValuesJson>("misc/EnforcedConfigValues").enforcedConfigValues
+        // The repo reloads from a coroutine, but property observers expect the client thread
+        DelayedRun.runOrNextTick("EnforcedConfigValues.onRepoReload") {
+            if (!updateData(json)) return@runOrNextTick
+            hasSentPSAsOnce = false
+            // We have to recreate the whole config when a value changes
+            // so that the option is blocked off inside the config
+            SkyHanniMod.configManager.recreateConfig()
+            trySendPSAs()
+        }
     }
 
-    internal fun repoReload(constant: List<EnforcedValueData>) {
+    internal fun updateData(data: List<EnforcedValueData>): Boolean {
         val oldEnforcedValues = enforcedConfigValuesData
 
-        enforcedConfigValuesData = constant
+        enforcedConfigValuesData = data
             .filter {
                 SkyHanniMod.modVersion <= it.affectedVersion &&
                     (it.minimumAffectedVersion?.let { minVersion ->
@@ -48,22 +58,18 @@ object EnforcedConfigValues {
                 it.affectedMinecraftVersions?.contains(PlatformUtils.MC_VERSION) ?: true
             }
 
-        if (oldEnforcedValues == enforcedConfigValuesData) return
-
-        hasSentPSAsOnce = false
-
         val enforcedValues = enforcedConfigValuesData.flatMap { it.enforcedValues }
+
         restoreExpiredEnforcedValues(enforcedValues.map { it.path }.toSet())
         enforceOntoConfig(enforcedValues)
-
-        // we have to recreate the whole config when a value changes
-        // so that the option is blocked off inside the config
-        SkyHanniMod.configManager.recreateConfig()
+        return oldEnforcedValues != enforcedConfigValuesData
     }
 
     @HandleEvent(onlyOnSkyblock = true)
-    private fun onTick() {
-        if (hasSentPSAsOnce) return
+    private fun onTick() = trySendPSAs()
+
+    private fun trySendPSAs() {
+        if (hasSentPSAsOnce || !SkyBlockUtils.onHypixel) return
         hasSentPSAsOnce = true
         sendPSAs()
     }
