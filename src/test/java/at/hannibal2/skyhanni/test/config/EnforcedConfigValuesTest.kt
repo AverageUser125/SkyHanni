@@ -93,20 +93,24 @@ class EnforcedConfigValuesTest {
     @Test
     fun `backup is created only once while value is enforced`() {
         update(
-            enforcedValue(ENABLED, false),
+            enforcedValue(ASSUME_MAYOR, ElectionCandidate.PAUL),
         )
 
         // Simulate the user/config changing the value while it is enforced.
-        enabled = true
+        assumeMayor = AATROX
 
         update(
-            enforcedValue(ENABLED, false),
+            enforcedValue(ASSUME_MAYOR, ElectionCandidate.PAUL),
         )
+
+        assertEquals(ElectionCandidate.PAUL, assumeMayor)
+        assertTrue(isEnforced(ASSUME_MAYOR))
+        assertEquals(JsonPrimitive(ElectionCandidate.DIANA.name), userValues[ASSUME_MAYOR])
 
         update()
 
         // Restore the value from before enforcement, not the intermediate value.
-        assertTrue(enabled)
+        assertEquals(ElectionCandidate.DIANA, assumeMayor)
     }
 
     @Test
