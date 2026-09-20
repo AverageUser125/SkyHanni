@@ -265,8 +265,7 @@ class EnforcedConfigValuesTest {
         EnforcedConfigValues.updateData(values.toList())
     }
 
-    private fun isEnforced(path: String): Boolean =
-        EnforcedConfigValues.isBlockedFromEditing(path) != null
+    private fun isEnforced(path: String): Boolean = enforcementMessage(path) != null
 
     private fun enforcementMessage(path: String): String? =
         EnforcedConfigValues.isBlockedFromEditing(path)
