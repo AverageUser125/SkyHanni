@@ -35,7 +35,7 @@ object DungeonChatFilter {
             "Dungeon starts in .* seconds.",
             "Your active Potion Effects have been paused and stored. They will be restored when you leave Dungeons! You are not allowed to use existing Potion Effects while in Dungeons.",
             "Dungeon starts in 1 second.",
-            "You can no longer consume or splash any potions during the remainder of this Dungeon run!"
+            "You can no longer consume or splash any potions during the remainder of this Dungeon run!",
         ),
         START("§aClass Buffs §r/ §cMort Dialogue",
             /**
@@ -46,10 +46,10 @@ object DungeonChatFilter {
             "\\[NPC] Mort: Here, I found this map when I first entered the dungeon.",
             "\\[NPC] Mort: You should find it useful if you get lost.",
             "\\[NPC] Mort: Good luck.",
-            "\\[NPC] Mort: Talk to me to change your class and ready up."
+            "\\[NPC] Mort: Talk to me to change your class and ready up.",
         ),
         AMBIENCE("§bAmbience",
-            "A shiver runs down your spine..."
+            "A shiver runs down your spine...",
         ),
         PICKUP("§ePickup",
             ".* has obtained Superboom TNT!",
@@ -65,11 +65,11 @@ object DungeonChatFilter {
             ".* has obtained Premium Flesh!",
             "RARE DROP! Beating Heart .*",
             ".* has obtained Beating Heart!",
-            "You found a Wither Essence! Everyone gains an extra essence!"
+            "You found a Wither Essence! Everyone gains an extra essence!",
         ),
         REMINDER("§cReminder",
             "RIGHT CLICK on a WITHER door to open it. This key can only be used to open 1 door!",
-            "RIGHT CLICK on the BLOOD DOOR to open it. This key can only be used to open 1 door!"
+            "RIGHT CLICK on the BLOOD DOOR to open it. This key can only be used to open 1 door!",
         ),
         BUFF("§dBlessings",
             "DUNGEON BUFF! .* found a Blessing of .*!.*",
@@ -83,7 +83,7 @@ object DungeonChatFilter {
             " {5}Granted you .*x HP and .*x ${SkyblockStat.HEALTH_REGEN.hypixelIcon} Health Regen.",
             " {5}(?:Grants|Granted) you .* Intelligence and .* Speed.",
             " {5}Granted you .* HP, .* Defense, .* Intelligence, and .* Strength.",
-            "BUFF! You have gained Healing V!"
+            "BUFF! You have gained Healing V!",
         ),
         NOT_POSSIBLE("§cNot possible",
             "You cannot hit the silverfish while it's moving!",
@@ -95,7 +95,7 @@ object DungeonChatFilter {
             "You do not have the key for this door!",
             "You have already opened this dungeon chest!",
             "You cannot use abilities in this room!",
-            "A mystical force in this room prevents you from using that ability!"
+            "A mystical force in this room prevents you from using that ability!",
         ),
         DAMAGE("§cDamage",
             ".* used .* on you!",
@@ -110,7 +110,7 @@ object DungeonChatFilter {
             ".* struck you for .*!",
             "The Mage's Magma burnt you for .* true damage.",
             "Your .* hit .* (?:enemy|enemies) for .* damage.",
-            "Mute silenced you!"
+            "Mute silenced you!",
         ),
         ABILITY("§dAbilities",
             "Your Guided Sheep hit .* enemy for .* damage.",
@@ -138,7 +138,7 @@ object DungeonChatFilter {
             "Rapid Fire is ready to use! Press DROP to activate it!",
             "Castle of Stone is ready to use! Press DROP to activate it!",
             "Ragnarok is ready to use! Press DROP to activate it!",
-            "Thunderstorm is ready to use! Press DROP to activate it!"
+            "Thunderstorm is ready to use! Press DROP to activate it!",
         ),
         PUZZLE("§dPuzzle §r/ §cQuiz",
             "PUZZLE SOLVED! .* wasn't fooled by .*! Good job!",
@@ -152,12 +152,12 @@ object DungeonChatFilter {
             "\\[STATUE] Oruo the Omniscient: I bestow upon you all the power of a hundred years!",
             "\\[STATUE] Oruo the Omniscient: You've already proven enough to me! No need to press more of my buttons!",
             "\\[STATUE] Oruo the Omniscient: I've had enough of you and your party fiddling with my buttons. Scram!",
-            "\\[STATUE] Oruo the Omniscient: Enough! My buttons are not to be pressed with such lack of grace!"
+            "\\[STATUE] Oruo the Omniscient: Enough! My buttons are not to be pressed with such lack of grace!",
         ),
         END("§cEnd §a(End of run spam)",
             ".* unlocked .* Essence x.*!",
             " {4}.* Essence x.*",
-            ".*Experience \\(Team Bonus\\)"
+            ".*Experience \\(Team Bonus\\)",
         ),
         ;
 
