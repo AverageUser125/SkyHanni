@@ -32,7 +32,7 @@ class EnforcedConfigValuesTest {
             set(value) {
                 config.assumeMayor.set(value)
             }
-        
+
         val userValues get() = EnforcedConfigValues.userValues
 
         private const val ENABLED = "dev.debug.enabled"

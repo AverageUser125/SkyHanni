@@ -50,11 +50,8 @@ object EnforcedConfigValues {
         enforcedConfigValuesData = data
             .filter {
                 SkyHanniMod.modVersion <= it.affectedVersion &&
-                    (it.minimumAffectedVersion?.let { minVersion ->
-                        SkyHanniMod.modVersion >= minVersion
-                    } ?: true)
-            }
-            .filter {
+                    (it.minimumAffectedVersion?.let { minVersion -> SkyHanniMod.modVersion >= minVersion } ?: true)
+            }.filter {
                 it.affectedMinecraftVersions?.contains(PlatformUtils.MC_VERSION) ?: true
             }
 

@@ -2,14 +2,14 @@ package at.hannibal2.skyhanni.test.utils
 
 import at.hannibal2.skyhanni.config.features.About
 import at.hannibal2.skyhanni.utils.json.Shimmy
-import com.google.gson.JsonPrimitive
 import com.google.gson.JsonNull
+import com.google.gson.JsonPrimitive
 import io.github.notenoughupdates.moulconfig.observer.Property
-import org.junit.jupiter.api.assertNotNull
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertNotNull
 import org.junit.jupiter.api.assertNull
 import org.junit.jupiter.api.assertThrows
-import org.junit.jupiter.api.Test
 
 abstract class ShimmyTestBase {
 
@@ -17,13 +17,28 @@ abstract class ShimmyTestBase {
         var value: String = "hello"
         var number: Int = 42
     }
-    protected class Nested { val inner = Simple() }
-    protected class DeepNested { val middle = Nested() }
-    protected class WithProperty { val prop: Property<String> = Property.of("propertyValue") }
-    protected class WithNullable { val inner: Simple? = null }
-    protected enum class Example { FIRST, SECOND }
-    protected class WithEnumProperty { val prop: Property<Example> = Property.of(Example.FIRST) }
-    protected class WithNullableEnum { var value: Example? = Example.FIRST }
+    protected class Nested {
+        val inner = Simple()
+    }
+    protected class DeepNested {
+        val middle = Nested()
+    }
+    protected class WithProperty {
+        val prop: Property<String> = Property.of("propertyValue")
+    }
+    protected class WithNullable {
+        val inner: Simple? = null
+    }
+    protected enum class Example {
+        FIRST,
+        SECOND,
+    }
+    protected class WithEnumProperty {
+        val prop: Property<Example> = Property.of(Example.FIRST)
+    }
+    protected class WithNullableEnum {
+        var value: Example? = Example.FIRST
+    }
 
     protected abstract fun shimmy(source: Any?, path: List<String>): ShimmyCompat?
 
@@ -93,7 +108,8 @@ abstract class ShimmyTestBase {
     @Test
     fun `unwraps moulconfig Property transparently`() {
         val s = shimmy(WithProperty(), listOf("prop"))
-        assertNotNull(s); assertEquals("propertyValue", s.value)
+        assertNotNull(s)
+        assertEquals("propertyValue", s.value)
     }
 
     @Test

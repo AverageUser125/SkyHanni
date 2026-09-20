@@ -284,7 +284,7 @@ enum class ConfigFileType(val fileName: String, val clazz: Class<*>, val propert
     SEA_CREATURES("sea_creature_settings", SpecificSeaCreatureStorage::class.java, SkyHanniMod::seaCreatureStorage),
     ACHIEVEMENTS("achievements", AchievementStorage::class.java, SkyHanniMod::achievementStorage),
     SEEN_CONTRIBUTORS("seen_contributors", SeenContributorStorage::class.java, SkyHanniMod::seenContributorStorage),
-    ENFORCED_USER_VALUES("enforced_user_values", EnforcedUserValuesStorage::class.java, SkyHanniMod::enforcedUserValuesStorage)
+    ENFORCED_USER_VALUES("enforced_user_values", EnforcedUserValuesStorage::class.java, SkyHanniMod::enforcedUserValuesStorage),
     ;
 
     val file by lazy { File(ConfigManager.configDirectory, "$fileName.json") }
