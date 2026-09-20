@@ -22,17 +22,17 @@ object GuiData {
     var preDrawEventCancelled = false
 
     @HandleEvent(priority = HandleEvent.HIGH)
-    fun onNeuRenderEvent(event: NeuRenderEvent) {
+    private fun onNeuRenderEvent(event: NeuRenderEvent) {
         if (preDrawEventCancelled) event.cancel()
     }
 
     @HandleEvent(priority = HandleEvent.HIGH)
-    fun onSlotClick(event: GuiContainerEvent.SlotClickEvent) {
+    private fun onSlotClick(event: GuiContainerEvent.SlotClickEvent) {
         if (preDrawEventCancelled) event.cancel()
     }
 
     @HandleEvent(priority = HandleEvent.HIGHEST)
-    fun onGuiKeyPress(event: GuiKeyPressEvent) {
+    private fun onGuiKeyPress(event: GuiKeyPressEvent) {
         val allowedKeys = with(Minecraft.getInstance().options) {
             listOf(
                 keyInventory,
@@ -49,7 +49,7 @@ object GuiData {
     }
 
     @HandleEvent
-    fun onInventoryClose(event: InventoryCloseEvent) {
+    private fun onInventoryClose(event: InventoryCloseEvent) {
         DelayedRun.runNextTick {
             if (MinecraftCompat.screen !is ContainerScreen) {
                 preDrawEventCancelled = false
@@ -58,12 +58,12 @@ object GuiData {
     }
 
     @HandleEvent
-    fun onWorldChange() {
+    private fun onWorldChange() {
         preDrawEventCancelled = false
     }
 
     @HandleEvent
-    fun onDisconnect(event: ClientDisconnectEvent) {
+    private fun onDisconnect(event: ClientDisconnectEvent) {
         preDrawEventCancelled = false
     }
 }
