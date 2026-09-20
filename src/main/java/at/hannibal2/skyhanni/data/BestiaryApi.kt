@@ -192,13 +192,6 @@ object BestiaryApi {
         ) : Open(GuiType.MOB_VARIANTS, overallProgressEnabled)
     }
 
-    val indexes = listOf(
-        10..16,
-        19..25,
-        28..34,
-        37..43,
-    ).flatten()
-
     const val OVERALL_PROGRESS_SLOT = 52
 
     // Single source of truth for the active inventory state
@@ -284,9 +277,11 @@ object BestiaryApi {
             is BestiaryGuiState.Categories -> {
                 state.categories[event.slotId]?.let { pendingCategory = it }
             }
+
             is BestiaryGuiState.Mobs -> {
                 state.mobs[event.slotId]?.let { pendingFamily = it }
             }
+
             else -> {}
         }
     }
