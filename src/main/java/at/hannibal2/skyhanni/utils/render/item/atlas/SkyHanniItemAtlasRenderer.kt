@@ -106,9 +106,8 @@ internal class SkyHanniItemAtlasRenderer(
             sizePixels - y - size,
             size,
             size,
-            // TODO 26.3
             //? if >= 26.3
-            TODO("mipLevel"),
+            0,
         )
     }
 }
