@@ -1,11 +1,10 @@
 package at.hannibal2.skyhanni.utils.render
 
+import com.mojang.blaze3d.GpuFormat
 import com.mojang.blaze3d.vertex.BufferBuilder
+import com.mojang.blaze3d.vertex.DefaultVertexFormat
 import com.mojang.blaze3d.vertex.VertexFormat
 import org.lwjgl.system.MemoryUtil
-
-import com.mojang.blaze3d.GpuFormat
-import com.mojang.blaze3d.vertex.DefaultVertexFormat
 
 object SkyHanniVertexFormats {
     @Suppress("EmptyDefaultConstructor")
