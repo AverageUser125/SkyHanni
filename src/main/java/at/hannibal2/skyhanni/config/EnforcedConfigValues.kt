@@ -29,7 +29,7 @@ object EnforcedConfigValues {
     private val config: Any
         get() = SkyHanniMod.feature
 
-    @HandleEvent
+    @HandleEvent(priority = HandleEvent.HIGHEST)
     private fun onRepoReload(event: RepositoryReloadEvent) {
         val json = event.getConstant<EnforcedConfigValuesJson>("misc/EnforcedConfigValues").enforcedConfigValues
         // The repo reloads from a coroutine, but property observers expect the client thread
