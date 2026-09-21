@@ -10,8 +10,8 @@ import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 
 class StringFileHandler(private val file: File) {
-    private val backupFile = File(file.parentFile, "${file.name}.bak")
-    private val tempFile = File(file.parentFile, "${file.name}.tmp")
+    private val backupFile = file.resolveSibling("${file.name}.bak")
+    private val tempFile = file.resolveSibling("${file.name}.tmp")
 
     @Throws(IOException::class)
     fun load(): String = try {
