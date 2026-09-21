@@ -61,8 +61,8 @@ abstract class AbstractRepoManager<E : AbstractRepoReloadEvent> {
      * For example:
      * `.minecraft/skyhanni/shrepo.meta.json`
      */
-    val commitFile: File by lazy {
-        SkyHanniMod.dataDir.resolve("$repoFolderName.meta.json")
+    private val commitStorage: RepoCommitStorage by lazy {
+        RepoCommitStorage(SkyHanniMod.dataDir.resolve("$repoFolderName.meta.json"))
     }
 
     /**
@@ -73,13 +73,6 @@ abstract class AbstractRepoManager<E : AbstractRepoReloadEvent> {
      */
     private val repoTgzFile: File by lazy {
         SkyHanniMod.dataDir.resolve("$repoFolderName.tar.gz")
-    }
-
-    /**
-     * Stores commit metadata for this repo.
-     */
-    private val commitStorage: RepoCommitStorage by lazy {
-        RepoCommitStorage(commitFile)
     }
 
     @PublishedApi
