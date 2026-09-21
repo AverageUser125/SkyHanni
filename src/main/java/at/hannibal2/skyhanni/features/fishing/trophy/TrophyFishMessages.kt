@@ -192,7 +192,7 @@ object TrophyFishMessages {
             amount != 1
 
     @HandleEvent
-    fun onConfigFix(event: ConfigUpdaterMigrator.ConfigFixEvent) {
+    private fun onConfigFix(event: ConfigUpdaterMigrator.ConfigFixEvent) {
         event.move(2, "fishing.trophyCounter", "fishing.trophyFishing.chatMessages.enabled")
         event.move(2, "fishing.trophyDesign", "fishing.trophyFishing.chatMessages.design")
         event.move(2, "fishing.trophyFishTotalAmount", "fishing.trophyFishing.chatMessages.totalAmount")
