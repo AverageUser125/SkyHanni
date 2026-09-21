@@ -90,7 +90,6 @@ data class SkyHanniGuiItemRenderState(
     private fun setAnimated() = trackingState.setAnimated()
 
     internal fun renderItemToTexture(
-        //~ if < 26.2 'submitNodeStorage: SubmitNodeStorage' -> 'bufferSource: MultiBufferSource.BufferSource'
         submitNodeStorage: SubmitNodeStorage,
         featureRenderDispatcher: FeatureRenderDispatcher,
         centerX: Float,
@@ -106,19 +105,12 @@ data class SkyHanniGuiItemRenderState(
         val rotated = ps.mulPose(rotationVector)
         ps.translate(0.0f, 0.03f, 0.125f)
 
-        //~ if < 26.2 'lighting()' -> 'lighting'
         Minecraft.getInstance().gameRenderer.lighting().setupFor(
             if (trackingState.usesBlockLight()) Lighting.Entry.ITEMS_3D else Lighting.Entry.ITEMS_FLAT,
         )
         if (rotated) setAnimated()
 
-        //~ if < 26.2 'submitNodeStorage' -> 'featureRenderDispatcher.submitNodeStorage'
         trackingState.submit(ps, submitNodeStorage, FULL_BRIGHT, OverlayTexture.NO_OVERLAY, 0)
-        //? if >= 26.2 {
         featureRenderDispatcher.renderAllFeatures(submitNodeStorage)
-        //?} else {
-        /*featureRenderDispatcher.renderAllFeatures()
-        bufferSource.endBatch()
-        *///?}
     }
 }
