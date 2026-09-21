@@ -3,7 +3,6 @@ package at.hannibal2.skyhanni.features.fishing.trophy
 import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.config.ConfigUpdaterMigrator
-import at.hannibal2.skyhanni.config.features.fishing.trophyfishing.ChatMessagesConfig.DesignFormat
 import at.hannibal2.skyhanni.data.model.SkyblockStat
 import at.hannibal2.skyhanni.data.title.TitleManager
 import at.hannibal2.skyhanni.events.chat.SkyHanniChatEvent
@@ -11,14 +10,12 @@ import at.hannibal2.skyhanni.events.fishing.TrophyFishCaughtEvent
 import at.hannibal2.skyhanni.features.fishing.trophy.TrophyFishManager.getTooltip
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.ComponentMatcherUtils.matchStyledMatcher
-import at.hannibal2.skyhanni.utils.ComponentSpan
 import at.hannibal2.skyhanni.utils.NumberUtil.addSeparators
 import at.hannibal2.skyhanni.utils.NumberUtil.formatIntOrNull
 import at.hannibal2.skyhanni.utils.NumberUtil.ordinal
 import at.hannibal2.skyhanni.utils.RegexUtils.groupOrNull
 import at.hannibal2.skyhanni.utils.RegexUtils.matchMatcher
 import at.hannibal2.skyhanni.utils.SoundUtils
-import at.hannibal2.skyhanni.utils.chat.TextHelper.asComponent
 import at.hannibal2.skyhanni.utils.collection.CollectionUtils.addOrPut
 import at.hannibal2.skyhanni.utils.collection.CollectionUtils.sumAllValues
 import at.hannibal2.skyhanni.utils.compat.appendWithColor
