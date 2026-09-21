@@ -11,7 +11,7 @@ class HideArmorConfig {
     @Expose
     @ConfigOption(name = "Player Selection", desc = "Select which players to hide armor for.")
     @ConfigEditorDraggableList
-    var playerSelection: Property<List<PlayerNameSource>> = Property.of(emptyList())
+    val playerSelection: Property<List<PlayerNameSource>> = Property.of(emptyList())
 
     @Expose
     @ConfigOption(

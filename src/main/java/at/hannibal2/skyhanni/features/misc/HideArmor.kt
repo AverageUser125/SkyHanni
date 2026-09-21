@@ -45,7 +45,11 @@ object HideArmor {
     @HandleEvent
     private fun onConfigFix(event: ConfigUpdaterMigrator.ConfigFixEvent) {
         event.move(91, "misc.hideArmor2", "misc.hideArmor")
-        event.move(147,"misc.hideArmor.mode", "misc.hideArmor.playerSelection") { element ->
+        event.move(
+            147,
+            "misc.hideArmor.mode",
+            "misc.hideArmor.playerSelection"
+        ) { element ->
             val oldValue = element.asString
             val newValue: List<PlayerNameSource> = when (oldValue) {
                 "ALL" -> listOf(SELF, ISLAND_PLAYERS)
