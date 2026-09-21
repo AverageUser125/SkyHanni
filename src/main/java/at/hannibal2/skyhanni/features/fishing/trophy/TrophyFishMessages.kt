@@ -103,7 +103,7 @@ object TrophyFishMessages {
             else -> {}
         }
 
-        val edited = if (config.enabled) {
+        var edited = if (config.enabled) {
             val designFormat = when (config.design) {
                 STYLE_1 -> if (amount == 1) {
                     componentBuilder {
@@ -151,12 +151,22 @@ object TrophyFishMessages {
                     appendWithColor(".", ChatFormatting.AQUA)
                 }
             }
-            "§6${SkyblockStat.TROPHY_FISH_CHANCE.icon} §6§lTROPHY FISH! $designFormat".asComponent()
+            componentBuilder {
+                append(SkyblockStat.TROPHY_FISH_CHANCE.icon)
+                appendWithColor(" TROPHY FISH! ", ChatFormatting.GOLD) {
+                    bold = true
+                }
+                append(designFormat)
+            }
         } else event.chatComponent.copy()
 
         if (config.totalAmount) {
             val total = trophyFishCounts.sumAllValues()
-            edited.append((" §7(${total.addSeparators()}${total.ordinal()} total)"))
+            edited = componentBuilder {
+                append(edited)
+                append(" ")
+                appendWithColor("(${total.addSeparators()}${total.ordinal()} total)", ChatFormatting.GRAY)
+            }
         }
 
         if (config.tooltip) {
