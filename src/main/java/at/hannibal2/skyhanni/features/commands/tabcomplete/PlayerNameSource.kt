@@ -5,6 +5,7 @@ import at.hannibal2.skyhanni.data.GuildApi
 import at.hannibal2.skyhanni.data.PartyApi
 import at.hannibal2.skyhanni.features.misc.CarryTracker
 import at.hannibal2.skyhanni.utils.EntityUtils
+import at.hannibal2.skyhanni.utils.EnumUtils.toFormattedName
 import at.hannibal2.skyhanni.utils.PlayerUtils
 
 enum class PlayerNameSource(private val usernamesGetter: () -> List<String>) {
@@ -18,4 +19,6 @@ enum class PlayerNameSource(private val usernamesGetter: () -> List<String>) {
     ;
 
     val usernames: List<String> get() = usernamesGetter()
+
+    override fun toString(): String = toFormattedName()
 }
