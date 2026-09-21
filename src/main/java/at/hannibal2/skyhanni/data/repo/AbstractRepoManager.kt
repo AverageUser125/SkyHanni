@@ -447,6 +447,7 @@ abstract class AbstractRepoManager<E : AbstractRepoReloadEvent> {
         if (comparison.hashesMatch && !forceReset && repoTgzHasContent() && unsuccessfulConstants.isEmpty()) {
             if (command) {
                 comparison.reportRepoUpToDate()
+                shouldManuallyReload = false
             }
 
             return if (loadRepoFromTgz(progress)) {
@@ -580,7 +581,7 @@ abstract class AbstractRepoManager<E : AbstractRepoReloadEvent> {
         debug("  location: ${loc.user}/${loc.repoName}@${loc.branch} (default=${loc.hasDefaultSettings()})")
         debug("  localCommit: sha=${localRepoCommit.sha ?: "none"}, time=${localRepoCommit.time ?: "none"}")
         debug("  usingBackup: $isUsingBackup")
-        debug("  tgzFile: exists=${repoTgzFile.exists()}, size=${repoTgzFile.length()}")
+        debug("  tgzFile: exists=${repoTgzFile.exists()}, size=${repoTgzFile.length()}, path=${repoTgzFile.absolutePath}")
         debug("  fileSystem: ${repoFileSystem::class.simpleName}")
         debug("  successful: ${successfulConstants.size}, failed: ${unsuccessfulConstants.size}")
         if (unsuccessfulConstants.isNotEmpty()) {
