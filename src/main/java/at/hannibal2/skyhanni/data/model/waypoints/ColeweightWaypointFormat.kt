@@ -3,11 +3,9 @@ package at.hannibal2.skyhanni.data.model.waypoints
 import at.hannibal2.skyhanni.config.ConfigManager
 import at.hannibal2.skyhanni.utils.ChatUtils
 import at.hannibal2.skyhanni.utils.LorenzVec
-import com.google.auto.service.AutoService
 import com.google.gson.annotations.Expose
 import com.google.gson.reflect.TypeToken
 
-@AutoService(WaypointFormat::class)
 class ColeweightWaypointFormat : WaypointFormat {
 
     data class ColeweightWaypoint(

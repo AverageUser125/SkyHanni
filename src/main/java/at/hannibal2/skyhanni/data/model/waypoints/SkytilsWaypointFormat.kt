@@ -3,14 +3,12 @@ package at.hannibal2.skyhanni.data.model.waypoints
 import at.hannibal2.skyhanni.config.ConfigManager
 import at.hannibal2.skyhanni.utils.ChatUtils
 import at.hannibal2.skyhanni.utils.LorenzVec
-import com.google.auto.service.AutoService
 import com.google.gson.annotations.Expose
 import com.google.gson.reflect.TypeToken
 import java.io.ByteArrayInputStream
 import java.util.Base64
 import java.util.zip.GZIPInputStream
 
-@AutoService(WaypointFormat::class)
 class SkytilsWaypointFormat : WaypointFormat {
 
     data class SkytilsWaypoint(
