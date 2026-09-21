@@ -17,6 +17,7 @@ import net.minecraft.client.renderer.entity.EntityRenderer
 import net.minecraft.client.renderer.entity.state.EntityRenderState
 import net.minecraft.client.renderer.entity.state.LivingEntityRenderState
 import net.minecraft.core.registries.BuiltInRegistries
+import net.minecraft.util.LightCoordsUtil
 import net.minecraft.world.entity.EntitySpawnReason
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.LivingEntity
@@ -25,8 +26,6 @@ import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSuperclassOf
-
-import net.minecraft.util.LightCoordsUtil
 
 /**
  * Utility for creating fake entities without an associated world to avoid contaminating the world state.

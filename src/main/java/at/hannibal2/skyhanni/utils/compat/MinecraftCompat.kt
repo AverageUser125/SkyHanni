@@ -6,13 +6,12 @@ import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.DelayedRun
 import net.minecraft.client.Minecraft
 import net.minecraft.client.User
+import net.minecraft.client.gui.Hud
 import net.minecraft.client.gui.screens.Screen
 import net.minecraft.client.multiplayer.ClientLevel
 import net.minecraft.client.player.LocalPlayer
 import net.minecraft.network.protocol.game.ClientboundSetTimePacket
 import net.minecraft.world.entity.Entity
-
-import net.minecraft.client.gui.Hud
 
 /**
  * This is a compatibility layer that helps with multiple Minecraft versions and mixins.
