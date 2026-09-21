@@ -117,7 +117,7 @@ object TrophyFishMessages {
                     }
                 } else {
                     componentBuilder {
-                        appendWithColor(amount.addSeparators(), ChatFormatting.GRAY)
+                        appendWithColor(amount.toString(), ChatFormatting.GRAY)
                         appendWithColor(amount.ordinal(), ChatFormatting.GRAY)
                         append(" ")
                         append(displayRarity)
