@@ -11,10 +11,11 @@ import at.hannibal2.skyhanni.events.fishing.TrophyFishCaughtEvent
 import at.hannibal2.skyhanni.features.fishing.trophy.TrophyFishManager.getTooltip
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.NumberUtil.addSeparators
+import at.hannibal2.skyhanni.utils.NumberUtil.formatIntOrNull
 import at.hannibal2.skyhanni.utils.NumberUtil.ordinal
+import at.hannibal2.skyhanni.utils.RegexUtils.groupOrNull
 import at.hannibal2.skyhanni.utils.RegexUtils.matchMatcher
 import at.hannibal2.skyhanni.utils.SoundUtils
-import at.hannibal2.skyhanni.utils.StringUtils.removeColor
 import at.hannibal2.skyhanni.utils.chat.TextHelper.asComponent
 import at.hannibal2.skyhanni.utils.collection.CollectionUtils.addOrPut
 import at.hannibal2.skyhanni.utils.collection.CollectionUtils.sumAllValues
@@ -25,30 +26,34 @@ object TrophyFishMessages {
     private val config get() = SkyHanniMod.feature.fishing.trophyFishing.chatMessages
 
     /**
-     * REGEX-TEST: §6 §r§6§lTROPHY FISH! §r§fYou caught a §r§9Lavahorse §r§6§lGOLD§r§f!
-     * REGEX-TEST: §6 §r§6§lTROPHY FISH! §r§fYou caught a §r§5Soul Fish §r§8§lBRONZE§r§f!
-     * REGEX-TEST: §6 §r§6§lTROPHY FISH! §r§fYou caught a §r§9Mana Ray §r§8§lBRONZE§r§f!
-     * REGEX-TEST: §6 §r§6§lTROPHY FISH! §r§fYou caught a §r§fBlobfish §r§7§lSILVER§r§f!
-     * REGEX-TEST: §6 §r§6§lTROPHY FISH! §r§fYou caught a §r§6Golden Fish §r§7§lSILVER§r§f!
+     * REGEX-TEST:  TROPHY FISH! You caught a Lavahorse GOLD!
+     * REGEX-TEST:  TROPHY FISH! You caught a Soul Fish BRONZE!
+     * REGEX-TEST:  TROPHY FISH! You caught a Mana Ray BRONZE!
+     * REGEX-TEST:  TROPHY FISH! You caught a Blobfish SILVER!
+     * REGEX-TEST:  TROPHY FISH! You caught a Golden Fish SILVER!
+     * REGEX-TEST:  TROPHY FISH! You caught a Lavahorse BRONZE x2!
      */
     @Suppress("MaxLineLength")
     val trophyFishPattern by RepoPattern.pattern(
-        "fishing.trophy.trophyfish",
-        "§6\uE02A §r§6§lTROPHY FISH! §r§fYou caught an? §r(?<displayName>§[0-9a-f](?:§k)?[\\w -]+) §r(?<displayRarity>§[0-9a-f]§l\\w+)§r§f!",
+        "fishing.trophy.trophyfish.colorless",
+        "${SkyblockStat.TROPHY_FISH_CHANCE.hypixelIcon} TROPHY FISH! You caught an? (?<displayName>[\\w -]+?) (?<displayRarity>[A-Z]+)(?: x(?<amount>\\d+))?!",
     )
 
     @HandleEvent(onlyOnSkyblock = true)
-    fun onChat(event: SkyHanniChatEvent.Allow) {
-        val (displayName, displayRarity) = trophyFishPattern.matchMatcher(event.message) {
-            group("displayName").replace("§k", "") to group("displayRarity")
+    private fun onChat(event: SkyHanniChatEvent.Allow) {
+        val (displayName, displayRarity, amountCaught) = trophyFishPattern.matchMatcher(event.cleanMessage) {
+            val displayName = group("displayName")
+            val displayRarity = group("displayRarity")
+            val amount = groupOrNull("amount")?.formatIntOrNull() ?: 1
+            Triple(displayName, displayRarity, amount)
         } ?: return
 
         val internalName = TrophyFishApi.getInternalName(displayName)
-        val rarity = TrophyRarity.getByName(displayRarity.lowercase().removeColor()) ?: return
+        val rarity = TrophyRarity.getByName(displayRarity) ?: return
 
         val trophyFishes = TrophyFishManager.fish ?: return
         val trophyFishCounts = trophyFishes.getOrPut(internalName) { mutableMapOf() }
-        val amount = trophyFishCounts.addOrPut(rarity, 1)
+        val amount = trophyFishCounts.addOrPut(rarity, amountCaught)
         TrophyFishCaughtEvent(internalName, rarity).post()
 
         if (shouldBlockTrophyFish(rarity, amount)) {
@@ -60,27 +65,31 @@ object TrophyFishMessages {
     }
 
     @HandleEvent(onlyOnSkyblock = true)
-    fun onChat(event: SkyHanniChatEvent.Modify) {
-        val (displayName, displayRarity) = trophyFishPattern.matchMatcher(event.message) {
-            group("displayName").replace("§k", "") to
-                group("displayRarity")
+    private fun onChat(event: SkyHanniChatEvent.Modify) {
+        val (displayName, displayRarity, amountCaught) = trophyFishPattern.matchMatcher(event.cleanMessage) {
+            val displayName = group("displayName")
+            val displayRarity = group("displayRarity")
+            val amount = groupOrNull("amount")?.formatIntOrNull() ?: 1
+            Triple(displayName, displayRarity, amount)
         } ?: return
 
         val internalName = TrophyFishApi.getInternalName(displayName)
-        val rarity = TrophyRarity.getByName(displayRarity.lowercase().removeColor()) ?: return
+        val rarity = TrophyRarity.getByName(displayRarity) ?: return
 
         val trophyFishes = TrophyFishManager.fish ?: return
         val trophyFishCounts = trophyFishes.getOrPut(internalName) { mutableMapOf() }
-        val amount = trophyFishCounts[rarity] ?: 1
+        val amount = trophyFishCounts[rarity] ?: amountCaught
 
-        if (config.goldAlert && rarity == TrophyRarity.GOLD) {
-            sendTitle(displayName, displayRarity, amount)
-            if (config.playSound) SoundUtils.playBeepSound()
-        }
-
-        if (config.diamondAlert && rarity == TrophyRarity.DIAMOND) {
-            sendTitle(displayName, displayRarity, amount)
-            if (config.playSound) SoundUtils.playBeepSound()
+        when (rarity) {
+            GOLD -> if (config.goldAlert) {
+                sendTitle(displayName, displayRarity, amount)
+                if (config.playSound) SoundUtils.playBeepSound()
+            }
+            DIAMOND -> if (config.diamondAlert) {
+                sendTitle(displayName, displayRarity, amount)
+                if (config.playSound) SoundUtils.playBeepSound()
+            }
+            else -> {}
         }
 
         val edited = if (config.enabled) {
