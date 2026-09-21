@@ -52,7 +52,7 @@ loom.apply {
 
     runs {
         named("client") {
-            isIdeConfigGenerated = true
+            generateRunConfig.set(true)
             preferGradleTask = true
             appendProjectPathToDisplayName.set(true)
             this.runDirectory = rootProject.file("versions/${target.projectName}/run").relativeTo(projectDir)
