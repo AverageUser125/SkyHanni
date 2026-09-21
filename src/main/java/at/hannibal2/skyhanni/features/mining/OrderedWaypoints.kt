@@ -8,12 +8,10 @@ import at.hannibal2.skyhanni.config.commands.CommandRegistrationEvent
 import at.hannibal2.skyhanni.config.commands.brigadier.BrigadierArguments
 import at.hannibal2.skyhanni.config.commands.brigadier.BrigadierUtils
 import at.hannibal2.skyhanni.data.IslandType
-import at.hannibal2.skyhanni.data.ProfileStorageData
 import at.hannibal2.skyhanni.data.model.waypoints.SkyHanniWaypoint
 import at.hannibal2.skyhanni.data.model.waypoints.WaypointFormats
 import at.hannibal2.skyhanni.data.model.waypoints.Waypoints
 import at.hannibal2.skyhanni.events.IslandChangeEvent
-import at.hannibal2.skyhanni.events.hypixel.HypixelJoinEvent
 import at.hannibal2.skyhanni.events.minecraft.SkyHanniRenderWorldEvent
 import at.hannibal2.skyhanni.events.minecraft.WorldChangeEvent
 import at.hannibal2.skyhanni.events.mining.GlaciteMineshaftDetectEvent
@@ -40,7 +38,7 @@ import kotlinx.coroutines.Job
 @SkyHanniModule
 object OrderedWaypoints {
     private val config get() = SkyHanniMod.feature.mining.orderedWaypoints
-    private val storage get() = ProfileStorageData.orderedWaypointsRoutes
+    private val routes get() = SkyHanniMod.orderedWaypointsRoutesData.routes
 
     private var orderedWaypointsList = Waypoints<SkyHanniWaypoint>()
     private val renderWaypoints: MutableList<Int> = mutableListOf()
@@ -48,20 +46,12 @@ object OrderedWaypoints {
     private var lastCloser = 0
     private var loadJob: Job? = null
 
-    @HandleEvent(HypixelJoinEvent::class)
-    fun onHypixelJoin() {
-        if (SkyHanniMod.orderedWaypointsRoutesData.routes == null) {
-            SkyHanniMod.orderedWaypointsRoutesData.routes = mutableMapOf()
-            saveConfig()
-        }
-    }
-
     fun saveConfig() {
         SkyHanniMod.configManager.saveConfig(ConfigFileType.ROUTES, "Save file")
     }
 
     @HandleEvent
-    fun onRenderWorld(event: SkyHanniRenderWorldEvent) {
+    private fun onRenderWorld(event: SkyHanniRenderWorldEvent) {
         if (!config.enabled) return
 
         for (i in renderWaypoints.indices) {
@@ -144,12 +134,12 @@ object OrderedWaypoints {
     }
 
     @HandleEvent(WorldChangeEvent::class)
-    fun onWorldChange() {
+    private fun onWorldChange() {
         currentOrderedWaypointIndex = 0
     }
 
     @HandleEvent
-    fun onCommandRegistration(event: CommandRegistrationEvent) {
+    private fun onCommandRegistration(event: CommandRegistrationEvent) {
         event.registerBrigadier("shordered") {
             description = "Ordered Waypoints commands."
             category = CommandCategory.USERS_ACTIVE
@@ -230,9 +220,9 @@ object OrderedWaypoints {
     }
 
     @HandleEvent
-    fun onGlaciteMineshaftDetectEvent(event: GlaciteMineshaftDetectEvent) {
+    private fun onGlaciteMineshaftDetectEvent(event: GlaciteMineshaftDetectEvent) {
         val routeName = event.type.name
-        val hasRoute = storage?.routes?.get(routeName) != null
+        val hasRoute = routes[routeName] != null
         ChatUtils.debug("AutoLoad check: type=$routeName, autoLoad=${config.autoLoadMatchingShaftRoute}, hasRoute=$hasRoute")
         if (!config.autoLoadMatchingShaftRoute) return
         if (!hasRoute) return
@@ -242,7 +232,7 @@ object OrderedWaypoints {
     }
 
     @HandleEvent
-    fun onIslandChange(event: IslandChangeEvent) {
+    private fun onIslandChange(event: IslandChangeEvent) {
         if (event.oldIsland == IslandType.MINESHAFT && config.autoUnloadWhenLeavingMineshaft) unload()
         if (config.autoUnload) unload()
     }
@@ -250,7 +240,7 @@ object OrderedWaypoints {
     private fun shouldRenderName(waypointIndex: Int) =
         config.showName && (config.setupMode || config.showAll || waypointIndex in 0..(1 + config.nextCount.toInt()))
 
-    private fun getRouteNames() = ProfileStorageData.orderedWaypointsRoutes?.routes?.keys.orEmpty()
+    private fun getRouteNames() = routes.keys
 
     private suspend fun load(name: String) {
         if (loadJob?.isActive == true) {
@@ -264,9 +254,9 @@ object OrderedWaypoints {
 
     private fun setupLoadJob(name: String) {
         val result = if (name == "") WaypointFormats.load(ClipboardUtils.readFromClipboard().orEmpty())
-        else storage?.routes?.get(name)?.let { it to "saved" } ?: return ChatUtils.userError(
+        else routes[name]?.let { it to "saved" } ?: return ChatUtils.userError(
             "Route $name doesn't exist.\n" +
-                "§cSaved Routes: ${storage?.routes?.keys?.toList()?.joinToString(", ")}\n" +
+                "§cSaved Routes: ${routes.keys.toList().joinToString(", ")}\n" +
                 "§cIf you would like to import a route from your clipboard, leave the route name blank.",
         )
 
@@ -386,13 +376,13 @@ object OrderedWaypoints {
     }
 
     private fun save(name: String) {
-        ProfileStorageData.orderedWaypointsRoutes?.routes?.set(name, orderedWaypointsList.deepCopy())
+        routes[name] = orderedWaypointsList.deepCopy()
         saveConfig()
         ChatUtils.chat("Route saved as $name. Do /sho load $name to import it.")
     }
 
     private fun erase(name: String) {
-        ProfileStorageData.orderedWaypointsRoutes?.routes?.remove(name) ?: run {
+        routes.remove(name) ?: run {
             ChatUtils.userError("Route $name doesn't exist.")
             return
         }
