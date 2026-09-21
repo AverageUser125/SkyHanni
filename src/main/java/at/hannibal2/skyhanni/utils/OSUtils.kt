@@ -7,6 +7,8 @@ import net.minecraft.util.Util
 import java.io.File
 import java.io.IOException
 import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.StandardCopyOption
 import java.nio.file.attribute.BasicFileAttributes
 import kotlin.io.path.deleteRecursively
 import kotlin.time.Duration
@@ -155,4 +157,25 @@ object OSUtils {
         runCatching {
             toPath().deleteRecursively()
         }.isSuccess
+
+    /**
+     * Moves a file from [source] to [target] atomically, replacing the target if it exists.
+     */
+    @Throws(IOException::class)
+    fun atomicMoveFile(source: Path, target: Path) {
+        Files.move(
+            source,
+            target,
+            StandardCopyOption.ATOMIC_MOVE,
+            StandardCopyOption.REPLACE_EXISTING
+        )
+    }
+
+    /**
+     * Moves a file from [source] to [target] atomically, replacing the target if it exists.
+     */
+    @Throws(IOException::class)
+    fun atomicMoveFile(source: File, target: File) {
+        atomicMoveFile(source.toPath(), target.toPath())
+    }
 }
