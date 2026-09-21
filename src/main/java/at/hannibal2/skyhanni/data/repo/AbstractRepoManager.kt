@@ -410,9 +410,9 @@ abstract class AbstractRepoManager<E : AbstractRepoReloadEvent> {
     }
 
     /**
-     * Checks if the repo tar.gz exists and has some content. This is a sanity check to avoid trying to
+     * Checks if the repo directory exists and has any .json files in it. This is a sanity check to avoid trying to
      *  load from an empty or non-existent repo directory.
-     * @return true if the repo file exists and has content, false otherwise.
+     * @return true if the repo directory exists and has .json files, false otherwise.
      */
     private fun repoTgzHasContent() = repoTgzFile.exists() && repoTgzFile.length() > 0
 
