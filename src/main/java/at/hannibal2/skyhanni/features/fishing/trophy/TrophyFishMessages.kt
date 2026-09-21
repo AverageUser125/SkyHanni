@@ -135,7 +135,7 @@ object TrophyFishMessages {
                     appendWithColor(".", ChatFormatting.AQUA)
                     if (amount > 1) {
                         append(" ")
-                        appendWithColor("(${amount.addSeparators()}${amount.ordinal()})", ChatFormatting.GRAY)
+                        appendWithColor("(${amount.addSeparators()})", ChatFormatting.GRAY)
                     }
                 }
 
