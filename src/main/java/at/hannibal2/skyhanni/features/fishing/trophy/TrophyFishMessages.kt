@@ -10,6 +10,8 @@ import at.hannibal2.skyhanni.events.chat.SkyHanniChatEvent
 import at.hannibal2.skyhanni.events.fishing.TrophyFishCaughtEvent
 import at.hannibal2.skyhanni.features.fishing.trophy.TrophyFishManager.getTooltip
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
+import at.hannibal2.skyhanni.utils.ComponentMatcherUtils.matchStyledMatcher
+import at.hannibal2.skyhanni.utils.ComponentSpan
 import at.hannibal2.skyhanni.utils.NumberUtil.addSeparators
 import at.hannibal2.skyhanni.utils.NumberUtil.formatIntOrNull
 import at.hannibal2.skyhanni.utils.NumberUtil.ordinal
@@ -19,7 +21,13 @@ import at.hannibal2.skyhanni.utils.SoundUtils
 import at.hannibal2.skyhanni.utils.chat.TextHelper.asComponent
 import at.hannibal2.skyhanni.utils.collection.CollectionUtils.addOrPut
 import at.hannibal2.skyhanni.utils.collection.CollectionUtils.sumAllValues
+import at.hannibal2.skyhanni.utils.compat.appendWithColor
+import at.hannibal2.skyhanni.utils.compat.bold
+import at.hannibal2.skyhanni.utils.compat.componentBuilder
+import at.hannibal2.skyhanni.utils.compat.formattedTextCompatLeadingWhiteLessResets
 import at.hannibal2.skyhanni.utils.repopatterns.RepoPattern
+import net.minecraft.ChatFormatting
+import net.minecraft.network.chat.Component
 
 @SkyHanniModule
 object TrophyFishMessages {
@@ -66,15 +74,18 @@ object TrophyFishMessages {
 
     @HandleEvent(onlyOnSkyblock = true)
     private fun onChat(event: SkyHanniChatEvent.Modify) {
-        val (displayName, displayRarity, amountCaught) = trophyFishPattern.matchMatcher(event.cleanMessage) {
-            val displayName = group("displayName")
-            val displayRarity = group("displayRarity")
-            val amount = groupOrNull("amount")?.formatIntOrNull() ?: 1
+        val (displayNameSpan, displayRaritySpan, amountCaught) = trophyFishPattern.matchStyledMatcher(event.chatComponent) {
+            val displayName = groupOrThrow("displayName")
+            val displayRarity = groupOrThrow("displayRarity")
+            val amount = group("amount")?.getText()?.formatIntOrNull() ?: 1
             Triple(displayName, displayRarity, amount)
         } ?: return
 
-        val internalName = TrophyFishApi.getInternalName(displayName)
-        val rarity = TrophyRarity.getByName(displayRarity) ?: return
+        val internalName = TrophyFishApi.getInternalName(displayNameSpan.getText())
+        val rarity = TrophyRarity.getByName(displayRaritySpan.getText()) ?: return
+
+        val displayName = displayNameSpan.intoComponent()
+        val displayRarity = displayRaritySpan.intoComponent()
 
         val trophyFishes = TrophyFishManager.fish ?: return
         val trophyFishCounts = trophyFishes.getOrPut(internalName) { mutableMapOf() }
@@ -94,11 +105,51 @@ object TrophyFishMessages {
 
         val edited = if (config.enabled) {
             val designFormat = when (config.design) {
-                DesignFormat.STYLE_1 -> if (amount == 1) "§c§lFIRST §r$displayRarity $displayName"
-                else "§7$amount${amount.ordinal()} §r$displayRarity $displayName"
+                STYLE_1 -> if (amount == 1) {
+                    componentBuilder {
+                        appendWithColor("FIRST", ChatFormatting.RED) {
+                            bold = true
+                        }
+                        append(" ")
+                        append(displayRarity)
+                        append(" ")
+                        append(displayName)
+                    }
+                } else {
+                    componentBuilder {
+                        appendWithColor(amount.addSeparators(), ChatFormatting.GRAY)
+                        appendWithColor(amount.ordinal(), ChatFormatting.GRAY)
+                        append(" ")
+                        append(displayRarity)
+                        append(" ")
+                        append(displayName)
+                    }
+                }
 
-                DesignFormat.STYLE_2 -> "§bYou caught a $displayName $displayRarity§b. §7(${amount.addSeparators()})"
-                else -> "§bYou caught your ${amount.addSeparators()}${amount.ordinal()} $displayRarity $displayName§b."
+                STYLE_2 -> componentBuilder {
+                    appendWithColor("You caught a", ChatFormatting.AQUA)
+                    append(" ")
+                    append(displayName)
+                    append(" ")
+                    append(displayRarity)
+                    appendWithColor(".", ChatFormatting.AQUA)
+                    if (amount > 1) {
+                        append(" ")
+                        appendWithColor("(${amount.addSeparators()}${amount.ordinal()})", ChatFormatting.GRAY)
+                    }
+                }
+
+                STYLE_3 -> componentBuilder {
+                    appendWithColor("You caught your", ChatFormatting.AQUA)
+                    append(" ")
+                    appendWithColor(amount.addSeparators(), ChatFormatting.GRAY)
+                    appendWithColor(amount.ordinal(), ChatFormatting.GRAY)
+                    append(" ")
+                    append(displayRarity)
+                    append(" ")
+                    append(displayName)
+                    appendWithColor(".", ChatFormatting.AQUA)
+                }
             }
             "§6${SkyblockStat.TROPHY_FISH_CHANCE.icon} §6§lTROPHY FISH! $designFormat".asComponent()
         } else event.chatComponent.copy()
@@ -117,8 +168,11 @@ object TrophyFishMessages {
         event.replaceComponent(edited, "TROPHY_FISH")
     }
 
-    private fun sendTitle(displayName: String, displayRarity: String?, amount: Int) {
-        val text = "$displayName $displayRarity §8$amount§c!"
+    private fun sendTitle(displayName: Component, displayRarity: Component, amount: Int) {
+        val legacyDisplayName = displayName.formattedTextCompatLeadingWhiteLessResets()
+        val legacyDisplayRarity = displayRarity.formattedTextCompatLeadingWhiteLessResets()
+        val text = "$legacyDisplayName $legacyDisplayRarity §8$amount§c!"
+        // Does not support components, so we have to convert it to a legacy string first
         TitleManager.sendTitle(text)
     }
 
