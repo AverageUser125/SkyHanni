@@ -7,48 +7,86 @@ import at.hannibal2.skyhanni.config.commands.brigadier.BrigadierUtils
 import at.hannibal2.skyhanni.data.IslandGraphs
 import at.hannibal2.skyhanni.data.IslandType
 import at.hannibal2.skyhanni.data.jsonobjects.repo.GardenJson
+import at.hannibal2.skyhanni.data.jsonobjects.repo.GardenVisitor
+import at.hannibal2.skyhanni.data.jsonobjects.repo.WarpLocationData
+import at.hannibal2.skyhanni.data.jsonobjects.repo.WarpsJson
 import at.hannibal2.skyhanni.events.RepositoryReloadEvent
 import at.hannibal2.skyhanni.features.commands.WikiManager
 import at.hannibal2.skyhanni.features.misc.pathfind.NavigateAllApi
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.ChatUtils
+import at.hannibal2.skyhanni.utils.HypixelCommands
 import at.hannibal2.skyhanni.utils.LorenzColor
 import at.hannibal2.skyhanni.utils.LorenzVec
 import at.hannibal2.skyhanni.utils.SkyBlockUtils
 import at.hannibal2.skyhanni.utils.StringUtils
+import at.hannibal2.skyhanni.utils.coroutines.CoroutineSettings
 
 @SkyHanniModule
 object VisitorNavigation {
-    data class VisitorNavigationData(
+    private data class VisitorNavigationData(
+        val island: IslandType,
         val position: LorenzVec,
         val name: String,
     )
 
-    private var visitorJson = mapOf<IslandType, List<VisitorNavigationData>>()
+    private data class Warp(
+        val command: String,
+        val island: IslandType,
+        val position: LorenzVec,
+    )
+
+    private var visitors = mapOf<IslandType, List<VisitorNavigationData>>()
+    private var warps: Map<IslandType, List<Warp>> = emptyMap()
+    private var noPositionVisitors = setOf<String>()
 
     @HandleEvent
     private fun onRepoReload(event: RepositoryReloadEvent) {
         val visitors = event.getConstant<GardenJson>("Garden").visitors
+        val warps = event.getConstant<WarpsJson>("Warps").warpLocation
+        loadVisitors(visitors)
+        loadWarps(warps)
+    }
 
+    private fun loadVisitors(visitors: Map<String, GardenVisitor>) {
+        val otherVisitors = mutableSetOf<String>()
         val visitorsByIsland = visitors.entries
             .groupBy { it.value.mode }
             .mapNotNull { (mode, visitors) ->
-                val island = mode?.let(IslandType::getByIdOrNull) ?: return@mapNotNull null
+                val island = mode?.let(IslandType::getByIdOrNull) ?: run {
+                    otherVisitors += visitors.map { it.key }
+                    return@mapNotNull null
+                }
                 island to visitors
             }
 
-        visitorJson = visitorsByIsland.associate { (island, visitors) ->
+        this.visitors = visitorsByIsland.associate { (island, visitors) ->
             val navigationData = visitors.mapNotNull { (name, visitor) ->
-                visitor.position?.let { position ->
-                    VisitorNavigationData(
-                        position = position,
-                        name = name,
-                    )
+                val position = visitor.position ?: run {
+                    noPositionVisitors += name
+                    return@mapNotNull null
                 }
+                VisitorNavigationData(
+                    island = island,
+                    position = position,
+                    name = name,
+                )
             }
 
             island to navigationData
         }
+
+        noPositionVisitors = otherVisitors
+    }
+
+    private fun loadWarps(warps: Map<String, WarpLocationData>) {
+        this.warps = warps.map { (command, warp) ->
+            Warp(
+                command = command.lowercase(),
+                island = warp.island,
+                position = LorenzVec(warp.x, warp.y, warp.z),
+            )
+        }.groupBy { it.island }
     }
 
     @HandleEvent
@@ -85,20 +123,39 @@ object VisitorNavigation {
     }
 
     private fun visitorNotFound(name: String) {
-        if (visitorJson.values.none { visitors -> visitors.any { it.name == name } }) {
-            ChatUtils.userError("Visitor §a'$name' §cnot found in the visitor repository")
+        val visitor = visitors.values
+            .flatten()
+            .firstOrNull { it.name == name }
+
+        if (visitor == null) {
+            if (name in noPositionVisitors) {
+                ChatUtils.userError("Visitor §a'$name' §cposition is not found.")
+                WikiManager.sendWikiMessage(name, autoOpen = false)
+                return
+            }
+
+            ChatUtils.userError("Visitor §a'$name' §cis not known to the visitor repository")
             return
         }
 
-        ChatUtils.clickableChat(
-            "Visitor §a'$name' §cis not found on this island!\n" +
-                "§eClick here to open their wiki page to find their island!",
-            replaceSameMessage = true,
-            prefixColor = "§e",
-            onClick = {
-                WikiManager.sendWikiMessage(name, autoOpen = true)
-            },
-        )
+        val warp = getNearestWarp(visitor.island, visitor.position)
+
+        if (warp != null) {
+            ChatUtils.chat(
+                "§7Visitor §a'$name' §7is on §a${visitor.island.displayName}"
+            )
+            ChatUtils.clickableChat(
+                "§7Click §eHERE §7to warp there using §e/${warp.command}§7!",
+                onClick = {
+                    HypixelCommands.warp(warp.command)
+                },
+            )
+        } else {
+            ChatUtils.chat(
+                "§7Visitor §a'$name' §7is on §a${visitor.island.displayName}§c"
+            )
+        }
+        WikiManager.sendWikiMessage(name, autoOpen = false)
     }
 
     private fun startNavigation(visitors: List<VisitorNavigationData>) {
@@ -141,6 +198,11 @@ object VisitorNavigation {
         )
     }
 
+    private fun getNearestWarp(island: IslandType, position: LorenzVec): Warp? {
+        return warps[island]
+            ?.minByOrNull { it.position.distanceSq(position) }
+    }
+
     private fun getCurrentIslandVisitors() =
-        visitorJson[SkyBlockUtils.currentIsland].orEmpty()
+        visitors[SkyBlockUtils.currentIsland].orEmpty()
 }
