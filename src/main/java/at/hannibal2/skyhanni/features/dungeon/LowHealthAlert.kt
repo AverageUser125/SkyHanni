@@ -6,12 +6,12 @@ import at.hannibal2.skyhanni.data.IslandType
 import at.hannibal2.skyhanni.data.title.TitleContext
 import at.hannibal2.skyhanni.data.title.TitleManager
 import at.hannibal2.skyhanni.events.ScoreboardUpdateEvent
-import at.hannibal2.skyhanni.features.gui.customscoreboard.ScoreboardPattern
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.RegexUtils.matchAll
 import at.hannibal2.skyhanni.utils.SoundUtils
 import at.hannibal2.skyhanni.utils.SoundUtils.playSound
 import at.hannibal2.skyhanni.utils.compat.formattedTextCompat
+import at.hannibal2.skyhanni.utils.repopatterns.RepoPattern
 import kotlin.time.Duration.Companion.seconds
 
 @SkyHanniModule
@@ -20,12 +20,22 @@ object LowHealthAlert {
     private val soundConfig get() = config.lowHealthAlertSound
     private var lastAlert: TitleContext? = null
 
+    /**
+     * REGEX-TEST: §a[H] §6Eisengolem §7[Lv48]
+     * REGEX-TEST: §e[M] §b04032006 §a7,361§c❤
+     */
+    @Suppress("MaxLineLength")
+    val teammatesPattern by RepoPattern.pattern(
+        "dungeon.low-health-alert.teammates",
+        "(?:§.)*(?<classAbbv>\\[\\w]) (?:§.)*(?<username>\\w{2,16}) (?:(?:§.)*(?<classLevel>\\[Lvl?(?<level>[\\w,.]+)?]?)|(?:§(?<color>.))*(?<health>[\\w,.]+)(?:§.)*.?)",
+    )
+
     private val alertSound get() = SoundUtils.createSound(soundConfig.alertSound, soundConfig.pitch, isWarning = true)
 
     @HandleEvent(onlyOnIsland = IslandType.CATACOMBS)
     private fun onScoreboardChange(event: ScoreboardUpdateEvent) {
         if (!isEnabled()) return
-        ScoreboardPattern.teammatesPattern.matchAll(event.added.map { it.formattedTextCompat() }) {
+        teammatesPattern.matchAll(event.added.map { it.formattedTextCompat() }) {
             val username = group("username")
             val color = group("color")
             val health = group("health")

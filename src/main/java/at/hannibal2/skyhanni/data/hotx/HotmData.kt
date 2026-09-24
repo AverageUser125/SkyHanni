@@ -15,7 +15,6 @@ import at.hannibal2.skyhanni.events.DebugDataCollectEvent
 import at.hannibal2.skyhanni.events.ScoreboardUpdateEvent
 import at.hannibal2.skyhanni.events.WidgetUpdateEvent
 import at.hannibal2.skyhanni.events.chat.SkyHanniChatEvent
-import at.hannibal2.skyhanni.features.gui.customscoreboard.ScoreboardPattern
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.test.command.ErrorManager
 import at.hannibal2.skyhanni.utils.ChatUtils
@@ -543,7 +542,6 @@ enum class HotmData(
             "widget.powder-nocolor",
             "\\s*(?<type>\\w+): (?<amount>[\\d,.]+)",
         )
-
 
         /**
          * REGEX-TEST: ᠅ Mithril: 35,448

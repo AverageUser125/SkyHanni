@@ -9,7 +9,6 @@ import at.hannibal2.skyhanni.events.ScoreboardUpdateEvent
 import at.hannibal2.skyhanni.events.WidgetUpdateEvent
 import at.hannibal2.skyhanni.events.chat.SkyHanniChatEvent
 import at.hannibal2.skyhanni.events.inventory.NpcTradeEvent
-import at.hannibal2.skyhanni.features.gui.customscoreboard.ScoreboardPattern
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.test.command.ErrorManager
 import at.hannibal2.skyhanni.utils.InventoryUtils
@@ -341,8 +340,8 @@ object CurrencyApi {
 
     @HandleEvent
     private fun onNpcTrade(event: NpcTradeEvent) {
-        for (cost in event.costs) {
-            subtractCost(cost.internalName, cost.amount * event.amount)
+        for ((internalName, amount) in event.costs) {
+            subtractCost(internalName, amount * event.amount)
         }
     }
 
