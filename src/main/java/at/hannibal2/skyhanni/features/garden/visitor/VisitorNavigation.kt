@@ -141,7 +141,7 @@ object VisitorNavigation {
 
         if (warp != null) {
             ChatUtils.chat(
-                "§7Visitor §a'$name' §7is on §a${visitor.island.displayName}"
+                "§7Visitor §a'$name' §7is at §a${visitor.island.displayName}"
             )
             ChatUtils.clickableChat(
                 "§7Click §eHERE §7to warp there using §e/${warp.command}§7!",
@@ -151,7 +151,7 @@ object VisitorNavigation {
             )
         } else {
             ChatUtils.chat(
-                "§7Visitor §a'$name' §7is on §a${visitor.island.displayName}§c"
+                "§7Visitor §a'$name' §7is at §a${visitor.island.displayName}§c"
             )
         }
         WikiManager.sendWikiMessage(name, autoOpen = false)
