@@ -20,7 +20,6 @@ import at.hannibal2.skyhanni.utils.LorenzColor
 import at.hannibal2.skyhanni.utils.LorenzVec
 import at.hannibal2.skyhanni.utils.SkyBlockUtils
 import at.hannibal2.skyhanni.utils.StringUtils
-import at.hannibal2.skyhanni.utils.coroutines.CoroutineSettings
 
 @SkyHanniModule
 object VisitorNavigation {
@@ -48,9 +47,9 @@ object VisitorNavigation {
         loadWarps(warps)
     }
 
-    private fun loadVisitors(visitors: Map<String, GardenVisitor>) {
+    private fun loadVisitors(visitorsJson: Map<String, GardenVisitor>) {
         val otherVisitors = mutableSetOf<String>()
-        val visitorsByIsland = visitors.entries
+        val visitorsByIsland = visitorsJson.entries
             .groupBy { it.value.mode }
             .mapNotNull { (mode, visitors) ->
                 val island = mode?.let(IslandType::getByIdOrNull) ?: run {
