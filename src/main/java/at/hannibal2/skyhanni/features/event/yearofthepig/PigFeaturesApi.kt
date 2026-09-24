@@ -130,7 +130,7 @@ object PigFeaturesApi {
 
         orbLootedChatPattern.matchMatcher(message) {
             val rewards = buildList {
-                add(group("reward1"))
+                add(group("reward"))
                 groupOrNull("reward2")?.let(::add)
             }
 
