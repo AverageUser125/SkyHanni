@@ -41,8 +41,6 @@ object HighlightVisitorsOutsideOfGarden {
         ).visitors.values.groupBy {
             it.mode
         }.mapKeysNotNull {
-            // TODO: Fix repo missing island type for visitors
-            @Suppress("UNNECESSARY_SAFE_CALL")
             it.key?.let(IslandType::getByIdOrNull)
         }
 
