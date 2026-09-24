@@ -39,6 +39,8 @@ object VisitorNavigation {
     private var warps: Map<IslandType, List<Warp>> = emptyMap()
     private var noPositionVisitors = setOf<String>()
 
+    private val currentIslandVisitors get() = visitors[SkyBlockUtils.currentIsland].orEmpty()
+
     @HandleEvent
     private fun onRepoReload(event: RepositoryReloadEvent) {
         val visitors = event.getConstant<GardenJson>("Garden").visitors
@@ -95,21 +97,21 @@ object VisitorNavigation {
             category = USERS_ACTIVE
 
             coroutineSimpleCallback {
-                startNavigation(getCurrentIslandVisitors())
+                startNavigation()
             }
 
             coroutineArgCallback(
                 "visitor",
                 BrigadierArguments.greedyString(),
                 BrigadierUtils.dynamicSuggestionProvider {
-                    getCurrentIslandVisitors().map { it.name } + "all"
+                    currentIslandVisitors.map { it.name } + "all"
                 },
             ) { name ->
                 if (name == "all") {
-                    startNavigation(getCurrentIslandVisitors())
+                    startNavigation()
                     return@coroutineArgCallback
                 }
-                val visitor = getCurrentIslandVisitors().firstOrNull { it.name.equals(name, ignoreCase = true)}
+                val visitor = currentIslandVisitors.firstOrNull { it.name.equals(name, ignoreCase = true)}
 
                 if (visitor == null) {
                     visitorNotFound(name)
@@ -158,12 +160,12 @@ object VisitorNavigation {
         WikiManager.sendWikiMessage(name, autoOpen = false)
     }
 
-    private fun startNavigation(visitors: List<VisitorNavigationData>) {
+    private fun startNavigation() {
         val graph = IslandGraphs.currentIslandGraph ?: return
 
         val npcNodes = graph.getNodesWithTags(NPC)
 
-        val nodes = visitors.map { visitor ->
+        val nodes = currentIslandVisitors.map { visitor ->
             val position = visitor.position
             npcNodes.filter { it.name == visitor.name }
                 .minByOrNull { it.position.distanceSq(position) }
@@ -202,7 +204,4 @@ object VisitorNavigation {
         return warps[island]
             ?.minByOrNull { it.position.distanceSq(position) }
     }
-
-    private fun getCurrentIslandVisitors() =
-        visitors[SkyBlockUtils.currentIsland].orEmpty()
 }
