@@ -3,9 +3,7 @@
  */
 package at.hannibal2.skyhanni.utils
 
-import at.hannibal2.skyhanni.utils.ComponentMatcherUtils.findStyledMatcher
 import at.hannibal2.skyhanni.utils.ComponentMatcherUtils.intoSpan
-import at.hannibal2.skyhanni.utils.ComponentMatcherUtils.matchStyledMatcher
 import at.hannibal2.skyhanni.utils.RegexUtils.findMatcher
 import at.hannibal2.skyhanni.utils.RegexUtils.matchMatcher
 import at.hannibal2.skyhanni.utils.chat.TextHelper.asComponent
@@ -316,6 +314,66 @@ class ComponentSpan internal constructor(
         val right = other.intoComponent()
         left.append(right)
         return left.intoSpan()
+    }
+
+    /**
+     * Removes every occurrence of [text] from this span while preserving
+     * the styles of all remaining components.
+     */
+    fun removeAll(text: String): ComponentSpan {
+        require(text.isNotEmpty()) { "text must not be empty" }
+
+        val source = getText()
+        if (!source.contains(text)) return this
+
+        val parts = mutableListOf<ComponentSpan>()
+        var searchStart = 0
+
+        while (true) {
+            val index = source.indexOf(text, searchStart)
+            if (index == -1) {
+                if (searchStart < source.length) {
+                    parts += slice(searchStart, source.length)
+                }
+                break
+            }
+            if (index > searchStart) {
+                parts += slice(searchStart, index)
+            }
+            searchStart = index + text.length
+        }
+
+        if (parts.isEmpty()) {
+            return empty()
+        }
+
+        return parts.reduce(ComponentSpan::plus)
+    }
+
+    fun contains(text: String): Boolean {
+        return getText().contains(text)
+    }
+
+    fun trimStart(): ComponentSpan {
+        var start = 0
+        val text = getText()
+        while (start < length && text[start].isWhitespace()) {
+            start++
+        }
+        return slice(start)
+    }
+
+    fun trimEnd(): ComponentSpan {
+        var end = length
+        val text = getText()
+        while (end > 0 && text[end - 1].isWhitespace()) {
+            end--
+        }
+        return slice(end = end)
+    }
+
+    fun trim(): ComponentSpan {
+        return trimStart().trimEnd()
     }
 
     companion object {

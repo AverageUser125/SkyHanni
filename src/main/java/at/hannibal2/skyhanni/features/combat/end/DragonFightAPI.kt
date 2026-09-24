@@ -81,7 +81,7 @@ object DragonFightAPI {
 
     @HandleEvent
     fun onScoreboardChange(event: ScoreboardUpdateEvent) {
-        for (line in event.added.map { it.removeColor() }) {
+        for (line in event.cleanAdded) {
             scoreboardHPPattern.matchMatcher(line) {
                 currentHp = group("hp").formatInt()
             }

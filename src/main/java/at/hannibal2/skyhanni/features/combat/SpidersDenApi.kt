@@ -12,14 +12,14 @@ object SpidersDenApi {
     private val patternGroup = RepoPattern.group("combat.spidersden")
 
     /**
-     * REGEX-TEST: §4Broodmother§7: §6Soon
+     * REGEX-TEST: Broodmother: Soon
      */
     val broodmotherPattern by patternGroup.pattern(
-        "broodmother",
-        "§4Broodmother§7: §[e64](?:Slain|Dormant|Soon|Awakening|Imminent|Alive!)",
+        "broodmother.colorless",
+        "Broodmother: (?:Slain|Dormant|Soon|Awakening|Imminent|Alive!)",
     )
 
     fun inSpidersDen() = IslandType.SPIDER_DEN.isInIsland()
 
-    fun isAtTopOfNest() = inSpidersDen() && broodmotherPattern.anyMatches(ScoreboardData.sidebarLinesFormatted)
+    fun isAtTopOfNest() = inSpidersDen() && broodmotherPattern.anyMatches(ScoreboardData.cleanSidebarLines)
 }

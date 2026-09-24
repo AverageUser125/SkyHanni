@@ -19,12 +19,12 @@ object PurseApi {
     private val patternGroup = RepoPattern.group("data.purse")
 
     /**
-     * REGEX-TEST: Piggy: §6423,085,766
-     * REGEX-TEST: Purse: §6423,085,776 §e(+5)
+     * REGEX-TEST: Piggy: 423,085,766
+     * REGEX-TEST: Purse: 423,085,776 (+5)
      */
     val coinsPattern by patternGroup.pattern(
         "coins",
-        "(?:§.)*(?:Piggy|Purse): §6(?<coins>[\\d,.]+)(?: ?(?:§.)*\\([+-](?<earned>[\\d,.]+)\\)?|.*)?$",
+        "(?:Piggy|Purse): (?<coins>[\\d,.]+)(?: ?\\([+-](?<earned>[\\d,.]+)\\)?|.*)?$",
     )
 
     /**
@@ -47,7 +47,7 @@ object PurseApi {
 
     @HandleEvent
     fun onScoreboardChange(event: ScoreboardUpdateEvent) {
-        coinsPattern.firstMatcher(event.added) {
+        coinsPattern.firstMatcher(event.cleanAdded) {
             val newPurse = group("coins").formatDouble()
             val diff = newPurse - currentPurse
             if (diff == 0.0) return

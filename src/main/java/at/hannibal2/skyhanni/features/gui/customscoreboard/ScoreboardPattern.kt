@@ -333,7 +333,7 @@ object ScoreboardPattern {
      */
     val plotPattern by farmingSB.pattern(
         "plot",
-        "\\s*§aPlot §7-.*",
+        "\\s*Plot -.*",
     )
 
     // mining

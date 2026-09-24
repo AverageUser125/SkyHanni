@@ -127,9 +127,10 @@ object EasterEggWaypoints {
         '§ewww.hypixel.net'
      */
     private fun checkScoreboardEasterSpecific(): Boolean {
-        val a = ScoreboardData.sidebarLinesFormatted.any { it.contains("Hypixel Level") }
-        val b = ScoreboardData.sidebarLinesFormatted.any { it.contains("Easter") }
-        val c = ScoreboardData.sidebarLinesFormatted.any { it.contains("Easter Eggs") }
+        val scoreboardLines = ScoreboardData.cleanSidebarLines
+        val a = scoreboardLines.any { it.contains("Hypixel Level") }
+        val b = scoreboardLines.any { it.contains("Easter") }
+        val c = scoreboardLines.any { it.contains("Easter Eggs") }
         return a && b && c
     }
 

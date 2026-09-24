@@ -651,7 +651,6 @@ object DamageIndicatorManager {
             calcHealth.toLong(), calcMaxHealth.toLong(),
         ).getChatColor() + calcHealth.shortFormat()
     }
-
     private fun checkMagmaCube(
         entity: MagmaCube,
         entityData: EntityData,
@@ -660,6 +659,7 @@ object DamageIndicatorManager {
     ): String? {
         val slimeSize = entity.size
         val crimsonIsleConfig = SkyHanniMod.feature.crimsonIsle
+
         val prefix = when (slimeSize) {
             24 -> "§c1/6"
             22 -> "§e2/6"
@@ -668,9 +668,11 @@ object DamageIndicatorManager {
             16 -> "§e5/6"
             else -> {
                 val color = NumberUtil.percentageColor(health.toLong(), 10_000_000)
+
                 if (crimsonIsleConfig.magmaBossDisplay) {
                     entityData.namePrefix = "§a6/6"
                 }
+
                 return color.getChatColor() + health.shortFormat()
             }
         }
@@ -679,46 +681,31 @@ object DamageIndicatorManager {
             entityData.namePrefix = "$prefix §f"
         }
 
-        // hide while in the middle
-//        val position = entity.getLorenzVec()
-        // TODO other logic or something
-//        entityData.healthLineHidden = position.x == -368.0 && position.z == -804.0
-
         var calcHealth = -1
-        for (line in ScoreboardData.sidebarLinesRaw) {
-            if (line.contains("▎")) {
-                val color: String
-                if (line.startsWith("§7")) {
-                    color = "§7"
-                } else if (line.startsWith("§e")) {
-                    color = "§e"
-                } else if (line.startsWith("§6") || line.startsWith("§a") || line.startsWith("§c")) {
-                    calcHealth = 0
-                    break
-                } else {
-                    ErrorManager.logErrorStateWithData(
-                        "Unknown Magma Boss health sidebar format",
-                        "Damage Indicator could not find Magma Boss bar data",
-                        "line" to line,
-                        "ScoreboardData.sidebarLinesRaw" to ScoreboardData.sidebarLinesRaw,
-                        "calcHealth" to calcHealth,
-                        "slimeSize" to slimeSize,
-                        "entity" to entity,
-                        "entityData" to entityData,
-                    )
-                    break
-                }
 
-                val text = line.replace("\uD83C\uDF81" + color, "")
-                val max = 25.0
-                val length = text.split("§e", "§7")[1].length
-                val missing = (health.toDouble() / max) * length
-                calcHealth = (health - missing).toInt()
-            }
+        for (line in ScoreboardData.cleanSidebarLines) {
+            if (!line.contains("▎")) continue
+
+            val bar = line.substringAfter("▎", "")
+            if (bar.isEmpty()) continue
+
+            val length = line.count { it == '▎' }
+
+            if (length == 0) continue
+
+            val max = 25.0
+            val missing = (health.toDouble() / max) * length
+            calcHealth = (health - missing).toInt()
+            break
         }
+
         if (calcHealth == -1) return null
 
-        val color = NumberUtil.percentageColor(calcHealth.toLong(), maxHealth.toLong())
+        val color = NumberUtil.percentageColor(
+            calcHealth.toLong(),
+            maxHealth.toLong(),
+        )
+
         return color.getChatColor() + calcHealth.shortFormat()
     }
 

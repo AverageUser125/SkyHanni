@@ -143,11 +143,11 @@ object DungeonApi {
     )
 
     /**
-     * REGEX-TEST: §711/15/24 §8m4F 830,-420
+     * REGEX-TEST: 11/15/24 m4F 830,-420
      */
     val dungeonRoomPattern by patternGroup.pattern(
-        "room",
-        "§7\\d+/\\d+/\\d+ §\\w+ (?<roomId>[\\w,-]+)",
+        "room.colorless",
+        "\\d+/\\d+/\\d+ (?<roomId>[\\w,-]+)",
     )
 
     /**
@@ -275,7 +275,7 @@ object DungeonApi {
 
     @HandleEvent
     private fun onScoreboardUpdate(event: ScoreboardUpdateEvent) {
-        val cleanAdded = event.added.map { it.removeColor() }
+        val cleanAdded = event.cleanAdded
         // TODO: move this under inDungeon check when we use Hypixel's ModAPI for island detection
         floorPattern.firstMatcher(cleanAdded) {
             val floor = group("floor")

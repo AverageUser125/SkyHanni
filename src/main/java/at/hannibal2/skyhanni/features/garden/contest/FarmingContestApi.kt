@@ -122,7 +122,7 @@ object FarmingContestApi {
     }
 
     private fun readCurrentCrop(): CropType? {
-        val scoreboard = ScoreboardData.sidebarLinesRaw.map { it.removeColor() }
+        val scoreboard = ScoreboardData.cleanSidebarLines
         val line = scoreboard.nextAfter("Jacob's Contest") ?: return null
         return sidebarCropPattern.matchMatcher(line) {
             val cropName = group("crop")

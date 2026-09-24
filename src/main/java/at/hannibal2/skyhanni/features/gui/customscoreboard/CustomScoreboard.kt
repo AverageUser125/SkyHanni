@@ -34,6 +34,7 @@ import at.hannibal2.skyhanni.utils.SkyBlockUtils
 import at.hannibal2.skyhanni.utils.StringUtils.firstLetterUppercase
 import at.hannibal2.skyhanni.utils.TabListData
 import at.hannibal2.skyhanni.utils.collection.CollectionUtils.takeIfNotEmpty
+import at.hannibal2.skyhanni.utils.compat.formattedTextCompat
 import at.hannibal2.skyhanni.utils.renderables.Renderable
 import at.hannibal2.skyhanni.utils.renderables.container.VerticalContainerRenderable.Companion.vertical
 import at.hannibal2.skyhanni.utils.renderables.primitives.text
@@ -151,12 +152,12 @@ object CustomScoreboard {
 
     private fun addAllNonSkyBlockLines() = buildList {
         addAll(ScoreboardElementTitle.getLines())
-        addAll(ScoreboardData.sidebarLinesFormatted.map { it.align() })
+        addAll(ScoreboardData.sidebarLines.map { it.formattedTextCompat().align() })
     }
 
     private fun addDefaultSkyBlockLines() = buildList {
-        add(ScoreboardData.objectiveTitle align displayConfig.titleAndFooter.alignTitle)
-        addAll(ScoreboardData.sidebarLinesFormatted.map { it.align() })
+        add(ScoreboardData.objectiveTitle.formattedTextCompat() align displayConfig.titleAndFooter.alignTitle)
+        addAll(ScoreboardData.sidebarLines.map { it.formattedTextCompat().align() })
     }
 
     private fun addCustomSkyBlockLines() = buildList<ScoreboardLine> {

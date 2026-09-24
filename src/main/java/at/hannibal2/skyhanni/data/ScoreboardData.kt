@@ -12,16 +12,16 @@ import at.hannibal2.skyhanni.features.inventory.FixIronman
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.test.command.ErrorManager
 import at.hannibal2.skyhanni.utils.ChatUtils
+import at.hannibal2.skyhanni.utils.ComponentMatcherUtils.intoSpan
 import at.hannibal2.skyhanni.utils.RegexUtils.matchMatcher
 import at.hannibal2.skyhanni.utils.SimpleTimeMark
-import at.hannibal2.skyhanni.utils.StringUtils.lastColorCode
+import at.hannibal2.skyhanni.utils.StringUtils.removeColor
 import at.hannibal2.skyhanni.utils.TimeUtils.format
 import at.hannibal2.skyhanni.utils.chat.TextHelper
 import at.hannibal2.skyhanni.utils.compat.MinecraftCompat
-import at.hannibal2.skyhanni.utils.compat.formattedTextCompat
-import at.hannibal2.skyhanni.utils.compat.formattedTextCompatLessResets
 import at.hannibal2.skyhanni.utils.compat.getPlayerNames
 import at.hannibal2.skyhanni.utils.compat.getSidebarObjective
+import at.hannibal2.skyhanni.utils.compat.formattedTextCompat
 import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.MutableComponent
@@ -33,54 +33,45 @@ import net.minecraft.world.scores.criteria.ObjectiveCriteria
 @SkyHanniModule
 object ScoreboardData {
 
-    var sidebarLinesFormatted: List<String> = emptyList()
+    /**
+     * Scoreboard lines with their original Minecraft component styling.
+     *
+     * These are the canonical scoreboard lines. Do not convert these to §-formatted
+     * strings just to manipulate them.
+     */
+    var sidebarLinesRaw: List<Component> = emptyList()
+        private set
 
-    private var sidebarLines: List<String> = emptyList() // TODO rename to raw
-    var sidebarLinesRaw: List<String> = emptyList() // TODO delete
-    val objectiveTitle: String
+    /**
+     * Scoreboard lines after removing Hypixel's artificial separator characters.
+     *
+     * This is kept separate from [sidebarLines] so consumers can distinguish the
+     * actual scoreboard data from the normalized representation.
+     */
+    var sidebarLines: List<Component> = emptyList()
+        private set(value) {
+            field = value
+            cleanSidebarLines = value.map { it.string.removeColor() }
+        }
+
+    var cleanSidebarLines: List<String> = emptyList()
+        private set
+
+    val objectiveTitle: Component
         get() =
-            MinecraftCompat.localWorldOrNull?.scoreboard?.getSidebarObjective()?.displayName.formattedTextCompat().orEmpty()
+            MinecraftCompat.localWorldOrNull
+                ?.scoreboard
+                ?.getSidebarObjective()
+                ?.displayName
+                ?: Component.empty()
+
+    val cleanObjectiveTitle: String
+        get() = objectiveTitle.string.removeColor()
 
     private var dirty = false
 
-    private fun formatLines(rawList: List<String>) = buildList {
-        for (line in rawList) {
-            val separator = splitIcons.find { line.contains(it) } ?: continue
-            val split = line.split(separator)
-            val start = split[0]
-            var end = if (split.size > 1) split[1] else ""
-
-            /**
-             * If the line is split into two parts, we need to remove the color code prefixes from the end part
-             * to prevent the color from being applied to the start of `end`, which would cause the color to be
-             * duplicated in the final output.
-             *
-             * This fucks up different Regex checks if not working correctly, like here:
-             * ```
-             * Pattern: '§8- (§.)+[\w\s]+Dragon§a [\w,.]+§.❤'
-             * Lines: - '§8- §c§aApex Dra§agon§a 486M§c❤'
-             *        - '§8- §c§6Flame Dr§6agon§a 460M§c❤'
-             * ```
-             */
-            val lastColor = start.lastColorCode().orEmpty()
-
-            // Generate the list of color suffixes
-            val colorSuffixes = lastColor.chunked(2).toMutableList()
-
-            // Iterate through the colorSuffixes to remove matching prefixes from 'end'
-            for (suffix in colorSuffixes.toList()) {
-                if (end.startsWith(suffix)) {
-                    end = end.removePrefix(suffix)
-                    colorSuffixes.remove(suffix)
-                }
-            }
-
-            add(start + end)
-        }
-    }
-
     @HandleEvent(receiveCancelled = true)
-    fun onPacketReceive(event: PacketReceivedEvent) {
+    private fun onPacketReceive(event: PacketReceivedEvent) {
         when (val packet = event.packet) {
             is ClientboundSetScorePacket -> {
                 if (packet.objectiveName == "update") {
@@ -97,8 +88,10 @@ object ScoreboardData {
             is ClientboundSetObjectivePacket -> {
                 val type = packet.renderType
                 if (type != ObjectiveCriteria.RenderType.INTEGER) return
+
                 val objectiveName = packet.objectiveName
                 if (objectiveName == "health") return
+
                 val objectiveValue = packet.displayName.formattedTextCompat()
                 ScoreboardTitleUpdateEvent(objectiveValue, objectiveName).post()
             }
@@ -111,15 +104,21 @@ object ScoreboardData {
 
     private fun monitor() {
         if (!monitor) return
+
         val currentList = fetchScoreboardLines()
+            .map { it.string }
+
         if (lastMonitorState != currentList) {
             val time = lastChangeTime.passedSince()
             lastChangeTime = SimpleTimeMark.now()
+
             println("Scoreboard Monitor: (new change after ${time.format(showMilliSeconds = true)})")
-            for (s in currentList) {
-                println("'$s'")
+
+            for (line in currentList) {
+                println("'$line'")
             }
         }
+
         lastMonitorState = currentList
         println(" ")
     }
@@ -127,42 +126,72 @@ object ScoreboardData {
     @HandleEvent(priority = HandleEvent.HIGHEST)
     fun onTick() {
         if (!dirty) return
+
         dirty = false
         monitor()
 
-        val list = fetchScoreboardLines().reversed()
-        val semiFormatted = list.map { cleanSB(it) }
-        if (semiFormatted != sidebarLines) {
-            sidebarLines = semiFormatted
-            RawScoreboardUpdateEvent(semiFormatted).post()
+        val newLines = fetchScoreboardLines()
+
+        if (newLines != sidebarLinesRaw) {
+            sidebarLinesRaw = newLines
+
+            RawScoreboardUpdateEvent(newLines).post()
         }
 
-        sidebarLinesRaw = list
-        val new = formatLines(list)
-        if (new != sidebarLinesFormatted) {
-            val old = sidebarLinesFormatted
-            sidebarLinesFormatted = new
-            ScoreboardUpdateEvent(new, old).post()
+        val formatted = newLines.map { removeSplitIcons(it) }
+
+        if (formatted != sidebarLinesRaw) {
+            val old = sidebarLinesRaw
+            sidebarLinesRaw = formatted
+
+            ScoreboardUpdateEvent(formatted, old).post()
         }
-    }
-
-    private fun cleanSB(scoreboard: String) = scoreboard.toCharArray().filter {
-        // 10735 = Rift Blood Effigies symbol
-        it.code in 21..126 || it.code == 167 || it.code == 10735
-    }.joinToString(separator = "")
-
-    private fun fetchScoreboardLines(): List<String> {
-        val scoreboard = MinecraftCompat.localWorldOrNull?.scoreboard ?: return emptyList()
-        val objective = scoreboard.getSidebarObjective() ?: return emptyList()
-        val scores = scoreboard.listPlayerScores(objective)
-        val list = scores.getPlayerNames(scoreboard)
-        return list.map { it.formattedTextCompatLessResets() }
     }
 
     /**
-     * Tries to replace a scoreboard line with a modified one
-     * @param text The line to check and possibly replace
-     * @return The replaced line, or null if it should be hidden
+     * Fetch the scoreboard without converting Components into legacy § formatting.
+     */
+    private fun fetchScoreboardLines(): List<Component> {
+        val scoreboard = MinecraftCompat.localWorldOrNull?.scoreboard
+            ?: return emptyList()
+
+        val objective = scoreboard.getSidebarObjective()
+            ?: return emptyList()
+
+        val scores = scoreboard.listPlayerScores(objective)
+
+        return scores
+            .getPlayerNames(scoreboard)
+            .reversed()
+    }
+
+    /**
+     * Removes the artificial characters Hypixel uses to join/split scoreboard
+     * team entries while preserving the Component styling.
+     *
+     * Example:
+     *
+     *   " §7(§e3,816§7/§c⚽§7▎▎▎"
+     *
+     * becomes:
+     *
+     *   " §7(§e3,816§7/§c§7▎▎▎"
+     *
+     * except the § codes are no longer present at all; their Style is preserved
+     * by ComponentSpan.
+     */
+    private fun removeSplitIcons(component: Component): Component {
+        var result = component.intoSpan()
+
+        for (icon in splitIcons) {
+            result = result.removeAll(icon)
+        }
+
+        return result.intoComponent()
+    }
+
+    /**
+     * Tries to replace a scoreboard line with a modified one.
      */
     @JvmStatic
     fun tryToReplaceScoreboardLine(text: Component): Component {
@@ -193,6 +222,7 @@ object ScoreboardData {
                 }
             }
         }
+
         FixIronman.fixScoreboard(component)?.let {
             return it
         }
@@ -235,11 +265,12 @@ object ScoreboardData {
     )
 
     @HandleEvent
-    fun onCommandRegistration(event: CommandRegistrationEvent) {
+    private fun onCommandRegistration(event: CommandRegistrationEvent) {
         event.registerBrigadier("shdebugscoreboard") {
             description = "Monitors the scoreboard changes: " +
                 "Prints the raw scoreboard lines in the console after each update, with time since last update."
             category = CommandCategory.DEVELOPER_DEBUG
+
             simpleCallback {
                 monitor = !monitor
                 val action = if (monitor) "Enabled" else "Disabled"

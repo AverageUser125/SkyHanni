@@ -21,15 +21,24 @@ import kotlin.time.Duration.Companion.seconds
 object NewYearCakeReminder {
 
     private val config get() = SkyHanniMod.feature.event.winter
-    private val sidebarDetectionPattern by RepoPattern.pattern(
-        "event.winter.newyearcake.reminder.sidebar",
-        "§dNew Year Event!§f (?<time>.*)",
+
+    private val patternGroup = RepoPattern.group("event.winter.newyearcake.reminder")
+
+    private val sidebarDetectionPattern by patternGroup.pattern(
+        "sidebar.colorless",
+        "New Year Event! (?<time>.*)",
     )
+
+    private val claimChatPattern by patternGroup.pattern(
+        "chat.claimed",
+        "You claimed a New Year Cake!",
+    )
+
     private var lastReminderSend = SimpleTimeMark.farPast()
 
     @HandleEvent
-    fun onChat(event: SkyHanniChatEvent.Allow) {
-        if (event.message == "§aYou claimed a §r§cNew Year Cake§r§a!") {
+    private fun onChat(event: SkyHanniChatEvent.Allow) {
+        if (claimChatPattern.matches(event.cleanMessage)) {
             markCakeClaimed()
         }
     }
@@ -69,5 +78,5 @@ object NewYearCakeReminder {
         )
     }
 
-    private fun isCakeTime() = ScoreboardData.sidebarLinesFormatted.any { sidebarDetectionPattern.matches(it) }
+    private fun isCakeTime() = ScoreboardData.cleanSidebarLines.any { sidebarDetectionPattern.matches(it) }
 }

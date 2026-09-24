@@ -83,12 +83,12 @@ object MiningApi {
 
     // This intentionally uses the old cold icon, since Hypixel has not updated it in this location.
     /**
-     * REGEX-TEST: Cold: §b-1❄
-     * REGEX-TEST: Cold: §b-3❄
+     * REGEX-TEST: Cold: -1❄
+     * REGEX-TEST: Cold: -3❄
      */
     val coldPattern by patternGroup.pattern(
-        "cold",
-        "(?:§.)*Cold: §.(?<cold>-?\\d+)❄",
+        "cold.colorless",
+        "Cold: (?<cold>-?\\d+)❄",
     )
 
     private val pickobulusGroup = patternGroup.group("pickobulus")
@@ -229,14 +229,14 @@ object MiningApi {
     @HandleEvent
     private fun onScoreboardChange(event: ScoreboardUpdateEvent) {
         if (IslandType.MINESHAFT.isInIsland()) {
-            DungeonApi.dungeonRoomPattern.firstMatcher(event.new) {
+            DungeonApi.dungeonRoomPattern.firstMatcher(event.cleanAdded) {
                 groupOrNull("roomId")?.let { mineshaftRoomId = it }
             }
         }
         if (IslandTypeTag.IS_COLD.isInIsland()) {
             var found = false
             if (inColdArea()) {
-                coldPattern.firstMatcher(event.new) {
+                coldPattern.firstMatcher(event.cleanAdded) {
                     found = true
                     val newCold = group("cold").toInt().absoluteValue
 

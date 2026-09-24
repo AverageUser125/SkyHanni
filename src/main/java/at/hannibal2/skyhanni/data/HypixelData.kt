@@ -19,12 +19,14 @@ import at.hannibal2.skyhanni.features.bingo.BingoApi
 import at.hannibal2.skyhanni.features.dungeon.DungeonApi
 import at.hannibal2.skyhanni.features.rift.RiftApi
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
+import at.hannibal2.skyhanni.utils.ComponentMatcherUtils.intoSpan
 import at.hannibal2.skyhanni.utils.RegexUtils.allMatchesComponent
-import at.hannibal2.skyhanni.utils.RegexUtils.firstMatcher
+import at.hannibal2.skyhanni.utils.RegexUtils.firstComponentMatcher
 import at.hannibal2.skyhanni.utils.RegexUtils.matchMatcher
 import at.hannibal2.skyhanni.utils.SimpleTimeMark
 import at.hannibal2.skyhanni.utils.SkyBlockUtils
 import at.hannibal2.skyhanni.utils.StringUtils.removeColor
+import at.hannibal2.skyhanni.utils.StringUtils.takeIfNotEmpty
 import at.hannibal2.skyhanni.utils.TabListData
 import at.hannibal2.skyhanni.utils.compat.MinecraftCompat
 import at.hannibal2.skyhanni.utils.compat.formattedTextCompat
@@ -128,7 +130,7 @@ object HypixelData {
     }
 
     fun getMaxPlayersForCurrentServer(): Int {
-        scoreboardVisitingAmountPattern.firstMatcher(ScoreboardData.sidebarLinesFormatted) {
+        scoreboardVisitingAmountPattern.firstComponentMatcher(ScoreboardData.sidebarLines) {
             return group("maxamount").toInt() + playerAmountOnIsland
         }
         if (serverId?.startsWith("mega") == true) {
@@ -185,11 +187,11 @@ object HypixelData {
     @HandleEvent
     fun onTick(event: SkyHanniTickEvent) {
         if (SkyBlockUtils.onHypixel && SkyBlockUtils.inSkyBlock) {
-            loop@ for (line in ScoreboardData.sidebarLinesFormatted) {
+            loop@ for (line in ScoreboardData.sidebarLinesRaw) {
                 skyblockAreaPattern.matchMatcher(line) {
                     val originalLocation = group("area").removeColor()
                     val area = LocationFixData.fixLocation(HypixelLocationApi.island) ?: originalLocation
-                    skyBlockAreaWithSymbol = line.trim()
+                    skyBlockAreaWithSymbol = line.intoSpan().trim().getText()
                     if (area != skyBlockArea) {
                         val previousArea = skyBlockArea
                         skyBlockArea = area
@@ -232,29 +234,27 @@ object HypixelData {
     }
 
     private fun checkSpecialModes() {
-        val scoreboardTitle = getScoreboardTitle() ?: return
+        val scoreboardTitle = ScoreboardData.cleanObjectiveTitle.takeIfNotEmpty() ?: return
         if (scoreboardTitle.contains("GUEST")) return
         ironman = false
         stranded = false
         bingo = false
-
-
 
         if (scoreboardTitle.contains("♲")) ironman = true
         else if (scoreboardTitle.contains("☀")) stranded = true
 
         // remove once update is on main
         // make sure to keep the bingo part when you remove it
-        for (line in ScoreboardData.sidebarLinesFormatted) {
+        for (line in ScoreboardData.cleanSidebarLines) {
             if (BingoApi.getRankFromScoreboard(line) != null) {
                 bingo = true
             }
             when (line) {
-                " §7♲ §7Ironman" -> {
+                " ♲ Ironman" -> {
                     ironman = true
                 }
 
-                " §a☀ §aStranded" -> {
+                " ☀ Stranded" -> {
                     stranded = true
                 }
             }
@@ -279,14 +279,6 @@ object HypixelData {
                 TabWidget.reSendEvents()
             }
         }
-    }
-
-    fun getScoreboardTitle(): String? {
-        val world = MinecraftCompat.localWorldOrNull ?: return null
-
-        val objective = world.scoreboard.getSidebarObjective() ?: return null
-        val displayName = objective.displayName.formattedTextCompat()
-        return displayName
     }
 
     private fun countPlayersOnIsland(event: WidgetUpdateEvent) {

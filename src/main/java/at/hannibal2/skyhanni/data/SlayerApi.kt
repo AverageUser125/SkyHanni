@@ -234,8 +234,8 @@ object SlayerApi {
     }
 
     private fun getSlayerLines(): Pair<List<String>, SlayerLinesSource> {
-        val scoreboardLines = ScoreboardData.sidebarLinesFormatted
-            .map { it.removeColor().trim() }
+        val scoreboardLines = ScoreboardData.cleanSidebarLines
+            .map { it.trim() }
             .dropWhile { it != "Slayer Quest" }
         if (scoreboardLines.isNotEmpty()) return scoreboardLines to SlayerLinesSource.SCOREBOARD
 

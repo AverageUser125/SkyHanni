@@ -6,10 +6,10 @@ import at.hannibal2.skyhanni.config.ConfigManager
 import at.hannibal2.skyhanni.config.commands.CommandCategory
 import at.hannibal2.skyhanni.config.commands.CommandRegistrationEvent
 import at.hannibal2.skyhanni.config.storage.PlayerSpecificStorage.BingoSession
-import at.hannibal2.skyhanni.data.HypixelData
 import at.hannibal2.skyhanni.data.IslandGraphs
 import at.hannibal2.skyhanni.data.IslandType
 import at.hannibal2.skyhanni.data.ProfileStorageData
+import at.hannibal2.skyhanni.data.ScoreboardData
 import at.hannibal2.skyhanni.data.bingo.BingoApiResponseJson
 import at.hannibal2.skyhanni.data.jsonobjects.repo.BingoData
 import at.hannibal2.skyhanni.data.jsonobjects.repo.BingoJson
@@ -28,11 +28,11 @@ import at.hannibal2.skyhanni.utils.RegexUtils.matches
 import at.hannibal2.skyhanni.utils.SimpleTimeMark
 import at.hannibal2.skyhanni.utils.SimpleTimeMark.Companion.asTimeMark
 import at.hannibal2.skyhanni.utils.SkyBlockUtils
-import at.hannibal2.skyhanni.utils.StringUtils.removeColor
 import at.hannibal2.skyhanni.utils.TimeUtils
 import at.hannibal2.skyhanni.utils.api.ApiStaticGetPath
 import at.hannibal2.skyhanni.utils.api.ApiUtils
 import at.hannibal2.skyhanni.utils.chat.TextHelper.asComponent
+import at.hannibal2.skyhanni.utils.compat.formattedTextCompat
 import at.hannibal2.skyhanni.utils.compat.withColor
 import at.hannibal2.skyhanni.utils.coroutines.CoroutineSettings
 import at.hannibal2.skyhanni.utils.json.fromJson
@@ -76,11 +76,11 @@ object BingoApi {
     var lastBingoCardOpenTime = SimpleTimeMark.farPast()
 
     /**
-     * WRAPPED-REGEX-TEST: " §9Ⓑ §9Bingo"
+     * WRAPPED-REGEX-TEST: " Ⓑ Bingo"
      */
     private val detectionPattern by RepoPattern.pattern(
-        "bingo.detection.scoreboard",
-        " §.Ⓑ §.Bingo",
+        "bingo.detection.scoreboard.colorless",
+        " Ⓑ Bingo",
     )
 
     private val titleDetectionPattern by RepoPattern.pattern(
@@ -120,15 +120,15 @@ object BingoApi {
     }
 
     @HandleEvent
-    fun onRepositoryReload(event: RepositoryReloadEvent) {
+    private fun onRepoReload(event: RepositoryReloadEvent) {
         ranks = event.getConstant<BingoRanksJson>("BingoRanks").ranks
         data = event.getConstant<BingoJson>("Bingo").bingoTips
     }
 
     fun getRankFromScoreboard(text: String): Int? {
         return if (detectionPattern.matches(text)) getRank(text)
-        else if (titleDetectionPattern.matches(HypixelData.getScoreboardTitle()?.removeColor())) {
-            getRank(HypixelData.getScoreboardTitle().orEmpty())
+        else if (titleDetectionPattern.matches(ScoreboardData.cleanObjectiveTitle)) {
+            getRank(ScoreboardData.objectiveTitle.formattedTextCompat())
         } else null
     }
 

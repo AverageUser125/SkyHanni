@@ -133,7 +133,7 @@ object HalloweenBasketWaypoints {
         var halloweenMatches = false
         var basketMatches = false
 
-        if (scoreboardTitlePattern.matches(ScoreboardData.objectiveTitle.removeColor())) {
+        if (scoreboardTitlePattern.matches(ScoreboardData.objectiveTitle)) {
             inHub = true
         }
         event.new.forEach {

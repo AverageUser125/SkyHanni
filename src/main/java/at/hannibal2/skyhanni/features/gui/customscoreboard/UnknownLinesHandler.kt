@@ -10,6 +10,7 @@ import at.hannibal2.skyhanni.utils.SkyBlockUtils
 import at.hannibal2.skyhanni.utils.StringUtils.removeResets
 import at.hannibal2.skyhanni.utils.collection.CollectionUtils.editCopy
 import at.hannibal2.skyhanni.utils.collection.CollectionUtils.nextAfter
+import at.hannibal2.skyhanni.utils.compat.formattedTextCompat
 import java.util.regex.Pattern
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
@@ -38,7 +39,7 @@ object UnknownLinesHandler {
      * Remove known lines with patterns
      **/
     fun handleUnknownLines() {
-        val sidebarLines = ScoreboardData.sidebarLinesFormatted
+        val sidebarLines = ScoreboardData.sidebarLines.map { it.formattedTextCompat() }
 
         var unknownLines = sidebarLines.map { it.removeResets() }.filter { it.isNotBlank() }.filter { it.trim().length > 3 }
 
@@ -176,7 +177,7 @@ object UnknownLinesHandler {
             "Island" to SkyBlockUtils.currentIsland,
             "Area" to HypixelData.skyBlockArea,
             "Loaded Patterns" to CustomScoreboard.activePatterns.size,
-            "Full Scoreboard" to ScoreboardData.sidebarLinesFormatted,
+            "Full Scoreboard" to ScoreboardData.sidebarLines.map { it.formattedTextCompat() },
             noStackTrace = true,
             betaOnly = true,
         )

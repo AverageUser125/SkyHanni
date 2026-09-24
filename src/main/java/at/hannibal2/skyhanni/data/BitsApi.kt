@@ -68,11 +68,11 @@ object BitsApi {
 
     // Scoreboard patterns
     /**
-     * REGEX-TEST: Bits: §b140,965
+     * REGEX-TEST: Bits: 140,965
      */
     val bitsScoreboardPattern by patternGroup.pattern(
-        "scoreboard",
-        "^Bits: §b(?<amount>[\\d,.]+).*$",
+        "scoreboard.colorless",
+        "^Bits: (?<amount>[\\d,.]+).*$",
     )
 
     // Chat patterns
@@ -210,10 +210,10 @@ object BitsApi {
     )
 
     @HandleEvent
-    fun onScoreboardChange(event: ScoreboardUpdateEvent) {
+    private fun onScoreboardChange(event: ScoreboardUpdateEvent) {
         if (!isEnabled()) return
-        for (line in event.added) {
-            val message = line.trimWhiteSpace().removeResets()
+        for (line in event.cleanAdded) {
+            val message = line.trimWhiteSpace()
 
             bitsScoreboardPattern.matchMatcher(message) {
                 val amount = group("amount").formatInt()
