@@ -1,14 +1,16 @@
 package at.hannibal2.skyhanni.test.command
 
 import at.hannibal2.skyhanni.api.event.HandleEvent
+import at.hannibal2.skyhanni.config.ConfigManager
 import at.hannibal2.skyhanni.config.commands.CommandCategory
 import at.hannibal2.skyhanni.config.commands.CommandRegistrationEvent
 import at.hannibal2.skyhanni.data.ScoreboardData
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.ChatUtils
-import at.hannibal2.skyhanni.utils.ConditionalUtils.transformIf
 import at.hannibal2.skyhanni.utils.OSUtils
 import at.hannibal2.skyhanni.utils.StringUtils.removeColor
+import at.hannibal2.skyhanni.utils.compat.formattedTextCompat
+import net.minecraft.network.chat.Component
 
 @SkyHanniModule
 object CopyScoreboardCommand {
@@ -17,27 +19,55 @@ object CopyScoreboardCommand {
         val resultList = mutableListOf<String>()
         val noColor = args.contains("-nocolor")
         val raw = args.contains("-raw")
-        resultList.add("Title:")
-        resultList.add(ScoreboardData.objectiveTitle.transformIf({ noColor }) { removeColor() })
-        resultList.add("")
+        val complex = args.contains("-complex")
 
-        val lines = if (raw) ScoreboardData.sidebarLinesRaw else ScoreboardData.sidebarLinesFormatted
-        for (line in lines) {
-            val scoreboardLine = line.transformIf({ noColor }) { removeColor() }
-            resultList.add("'$scoreboardLine'")
+        if (complex && noColor) {
+            ChatUtils.userError("Cannot use -complex and -nocolor together.")
+            return
         }
 
-        val string = resultList.joinToString("\n")
-        OSUtils.copyToClipboard(string)
+        val transformer = componentTransformer(complex, noColor)
+        resultList.add("Title:")
+        resultList.add(transformer(ScoreboardData.objectiveTitle))
+        resultList.add("")
+
+        val rawComponents = if (raw) {
+            ScoreboardData.sidebarLinesRaw
+        } else {
+            ScoreboardData.sidebarLines
+        }
+
+        resultList.add("Lines:")
+        val lines = rawComponents.map(transformer)
+        resultList.addAll(lines)
+
+        OSUtils.copyToClipboard(resultList.joinToString("\n"))
         ChatUtils.chat("Scoreboard copied into your clipboard!")
     }
 
+    private fun componentTransformer(
+        complex: Boolean,
+        noColor: Boolean,
+    ): (Component) -> String = when {
+        complex -> { component ->
+            ConfigManager.gson.toJson(component)
+        }
+        noColor -> { component ->
+            component.string.removeColor()
+        }
+        else -> { component ->
+            component.formattedTextCompat()
+        }
+    }
+
     @HandleEvent
-    fun onCommandRegistration(event: CommandRegistrationEvent) {
-        event.registerBrigadier("shcopyscoreboard") {
-            description = "Copies the scoreboard data to the clipboard"
-            category = CommandCategory.DEVELOPER_DEBUG
-            legacyCallbackArgs { command(it) }
+    private fun onCommandRegistration(event: CommandRegistrationEvent) {
+        event.registerBrigadier("copyboard") {
+            description = "Copy the scoreboard to your clipboard"
+            category = CommandCategory.DEVELOPER_TEST
+            legacyCallbackArgs { args ->
+                command(args)
+            }
         }
     }
 }

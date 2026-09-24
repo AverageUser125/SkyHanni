@@ -21,12 +21,12 @@ object KuudraApi {
     private val patternGroup = RepoPattern.group("data.kuudra")
 
     /**
-     * WRAPPED-REGEX-TEST: " §7⏣ §cKuudra's Hollow §8(T5)"
-     * WRAPPED-REGEX-TEST: " §7⏣ §cKuudra's Hollow §8(T2)"
+     * WRAPPED-REGEX-TEST: " ⏣ §cKuudra's Hollow (T5)"
+     * WRAPPED-REGEX-TEST: " ⏣ §cKuudra's Hollow (T2)"
      */
     private val tierPattern by patternGroup.pattern(
-        "scoreboard.tier",
-        " §7⏣ §cKuudra's Hollow §8\\(T(?<tier>\\d+)\\)",
+        "scoreboard.tier.colorless",
+        " ⏣ Kuudra's Hollow \\(T(?<tier>\\d+)\\)",
     )
     private val completePattern by patternGroup.pattern(
         "chat.complete",
@@ -99,7 +99,7 @@ object KuudraApi {
     @HandleEvent(onlyOnSkyblock = true)
     fun onScoreboardChange(event: ScoreboardUpdateEvent) {
         if (kuudraTier != null) return
-        tierPattern.firstMatcher(event.added) {
+        tierPattern.firstMatcher(event.cleanAdded) {
             val tier = group("tier").toInt()
             kuudraTier = tier
             KuudraEnterEvent(tier).post()

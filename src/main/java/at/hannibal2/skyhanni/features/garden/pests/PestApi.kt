@@ -307,7 +307,7 @@ object PestApi {
     @HandleEvent(onlyOnIsland = IslandType.GARDEN)
     private fun onTick() {
         if (!firstScoreboardCheck && gardenJoinTime.passedSince() > 5.seconds) {
-            checkScoreboardLines(ScoreboardData.sidebarLinesFormatted)
+            checkScoreboardLines(ScoreboardData.cleanSidebarLines)
             firstScoreboardCheck = true
             updatePests()
         }

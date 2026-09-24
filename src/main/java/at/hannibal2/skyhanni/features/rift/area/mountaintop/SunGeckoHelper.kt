@@ -17,7 +17,9 @@ import at.hannibal2.skyhanni.utils.ColorUtils.addAlpha
 import at.hannibal2.skyhanni.utils.InventoryUtils
 import at.hannibal2.skyhanni.utils.NeuInternalName.Companion.toInternalName
 import at.hannibal2.skyhanni.utils.RegexUtils.findMatcher
+import at.hannibal2.skyhanni.utils.RegexUtils.matchMatcher
 import at.hannibal2.skyhanni.utils.RegexUtils.matches
+import at.hannibal2.skyhanni.utils.RegexUtils.replace
 import at.hannibal2.skyhanni.utils.RenderUtils.renderStrings
 import at.hannibal2.skyhanni.utils.SimpleTimeMark
 import at.hannibal2.skyhanni.utils.TimeUtils
@@ -67,6 +69,11 @@ object SunGeckoHelper {
     private val sunGeckoChatLine by patternGroup.pattern(
         "chatline",
         "§6§l▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬",
+    )
+
+    private val bigDamageScoreboardPattern by patternGroup.pattern(
+        "bigdamage",
+        " Big damage in: (?<time>.*)",
     )
 
     private val COMBO_MANIA_TALISMAN = "COMBO_MANIA_TALISMAN".toInternalName()
@@ -251,10 +258,11 @@ object SunGeckoHelper {
     @HandleEvent(onlyOnIsland = IslandType.THE_RIFT)
     private fun onScoreboardUpdate(event: ScoreboardUpdateEvent) {
         if (!isEnabled()) return
-        for (line in event.new) {
-            if (line.startsWith(" Big damage in: §d")) {
+        for (line in event.cleanAdded) {
+            bigDamageScoreboardPattern.matchMatcher(line) {
                 modifiers.add(Modifiers.TIME_SLICED)
-                timeSliceDuration = TimeUtils.getDuration(line.replace(" Big damage in: §d", ""))
+                val time = group("time")
+                timeSliceDuration = TimeUtils.getDuration(time)
             }
         }
     }

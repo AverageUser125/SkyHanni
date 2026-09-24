@@ -72,13 +72,13 @@ object MiningApi {
 
     // This intentionally uses the old heat icon, since Hypixel has not updated it in this location.
     /**
-     * REGEX-TEST: Heat: §6IMMUNE
-     * REGEX-TEST: Heat: §c14♨
-     * REGEX-TEST: Heat: §c0♨
+     * REGEX-TEST: Heat: IMMUNE
+     * REGEX-TEST: Heat: 14♨
+     * REGEX-TEST: Heat: 0♨
      */
     val heatPattern by patternGroup.pattern(
-        "heat.scoreboard",
-        "^Heat: (?<scoreboard>§.(?<heat>\\d+|IMMUNE)♨?)\$",
+        "heat.scoreboard.colorless",
+        "^Heat: (?<scoreboard>(?<heat>\\d+|IMMUNE)♨?)\$",
     )
 
     // This intentionally uses the old cold icon, since Hypixel has not updated it in this location.
@@ -252,7 +252,7 @@ object MiningApi {
 
         if (IslandType.CRYSTAL_HOLLOWS.isInIsland()) {
             var found = false
-            heatPattern.firstMatcher(event.new) {
+            heatPattern.firstMatcher(event.cleanAdded) {
                 found = true
                 val newHeat = group("heat")
                 heatDisplay = group("scoreboard").takeIf { it.isNotEmpty() }

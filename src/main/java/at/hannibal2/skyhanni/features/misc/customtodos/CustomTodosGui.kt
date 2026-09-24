@@ -70,7 +70,7 @@ object CustomTodosGui {
         todos.forEach { todo ->
             if (todo.triggerTarget != CustomTodo.TriggerTarget.SIDEBAR) return@forEach
             event.new.forEach { line ->
-                if (matchString(todo, line) == MatchType.MATCH) todo.setDoneNow()
+                if (matchString(todo, line.formattedTextCompat()) == MatchType.MATCH) todo.setDoneNow()
             }
         }
     }

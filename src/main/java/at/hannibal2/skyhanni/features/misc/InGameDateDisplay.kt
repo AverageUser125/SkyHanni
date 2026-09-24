@@ -53,7 +53,7 @@ object InGameDateDisplay {
         val date = SkyBlockTime.now()
         var theBaseString: String
         if (config.useScoreboard) {
-            val list = ScoreboardData.sidebarLinesFormatted // we need this to grab the moon/sun symbol
+            val list = ScoreboardData.cleanSidebarLines // we need this to grab the moon/sun symbol
             val year = "Year ${date.year}"
             var monthAndDate = (list.find { monthAndDatePattern.matches(it) } ?: "??").trim()
             if (monthAndDate.last().isDigit()) {

@@ -59,7 +59,7 @@ object MineshaftDetection {
     fun onScoreboardLineChange() {
         if (found) return
 
-        val matchingLine = ScoreboardData.sidebarLinesFormatted
+        val matchingLine = ScoreboardData.cleanSidebarLines
             .firstOrNull { line -> MineshaftType.entries.any { line.contains(it.name) } }
             ?.removeColor() ?: return
 

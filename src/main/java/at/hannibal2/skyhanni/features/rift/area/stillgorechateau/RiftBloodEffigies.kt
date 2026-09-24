@@ -20,6 +20,7 @@ import at.hannibal2.skyhanni.utils.RegexUtils.matches
 import at.hannibal2.skyhanni.utils.SimpleTimeMark
 import at.hannibal2.skyhanni.utils.TimeUtils
 import at.hannibal2.skyhanni.utils.TimeUtils.format
+import at.hannibal2.skyhanni.utils.compat.formattedTextCompat
 import at.hannibal2.skyhanni.utils.compat.formattedTextCompatLessResets
 import at.hannibal2.skyhanni.utils.getLorenzVec
 import at.hannibal2.skyhanni.utils.render.WorldRenderUtils.drawDynamicText
@@ -116,8 +117,7 @@ object RiftBloodEffigies {
     @HandleEvent
     fun onRawScoreboardChange(event: RawScoreboardUpdateEvent) {
         if (!isEnabled()) return
-
-        val line = event.rawScoreboard.firstOrNull { it.startsWith("Effigies:") } ?: return
+        val line = event.rawScoreboard.firstOrNull { it.formattedTextCompat().startsWith("Effigies:") } ?: return
         ChatUtils.debug("Effigies line: $line")
         val hearts = heartsPattern.matchMatcher(line) {
             group("hearts")
