@@ -81,9 +81,9 @@ object VisitorNavigation {
     }
 
     private fun loadWarps(warps: Map<String, WarpLocationData>) {
-        this.warps = warps.map { (command, warp) ->
+        this.warps = warps.map { (name, warp) ->
             Warp(
-                command = command.lowercase(),
+                command = warp.commands.firstOrNull() ?: name.lowercase(),
                 island = warp.island,
                 position = LorenzVec(warp.x, warp.y, warp.z),
             )
