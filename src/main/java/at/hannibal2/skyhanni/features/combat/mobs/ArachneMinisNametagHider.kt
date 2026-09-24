@@ -5,23 +5,13 @@ import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.data.IslandType
 import at.hannibal2.skyhanni.events.SkyHanniRenderEntityEvent
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
-import at.hannibal2.skyhanni.utils.EntityUtils.cleanName
-import at.hannibal2.skyhanni.utils.RegexUtils.matches
-import at.hannibal2.skyhanni.utils.repopatterns.RepoPattern
+import at.hannibal2.skyhanni.utils.compat.formattedTextCompatLessResets
 import net.minecraft.world.entity.decoration.ArmorStand
 
 @SkyHanniModule
 object ArachneMinisNametagHider {
 
     private val config get() = SkyHanniMod.feature.combat.mobs
-
-    /**
-     * REGEX-TEST: Arachne's Brood
-     */
-    private val arachneMinisNameTagPattern by RepoPattern.pattern(
-        "combat.mobs.arachne-minis-nametag",
-        ".*Arachne's Brood.*"
-    )
 
     @HandleEvent(priority = HandleEvent.HIGH, onlyOnIsland = IslandType.SPIDER_DEN)
     fun onRenderLiving(event: SkyHanniRenderEntityEvent.Specials.Pre<ArmorStand>) {
@@ -30,7 +20,8 @@ object ArachneMinisNametagHider {
         val entity = event.entity
         if (!entity.hasCustomName()) return
 
-        if (arachneMinisNameTagPattern.matches(entity.cleanName)) {
+        val name = entity.name.formattedTextCompatLessResets()
+        if (name.contains("§cArachne's Brood§r")) {
             event.cancel()
         }
     }
