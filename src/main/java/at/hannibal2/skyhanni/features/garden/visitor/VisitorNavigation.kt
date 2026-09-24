@@ -8,6 +8,7 @@ import at.hannibal2.skyhanni.data.IslandGraphs
 import at.hannibal2.skyhanni.data.IslandType
 import at.hannibal2.skyhanni.data.jsonobjects.repo.GardenJson
 import at.hannibal2.skyhanni.events.RepositoryReloadEvent
+import at.hannibal2.skyhanni.features.commands.WikiManager
 import at.hannibal2.skyhanni.features.misc.pathfind.NavigateAllApi
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.ChatUtils
@@ -74,13 +75,30 @@ object VisitorNavigation {
                 val visitor = getCurrentIslandVisitors().firstOrNull { it.name == name }
 
                 if (visitor == null) {
-                    ChatUtils.userError("Visitor '$name' not found on this island")
+                    visitorNotFound(name)
                     return@coroutineArgCallback
                 }
 
                 startNavigation(visitor)
             }
         }
+    }
+
+    private fun visitorNotFound(name: String) {
+        if (visitorJson.values.none { visitors -> visitors.any { it.name == name } }) {
+            ChatUtils.userError("Visitor §a'$name' §cnot found in the visitor repository")
+            return
+        }
+
+        ChatUtils.clickableChat(
+            "Visitor §a'$name' §cis not found on this island!\n" +
+                "§eClick here to open their wiki page to find their island!",
+            replaceSameMessage = true,
+            prefixColor = "§e",
+            onClick = {
+                WikiManager.sendWikiMessage(name, autoOpen = true)
+            },
+        )
     }
 
     private fun startNavigation(visitors: List<VisitorNavigationData>) {
