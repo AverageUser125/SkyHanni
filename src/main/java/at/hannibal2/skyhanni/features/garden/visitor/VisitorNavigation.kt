@@ -132,12 +132,15 @@ object VisitorNavigation {
 
         if (visitor == null) {
             if (rawName.lowercase() in noPositionVisitors) {
-                ChatUtils.userError("Visitor §a'$rawName' §cposition is not found.")
+                ChatUtils.userError(
+                    "Visitor §a'$rawName' §cdoes not have a fixed location. " +
+                    "Some visitors only appear under specific conditions."
+                )
                 WikiManager.sendWikiMessage(rawName, autoOpen = false)
                 return
             }
 
-            ChatUtils.userError("Visitor §a'$rawName' §cis not known to the visitor repository")
+            ChatUtils.userError("Visitor §a'$rawName' §ccould not be found.")
             return
         }
         val name = visitor.name
