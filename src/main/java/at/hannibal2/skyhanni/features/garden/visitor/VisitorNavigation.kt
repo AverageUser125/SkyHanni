@@ -111,7 +111,9 @@ object VisitorNavigation {
                     startNavigation()
                     return@coroutineArgCallback
                 }
-                val visitor = currentIslandVisitors.firstOrNull { it.name.equals(name, ignoreCase = true)}
+                val visitor = currentIslandVisitors.firstOrNull {
+                    it.name.equals(name, ignoreCase = true)
+                }
 
                 if (visitor == null) {
                     visitorNotFound(name)
