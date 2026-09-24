@@ -270,4 +270,24 @@ open class BrigadierBuilder<B : ArgumentBuilder<FabricClientCommandSource, B>>(
         crossinline callback: ArgContext.(T) -> Unit,
     ) = arg(name, argument, suggestions) { callback { callback(getArg(it)) } }
 
+    /**
+     * This function allows for the usage of a coroutine callback within an argument without having to
+     * create a block for each one.
+     *
+     * This is the coroutine equivalent of [argCallback].
+     */
+    inline fun <reified T> coroutineArgCallback(
+        name: String,
+        argument: ArgumentType<T>,
+        suggestions: SuggestionProvider<FabricClientCommandSource>? = null,
+        config: CoroutineSettings = CoroutineSettings("$this command callback"),
+        crossinline callback: suspend ArgContext.(T) -> Unit,
+    ) = arg(name, argument, suggestions) {
+        callback {
+            val value = getArg(it)
+            config.launch {
+                callback(value)
+            }
+        }
+    }
 }

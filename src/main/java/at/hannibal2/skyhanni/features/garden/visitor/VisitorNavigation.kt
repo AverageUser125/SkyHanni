@@ -56,11 +56,11 @@ object VisitorNavigation {
             description = "Navigates to visitors on the current island"
             category = USERS_ACTIVE
 
-            simpleCallback {
+            coroutineSimpleCallback {
                 startNavigation(getCurrentIslandVisitors())
             }
 
-            argCallback(
+            coroutineArgCallback(
                 "visitor",
                 BrigadierArguments.greedyString(),
                 BrigadierUtils.dynamicSuggestionProvider {
@@ -69,13 +69,13 @@ object VisitorNavigation {
             ) { name ->
                 if (name == "all") {
                     startNavigation(getCurrentIslandVisitors())
-                    return@argCallback
+                    return@coroutineArgCallback
                 }
                 val visitor = getCurrentIslandVisitors().firstOrNull { it.name == name }
 
                 if (visitor == null) {
                     ChatUtils.userError("Visitor '$name' not found on this island")
-                    return@argCallback
+                    return@coroutineArgCallback
                 }
 
                 startNavigation(visitor)
@@ -86,8 +86,13 @@ object VisitorNavigation {
     private fun startNavigation(visitors: List<VisitorNavigationData>) {
         val graph = IslandGraphs.currentIslandGraph ?: return
 
+        val npcNodes = graph.getNodesWithTags(NPC)
+
         val nodes = visitors.map { visitor ->
-            graph.getNearestNode(visitor.position)
+            val position = visitor.position
+            npcNodes.filter { it.name == visitor.name }
+                .minByOrNull { it.position.distanceSq(position) }
+                ?: graph.getNearestNode(position)
         }
 
         if (nodes.isEmpty()) {
@@ -97,10 +102,12 @@ object VisitorNavigation {
 
         NavigateAllApi.navigateAll(
             nodes,
-            "Visitors",
+            "Visitor",
             LorenzColor.DARK_PURPLE.toColor(),
             onFinish = {
-                ChatUtils.chat("Reached all ${StringUtils.pluralize(nodes.size, "§dvisitor", withNumber = true)}§e.")
+                ChatUtils.chat(
+                    "Reached all ${StringUtils.pluralize(nodes.size, "§aVisitor", withNumber = true)}§e."
+                )
             },
             continueNavigationCondition = None,
             condition = { true },
