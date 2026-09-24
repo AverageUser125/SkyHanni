@@ -19,7 +19,8 @@ class ShinyOrbLootedEvent(
 
     sealed interface Reward {
         data class Loot(
-            val item: Pair<NeuInternalName, Int>,
+            val internalName: NeuInternalName,
+            val amount: Int,
         ) : Reward
 
         data class Coins(

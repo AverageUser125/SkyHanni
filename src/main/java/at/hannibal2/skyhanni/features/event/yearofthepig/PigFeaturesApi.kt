@@ -175,7 +175,7 @@ object PigFeaturesApi {
                 ErrorManager.skyHanniError("Could not find internal name for §c\"$lootName§c\"")
             }
 
-            ShinyOrbLootedEvent.Reward.Loot(lootInternalName to lootAmount)
+            ShinyOrbLootedEvent.Reward.Loot(lootInternalName, lootAmount)
         }
 
         if (parsedRewards.isNotEmpty()) {

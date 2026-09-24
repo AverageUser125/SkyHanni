@@ -96,8 +96,7 @@ object ShinyOrbTracker {
                 }
 
                 is Loot -> {
-                    val (internalName, amount) = reward.item
-                    tracker.addItem(internalName, amount, command = false)
+                    tracker.addItem(reward.internalName, reward.amount, command = false)
                 }
             }
         }
