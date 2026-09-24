@@ -34,8 +34,8 @@ object VisitorNavigation {
                 @Suppress("UNNECESSARY_SAFE_CALL")
                 val island = mode?.let(IslandType::getByIdOrNull) ?: return@mapNotNull null
 
-                island to visitors.mapNotNull { (name, visitor) ->
-                    val position = visitor.position ?: return@mapNotNull null
+                island to visitors.mapNotNull inner@{ (name, visitor) ->
+                    val position = visitor.position ?: return@inner null
                     VisitorNavigationData(
                         position = position,
                         name = name,
