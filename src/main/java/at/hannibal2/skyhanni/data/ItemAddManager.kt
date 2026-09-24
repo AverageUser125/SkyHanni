@@ -53,7 +53,7 @@ object ItemAddManager {
      */
     @Suppress("MaxLineLength")
     private val diceRollChatPattern by RepoPattern.pattern(
-        "data.itemmanager.diceroll",
+        "data.itemmanager.diceroll.colorless",
         "Your (?:High Class )?Archfiend Dice rolled a (?<number>\\d)! Bonus: (?<hearts>[\\d,.]+)${SkyblockStat.HEALTH.hypixelIcon}",
     )
 
