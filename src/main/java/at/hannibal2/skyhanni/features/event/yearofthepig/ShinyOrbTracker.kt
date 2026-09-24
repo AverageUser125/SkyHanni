@@ -92,7 +92,7 @@ object ShinyOrbTracker {
                 is Coins -> tracker.addCoins(reward.amount, command = false)
 
                 is SkillXp -> tracker.modify { tracker ->
-                    tracker.skillXpGained.addOrPut(reward.skill, reward.amount)
+                    tracker.skillXpGained.addOrPut(reward.skill, reward.amount.toLong())
                 }
 
                 is Loot -> {

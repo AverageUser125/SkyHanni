@@ -167,7 +167,7 @@ object PigFeaturesApi {
             skillXpRewardPattern.matchMatcher(reward) {
                 val amount = group("amount").formatIntOrNull() ?: return@matchMatcher null
                 val skill = SkillType.getByNameOrNull(group("skill")) ?: return@matchMatcher null
-                return@mapNotNull ShinyOrbLootedEvent.Reward.SkillXp(skill, amount.toLong())
+                return@mapNotNull ShinyOrbLootedEvent.Reward.SkillXp(skill, amount)
             }
 
             val (lootName, lootAmount) = ItemUtils.readItemAmount(reward) ?: return@mapNotNull null

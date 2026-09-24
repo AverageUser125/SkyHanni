@@ -29,7 +29,7 @@ class ShinyOrbLootedEvent(
 
         data class SkillXp(
             val skill: SkillType,
-            val amount: Long,
+            val amount: Int,
         ) : Reward
     }
 }
