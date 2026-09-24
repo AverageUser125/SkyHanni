@@ -7,7 +7,6 @@ import at.hannibal2.skyhanni.config.storage.EnforcedUserValuesStorage
 import at.hannibal2.skyhanni.data.ElectionCandidate
 import at.hannibal2.skyhanni.data.jsonobjects.repo.EnforcedValue
 import at.hannibal2.skyhanni.data.jsonobjects.repo.EnforcedValueData
-import at.hannibal2.skyhanni.utils.system.ModVersion
 import com.google.gson.JsonElement
 import com.google.gson.JsonPrimitive
 import io.mockk.mockk
@@ -233,7 +232,7 @@ class EnforcedConfigValuesTest {
                 persist = persist,
             ),
         ),
-        affectedVersion = ModVersion.installed,
+        affectedVersion = SkyHanniMod.modVersion,
         extraMessage = extraMessage,
     )
 
