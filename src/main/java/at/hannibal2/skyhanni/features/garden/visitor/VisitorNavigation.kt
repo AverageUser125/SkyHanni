@@ -134,7 +134,7 @@ object VisitorNavigation {
             if (rawName.lowercase() in noPositionVisitors) {
                 ChatUtils.userError(
                     "Visitor §a'$rawName' §cdoes not have a fixed location. " +
-                    "Some visitors only appear under specific conditions."
+                        "Some visitors only appear under specific conditions."
                 )
                 WikiManager.sendWikiMessage(rawName, autoOpen = false)
                 return
