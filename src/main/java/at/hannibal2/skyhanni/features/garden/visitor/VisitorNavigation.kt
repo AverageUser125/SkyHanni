@@ -75,7 +75,7 @@ object VisitorNavigation {
             island to navigationData
         }
 
-        noPositionVisitors = otherVisitors
+        noPositionVisitors = otherVisitors.map { it.lowercase() }.toSet()
     }
 
     private fun loadWarps(warps: Map<String, WarpLocationData>) {
@@ -109,7 +109,7 @@ object VisitorNavigation {
                     startNavigation(getCurrentIslandVisitors())
                     return@coroutineArgCallback
                 }
-                val visitor = getCurrentIslandVisitors().firstOrNull { it.name == name }
+                val visitor = getCurrentIslandVisitors().firstOrNull { it.name.equals(name, ignoreCase = true)}
 
                 if (visitor == null) {
                     visitorNotFound(name)
@@ -121,21 +121,22 @@ object VisitorNavigation {
         }
     }
 
-    private fun visitorNotFound(name: String) {
+    private fun visitorNotFound(rawName: String) {
         val visitor = visitors.values
             .flatten()
-            .firstOrNull { it.name == name }
+            .firstOrNull { it.name.equals(rawName, ignoreCase = true) }
 
         if (visitor == null) {
-            if (name in noPositionVisitors) {
-                ChatUtils.userError("Visitor §a'$name' §cposition is not found.")
-                WikiManager.sendWikiMessage(name, autoOpen = false)
+            if (rawName.lowercase() in noPositionVisitors) {
+                ChatUtils.userError("Visitor §a'$rawName' §cposition is not found.")
+                WikiManager.sendWikiMessage(rawName, autoOpen = false)
                 return
             }
 
-            ChatUtils.userError("Visitor §a'$name' §cis not known to the visitor repository")
+            ChatUtils.userError("Visitor §a'$rawName' §cis not known to the visitor repository")
             return
         }
+        val name = visitor.name
 
         val warp = getNearestWarp(visitor.island, visitor.position)
 
