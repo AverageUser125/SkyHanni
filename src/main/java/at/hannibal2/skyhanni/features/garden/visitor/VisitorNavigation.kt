@@ -174,11 +174,6 @@ object VisitorNavigation {
                 ?: graph.getNearestNode(position)
         }
 
-        if (nodes.isEmpty()) {
-            ChatUtils.userError("Could not find any visitors in the navigation graph")
-            return
-        }
-
         NavigateAllApi.navigateAll(
             nodes,
             "Visitor",
