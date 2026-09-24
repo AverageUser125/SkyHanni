@@ -148,6 +148,8 @@ object VisitorNavigation {
             ChatUtils.chat(
                 "§7Visitor §a'$name' §7is at §a${visitor.island.displayName}"
             )
+            // TODO: Make this generic for the navigation system.
+            // TODO: Make the navigation start after the warp is done.
             ChatUtils.clickableChat(
                 "§7Click §l§eHERE§r §7to warp there using §e/${warp.command}§7!",
                 onClick = {
