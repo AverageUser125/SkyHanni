@@ -149,7 +149,7 @@ object VisitorNavigation {
                 "§7Visitor §a'$name' §7is at §a${visitor.island.displayName}"
             )
             ChatUtils.clickableChat(
-                "§7Click §eHERE §7to warp there using §e/${warp.command}§7!",
+                "§7Click §l§eHERE§r §7to warp there using §e/${warp.command}§7!",
                 onClick = {
                     HypixelCommands.warp(warp.command)
                 },
