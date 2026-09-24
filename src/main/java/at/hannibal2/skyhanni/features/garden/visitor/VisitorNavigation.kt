@@ -27,22 +27,29 @@ object VisitorNavigation {
 
     @HandleEvent
     private fun onRepoReload(event: RepositoryReloadEvent) {
-        visitorJson = event.getConstant<GardenJson>("Garden").visitors.entries
+        val visitors = event.getConstant<GardenJson>("Garden").visitors
+
+        val visitorsByIsland = visitors.entries
             .groupBy { it.value.mode }
             .mapNotNull { (mode, visitors) ->
                 // TODO: Fix repo missing island type for visitors
                 @Suppress("UNNECESSARY_SAFE_CALL")
                 val island = mode?.let(IslandType::getByIdOrNull) ?: return@mapNotNull null
+                island to visitors
+            }
 
-                island to visitors.mapNotNull inner@{ (name, visitor) ->
-                    val position = visitor.position ?: return@inner null
+        visitorJson = visitorsByIsland.associate { (island, visitors) ->
+            val navigationData = visitors.mapNotNull { (name, visitor) ->
+                visitor.position?.let { position ->
                     VisitorNavigationData(
                         position = position,
                         name = name,
                     )
                 }
             }
-            .toMap()
+
+            island to navigationData
+        }
     }
 
     @HandleEvent
