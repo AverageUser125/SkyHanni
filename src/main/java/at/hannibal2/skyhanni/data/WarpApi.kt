@@ -31,7 +31,7 @@ object WarpApi {
         "You don't have the requirements to use this warp!",
     )
 
-    data class WarpLocation (
+    data class WarpLocation(
         val identifier: String,
         val displayName: String,
         val island: IslandType,
@@ -49,6 +49,7 @@ object WarpApi {
         val shouldRetry: Boolean,
         val onWarp: () -> Unit,
         val onFail: () -> Unit,
+        val onWarpFail: (WarpLocation, () -> Unit) -> Unit,
         var warp: WarpLocation,
     )
     private var scheduledWarp: ScheduledWarp? = null
@@ -128,16 +129,13 @@ object WarpApi {
             return
         }
 
-        DelayedRun.runNextTickEnd {
+        scheduledWarp = null
+
+        scheduled.onWarpFail(nextWarp) {
             val newScheduledWarp = scheduled.copy(warp = nextWarp)
-            ChatUtils.clickableChat(
-                "§7That warp failed. §7Click §l§eHERE§r §7to try §e/${nextWarp.command}§7 instead.",
-                onClick = {
-                    scheduledWarp = newScheduledWarp
-                    pendingWarp = newScheduledWarp.warp
-                    HypixelCommands.warp(newScheduledWarp.warp.command)
-                },
-            )
+            scheduledWarp = newScheduledWarp
+            pendingWarp = newScheduledWarp.warp
+            HypixelCommands.warp(newScheduledWarp.warp.command)
         }
     }
 
@@ -169,6 +167,7 @@ object WarpApi {
         island: IslandType = SkyBlockUtils.currentIsland,
         shouldRetry: Boolean = true,
         onWarp: () -> Unit = {},
+        onWarpFail: (WarpLocation, () -> Unit) -> Unit = ::defaultWarpFailHandler,
         onFail: () -> Unit = {},
     ) {
         val warp = getNearestWarp(position, island) ?: run {
@@ -185,11 +184,25 @@ object WarpApi {
                     shouldRetry = shouldRetry,
                     onWarp = onWarp,
                     onFail = onFail,
+                    onWarpFail = onWarpFail,
                     warp = warp,
                 )
                 HypixelCommands.warp(warp.command)
             },
         )
+    }
+
+    fun defaultWarpFailHandler(
+        nextWarp: WarpLocation,
+        retry: () -> Unit,
+    ) {
+        // Ensure only shows the message after the warp fail message
+        DelayedRun.runNextTickEnd {
+            ChatUtils.clickableChat(
+                "§7That warp failed. §7Click §l§eHERE§r §7to try §e/${nextWarp.command}§7 instead.",
+                onClick = retry,
+            )
+        }
     }
 
     fun getNearestWarp(position: LorenzVec, island: IslandType = SkyBlockUtils.currentIsland): WarpLocation? {
