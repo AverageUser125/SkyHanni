@@ -125,7 +125,7 @@ object VisitorNavigation {
         }
 
         ChatUtils.chat(
-            "§7Visitor §a'${visitor.name}' §7is at §a${visitor.island.displayName}"
+            "§7Visitor §a'${visitor.name}' §7is at §a${visitor.island.displayName}§7."
         )
         WarpApi.sendWarpMessage(
             position = visitor.position,
@@ -136,7 +136,7 @@ object VisitorNavigation {
             },
             onFail = {
                 ChatUtils.chat(
-                    "§7Could not find a working warp to §a${visitor.name}§7."
+                    "§7Could not find a working warp to §a'${visitor.name}'§7."
                 )
             },
         )
