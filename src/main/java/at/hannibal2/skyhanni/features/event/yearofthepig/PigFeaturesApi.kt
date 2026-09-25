@@ -132,6 +132,7 @@ object PigFeaturesApi {
             val rewards = buildList {
                 add(group("reward"))
                 groupOrNull("reward2")?.let(::add)
+                groupOrNull("reward3")?.let(::add)
             }
 
             handleLootedOrb(rewards)
