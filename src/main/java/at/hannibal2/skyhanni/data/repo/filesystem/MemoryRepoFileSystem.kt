@@ -10,7 +10,8 @@ import kotlinx.coroutines.DisposableHandle
 class MemoryRepoFileSystem(
     override val logger: RepoLogger,
 ) : RepoFileSystem, DisposableHandle {
-    private val storage = ConcurrentHashMap<String, ByteArray>()
+    @Volatile
+    private var storage = ConcurrentHashMap<String, ByteArray>()
 
     override fun exists(path: String) = storage.containsKey(path)
     override fun readAllBytes(path: String) = storage[path] ?: throw FileNotFoundException(path)
@@ -23,7 +24,7 @@ class MemoryRepoFileSystem(
 
     override fun deleteRecursively(path: String) {
         if (path.isEmpty()) {
-            storage.clear()
+            clear()
         } else {
             val prefix = path.toPrefix()
             storage.keys.removeIf { it == path || it.startsWith(prefix) }
@@ -65,7 +66,14 @@ class MemoryRepoFileSystem(
 
     override suspend fun loadFromTgz(progress: ChatProgressUpdates, tgzFile: File): Boolean {
         progress.update("repo memory file system loadFromTgz")
-        val success = super.loadFromTgz(progress, tgzFile)
+
+        val newFileSystem = MemoryRepoFileSystem(logger)
+        val success = newFileSystem.loadFromTgz(progress, tgzFile)
+
+        if (success) {
+            storage = newFileSystem.storage
+        }
+
         progress.update("loadFromTgz end")
         return success
     }

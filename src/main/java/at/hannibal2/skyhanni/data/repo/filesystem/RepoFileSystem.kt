@@ -55,6 +55,7 @@ sealed interface RepoFileSystem {
 
     /**
      * Reads [tgzFile], validates each entry path, and writes each file into this [RepoFileSystem].
+     * Note that this does clear the repo before writing, so any existing files will be deleted.
      *
      * Aborts and returns `false` if more than [MAX_EMPTY_TGZ_ENTRIES] entries are empty,
      * as this strongly suggests the tar.gz file is corrupt and continuing would silently produce
@@ -64,6 +65,8 @@ sealed interface RepoFileSystem {
      * Callers are responsible for ensuring they are already running in an appropriate dispatcher (e.g. IO).
      */
     suspend fun loadFromTgz(progress: ChatProgressUpdates, tgzFile: File): Boolean = runCatching {
+        progress.update("loadFromTgz: clearing repo")
+        clear()
         progress.update("loadFromTgz")
         val entries = countTgzEntries(tgzFile)
         tgzFile.inputStream().use { rawInput ->

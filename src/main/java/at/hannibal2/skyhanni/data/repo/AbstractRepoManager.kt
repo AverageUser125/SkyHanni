@@ -286,9 +286,6 @@ abstract class AbstractRepoManager<E : AbstractRepoReloadEvent> {
             logger.throwError("Failed to find backup resource '$backupRepoResourcePath'")
         }
 
-        progress.update("prepCleanRepoFileSystem")
-        prepCleanRepoFileSystem(progress)
-
         withContext(Dispatchers.IO) {
             Files.copy(inputStream, repoTgzFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
         }
@@ -459,9 +456,6 @@ abstract class AbstractRepoManager<E : AbstractRepoReloadEvent> {
             } else if (forceReset) comparison.reportForceRebuild()
         }
 
-        progress.update("prepCleanRepoFileSystem")
-        prepCleanRepoFileSystem(progress)
-
         progress.update("downloadCommitTgzToFile")
         if (!gitRepo.downloadCommitTgzToFile(repoTgzFile)) {
             progress.update("Failed to download the repo tar.gz file from GitHub.")
@@ -488,15 +482,7 @@ abstract class AbstractRepoManager<E : AbstractRepoReloadEvent> {
         return FetchUnpackResult.SUCCESS
     }
 
-    private fun prepCleanRepoFileSystem(progress: ChatProgressUpdates) {
-        progress.update("clearExistingRepoFileSystem")
-        repoFileSystem.clear()
-        progress.update("done with prepCleanRepoFileSystem")
-    }
-
     private suspend fun loadRepoFromTgz(progress: ChatProgressUpdates): Boolean {
-        prepCleanRepoFileSystem(progress)
-
         progress.update("loadFromTgz")
         if (repoFileSystem.loadFromTgz(progress, repoTgzFile)) {
             progress.update("Repo tar.gz loaded successfully")
