@@ -7,6 +7,7 @@ import net.fabricmc.loom.api.fabricapi.FabricApiExtension
 import net.fabricmc.loom.task.RemapSourcesJarTask
 import net.fabricmc.loom.task.ValidateAccessWidenerTask
 import net.fabricmc.loom.task.prod.ClientProductionRunTask
+import org.apache.tools.ant.filters.ReplaceTokens
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -477,8 +478,15 @@ tasks.withType<ValidateAccessWidenerTask>().configureEach {
 
 tasks.withType<ProcessResources>().configureEach {
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
-    filesMatching(listOf("**/*.fsh", "**/*.vsh")) {
-        filter { if (it.startsWith("#include") && stonecutter.eval(stonecutter.current.version, "< 26.3")) "#moj_import" else it }
+
+    if (stonecutter.eval(stonecutter.current.version, "< 26.3")) {
+        filesMatching(listOf("**/*.fsh", "**/*.vsh")) {
+            filter<ReplaceTokens>(
+                "tokens" to mapOf(
+                    "#include" to "#moj_import"
+                )
+            )
+        }
     }
 }
 
