@@ -13,6 +13,7 @@ import at.hannibal2.skyhanni.utils.HypixelCommands
 import at.hannibal2.skyhanni.utils.LorenzVec
 import at.hannibal2.skyhanni.utils.RegexUtils.matches
 import at.hannibal2.skyhanni.utils.SkyBlockUtils
+import at.hannibal2.skyhanni.utils.collection.CollectionUtils.takeIfNotEmpty
 import at.hannibal2.skyhanni.utils.repopatterns.RepoPattern
 
 @SkyHanniModule
@@ -75,18 +76,13 @@ object WarpApi {
         reset()
         val warpsJson = event.getConstant<WarpsJson>("Warps").warpLocation
         warps = warpsJson.map { (name, warp) ->
-            val fallbackCommand = name.lowercase()
-            val allCommands = if (fallbackCommand !in warp.commands) {
-                warp.commands + listOf(fallbackCommand)
-            } else {
-                warp.commands
-            }
+            val commands = warp.commands.takeIfNotEmpty() ?: listOf(name.lowercase())
             WarpLocation(
                 identifier = name,
                 displayName = warp.displayName,
                 island = warp.island,
                 position = LorenzVec(warp.x, warp.y, warp.z),
-                commands = allCommands,
+                commands = commands,
             )
         }.groupBy { it.island }
     }
