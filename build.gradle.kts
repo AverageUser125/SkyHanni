@@ -475,6 +475,13 @@ tasks.withType<ValidateAccessWidenerTask>().configureEach {
     dependsOn("stonecutterPrepare")
 }
 
+tasks.withType<ProcessResources>().configureEach {
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    filesMatching(listOf("**/*.fsh", "**/*.vsh")) {
+        filter { if (it.startsWith("#include") && stonecutter.eval(stonecutter.current.version, "< 26.3")) "#moj_import" else it }
+    }
+}
+
 repositories {
     mavenLocal()
     mavenCentral()

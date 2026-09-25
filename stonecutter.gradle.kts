@@ -205,8 +205,6 @@ stonecutter parameters {
             }
         }
     }
-
-    filters.include("**/*.fsh", "**/*.vsh")
 }
 
 private val String.descriptor get() = replace(".", "/")
