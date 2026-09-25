@@ -111,16 +111,15 @@ object VisitorNavigation {
             .firstOrNull { it.name.equals(rawName, ignoreCase = true) }
 
         if (visitor == null) {
-            if (rawName.lowercase() in noPositionVisitors) {
-                ChatUtils.userError(
-                    "Visitor §a'$rawName' §cdoes not have a fixed location. " +
-                        "Some visitors only appear under specific conditions."
-                )
-                WikiManager.sendWikiMessage(rawName, autoOpen = false)
+            if (rawName.lowercase() !in noPositionVisitors) {
+                ChatUtils.userError("Visitor §a'$rawName' §ccould not be found.")
                 return
             }
-
-            ChatUtils.userError("Visitor §a'$rawName' §ccould not be found.")
+            ChatUtils.userError(
+                "Visitor §a'$rawName' §cdoes not have a fixed location. " +
+                    "Some visitors only appear under specific conditions."
+            )
+            WikiManager.sendWikiMessage(rawName, autoOpen = false)
             return
         }
 
