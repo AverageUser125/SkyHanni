@@ -3,7 +3,6 @@ package at.hannibal2.skyhanni.features.garden.visitor
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.config.commands.CommandRegistrationEvent
 import at.hannibal2.skyhanni.config.commands.brigadier.BrigadierArguments
-import at.hannibal2.skyhanni.config.commands.brigadier.BrigadierUtils
 import at.hannibal2.skyhanni.data.IslandGraphs
 import at.hannibal2.skyhanni.data.IslandType
 import at.hannibal2.skyhanni.data.WarpApi
@@ -18,6 +17,7 @@ import at.hannibal2.skyhanni.utils.LorenzColor
 import at.hannibal2.skyhanni.utils.LorenzVec
 import at.hannibal2.skyhanni.utils.SkyBlockUtils
 import at.hannibal2.skyhanni.utils.StringUtils
+import at.hannibal2.skyhanni.utils.collection.CollectionUtils.contains
 
 @SkyHanniModule
 object VisitorNavigation {
@@ -66,7 +66,7 @@ object VisitorNavigation {
             island to navigationData
         }
 
-        noPositionVisitors = otherVisitors.map { it.lowercase() }.toSet()
+        noPositionVisitors = otherVisitors
     }
 
 
@@ -76,21 +76,11 @@ object VisitorNavigation {
             description = "Navigates to visitors on the current island"
             category = USERS_ACTIVE
 
-            coroutineSimpleCallback {
-                startNavigation()
-            }
-
             coroutineArgCallback(
                 "visitor",
                 BrigadierArguments.greedyString(),
-                BrigadierUtils.dynamicSuggestionProvider {
-                    currentIslandVisitors.map { it.name } + "all"
-                },
+                getVisitorSuggestions(),
             ) { name ->
-                if (name == "all") {
-                    startNavigation()
-                    return@coroutineArgCallback
-                }
                 val visitor = currentIslandVisitors.firstOrNull {
                     it.name.equals(name, ignoreCase = true)
                 }
@@ -103,6 +93,25 @@ object VisitorNavigation {
                 startNavigation(visitor)
             }
         }
+        event.registerBrigadier("shvisitornavall") {
+            description = "Navigates to all visitors on the current island"
+            category = USERS_ACTIVE
+
+            coroutineSimpleCallback {
+                startNavigation()
+            }
+        }
+    }
+
+    // Suggests visitors from the current island, other islands, and visitors without a fixed location, in that order.
+    private fun getVisitorSuggestions(): List<String> {
+        val currentIsland = currentIslandVisitors.map { it.name }
+        val otherIslands = visitors
+            .filterKeys { it != SkyBlockUtils.currentIsland }
+            .values
+            .flatten()
+            .map { it.name }
+        return (currentIsland + otherIslands + noPositionVisitors).toList()
     }
 
     private fun visitorNotFound(rawName: String) {
@@ -111,7 +120,7 @@ object VisitorNavigation {
             .firstOrNull { it.name.equals(rawName, ignoreCase = true) }
 
         if (visitor == null) {
-            if (rawName.lowercase() !in noPositionVisitors) {
+            if (!noPositionVisitors.contains(rawName, ignoreCase = true)) {
                 ChatUtils.userError("Visitor §a'$rawName' §ccould not be found.")
                 return
             }

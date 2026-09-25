@@ -290,4 +290,12 @@ open class BrigadierBuilder<B : ArgumentBuilder<FabricClientCommandSource, B>>(
             }
         }
     }
+
+    inline fun <reified T> coroutineArgCallback(
+        name: String,
+        argument: ArgumentType<T>,
+        suggestions: Collection<String>,
+        config: CoroutineSettings = CoroutineSettings("$this command callback"),
+        crossinline callback: suspend ArgContext.(T) -> Unit,
+    ) = coroutineArgCallback(name, argument, suggestions.toSuggestionProvider(), config, callback)
 }
