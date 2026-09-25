@@ -1,9 +1,16 @@
 #version 330
 
-//? if >= 26.3
+#ifdef NO_LAYOUT
+in vec4 vertexColor;
+
+out vec4 fragColor;
+#else
 #extension GL_ARB_separate_shader_objects : require
 
 layout(location = 0) in vec4 vertexColor;
+
+layout(location = 0) out vec4 fragColor;
+#endif
 
 layout(std140) uniform SkyHanniChromaUniforms {
     float chromaSize;
@@ -11,8 +18,6 @@ layout(std140) uniform SkyHanniChromaUniforms {
     float saturation;
     int forwardDirection;
 };
-
-layout(location = 0) out vec4 fragColor;
 
 float rgb2b(vec3 rgb) {
     return max(max(rgb.r, rgb.g), rgb.b);

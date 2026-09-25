@@ -1,9 +1,17 @@
 #version 330
 
-//? if >= 26.3
-#extension GL_ARB_separate_shader_objects : require
-
 const float tau = 6.2831853f;
+
+#ifdef NO_LAYOUT
+in vec4 roundedParams0;
+in vec4 roundedParams1;
+in vec4 gradientParams0;
+in vec4 gradientParams1;
+in vec4 gradientParams2;
+
+out vec4 fragColor;
+#else
+#extension GL_ARB_separate_shader_objects : require
 
 layout(location = 0) in vec4 roundedParams0;
 layout(location = 1) in vec4 roundedParams1;
@@ -12,6 +20,7 @@ layout(location = 3) in vec4 gradientParams1;
 layout(location = 4) in vec4 gradientParams2;
 
 layout(location = 0) out vec4 fragColor;
+#endif
 
 void main() {
     float smoothness = roundedParams0.y;
