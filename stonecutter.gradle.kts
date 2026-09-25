@@ -122,12 +122,6 @@ allprojects {
 
 stonecutter active "26.3"
 
-stonecutter handlers {
-    configure("fsh", "vsh") {
-        commenter = line("//")
-    }
-}
-
 stonecutter parameters {
     constants {
         this["iris_compat"] = eval(current.version, "< 26.3")
