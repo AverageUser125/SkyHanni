@@ -352,6 +352,7 @@ object ContributorManager {
 
     fun shouldSpin(uuid: UUID): Boolean = contributors[uuid]?.spinny ?: false
     fun shouldBeUpsideDown(uuid: UUID): Boolean = contributors[uuid]?.upsideDown ?: false
+    fun hasDisabledDiscoverMessages(uuid: UUID): Boolean = contributors[uuid]?.hideDiscoverMessage ?: false
 
     fun isSelfContributor(): Boolean {
         isContributor?.let { return it }
