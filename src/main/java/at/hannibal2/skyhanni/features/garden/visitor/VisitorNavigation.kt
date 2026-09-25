@@ -72,7 +72,7 @@ object VisitorNavigation {
     @HandleEvent
     private fun onCommandRegistration(event: CommandRegistrationEvent) {
         event.registerBrigadier("shvisitornav") {
-            description = "Navigates to visitors on the current island"
+            description = "Navigates to visitors either on the current island or other islands, if they have a fixed location"
             category = USERS_ACTIVE
 
             coroutineArgCallback(
