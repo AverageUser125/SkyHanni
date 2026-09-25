@@ -1,18 +1,15 @@
 #version 330
 
-#ifdef NO_LAYOUT
-#moj_import <minecraft:dynamictransforms.glsl>
-#moj_import <minecraft:projection.glsl>
+#include <minecraft:dynamictransforms.glsl>
+#include <minecraft:projection.glsl>
 
+#ifdef NO_LAYOUT
 in vec3 Position;
 in vec4 Color;
 
 out vec4 vertexColor;
 #else
 #extension GL_ARB_separate_shader_objects : require
-
-#include <minecraft:dynamictransforms.glsl>
-#include <minecraft:projection.glsl>
 
 layout(location = 0) in vec3 Position;
 layout(location = 1) in vec4 Color;
