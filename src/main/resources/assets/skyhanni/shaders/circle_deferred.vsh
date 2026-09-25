@@ -1,9 +1,9 @@
 #version 330
 
-#include <minecraft:dynamictransforms.glsl>
-#include <minecraft:projection.glsl>
-
 #ifdef NO_LAYOUT
+#moj_import <minecraft:dynamictransforms.glsl>
+#moj_import <minecraft:projection.glsl>
+
 in vec3 Position;
 in vec4 Color;
 in vec4 RoundedParams0;
@@ -14,6 +14,9 @@ out vec4 roundedParams0;
 out vec4 roundedParams1;
 #else
 #extension GL_ARB_separate_shader_objects : require
+
+#include <minecraft:dynamictransforms.glsl>
+#include <minecraft:projection.glsl>
 
 layout(location = 0) in vec3 Position;
 layout(location = 1) in vec4 Color;
