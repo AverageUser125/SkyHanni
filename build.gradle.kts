@@ -473,7 +473,7 @@ tasks.matching { it.name == "kspTestKotlin" || it.name == "kspTestJava" }.config
 }
 
 tasks.withType<ValidateAccessWidenerTask>().configureEach {
-    dependsOn("stonecutterPrepare")
+    dependsOn("stonecutterGenerate")
 }
 
 tasks.withType<ProcessResources>().configureEach {
