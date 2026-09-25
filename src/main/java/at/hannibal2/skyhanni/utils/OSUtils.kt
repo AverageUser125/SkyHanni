@@ -171,7 +171,7 @@ object OSUtils {
                 StandardCopyOption.ATOMIC_MOVE,
                 StandardCopyOption.REPLACE_EXISTING
             )
-        } catch(_: AtomicMoveNotSupportedException) {
+        } catch (_: AtomicMoveNotSupportedException) {
             Files.move(
                 source,
                 target,
