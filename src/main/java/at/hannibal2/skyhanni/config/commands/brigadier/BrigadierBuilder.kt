@@ -43,7 +43,7 @@ open class BrigadierBuilder<B : ArgumentBuilder<FabricClientCommandSource, B>>(
         require(!hasGreedyArg) { "Cannot add an argument/literal to a builder that has a greedy argument." }
 
     /** Executes the code block when the command is executed. */
-    fun callback(block: ArgContext.() -> Unit) {
+    inline fun callback(crossinline block: ArgContext.() -> Unit) {
         this.builder.executes {
             try {
                 block(ArgContext(it))
@@ -55,7 +55,7 @@ open class BrigadierBuilder<B : ArgumentBuilder<FabricClientCommandSource, B>>(
     }
 
     /** Alternative to [callback] when no arguments are needed. */
-    fun simpleCallback(block: () -> Unit) {
+    inline fun simpleCallback(crossinline block: () -> Unit) {
         this.builder.executes {
             try {
                 block()
@@ -67,9 +67,9 @@ open class BrigadierBuilder<B : ArgumentBuilder<FabricClientCommandSource, B>>(
     }
 
     /** Alternative to [simpleCallback] when a block needs to be executed in a coroutine. */
-    fun coroutineSimpleCallback(
+    inline fun coroutineSimpleCallback(
         config: CoroutineSettings = CoroutineSettings("$this command callback"),
-        block: suspend ArgContext.() -> Unit,
+        crossinline block: suspend ArgContext.() -> Unit,
     ) {
         this.builder.executes {
             config.launch {
@@ -85,7 +85,7 @@ open class BrigadierBuilder<B : ArgumentBuilder<FabricClientCommandSource, B>>(
      *
      * Usage of this method is discouraged, unless it's for compatibility with legacy code.
      */
-    fun legacyCallbackArgs(block: (Array<String>) -> Unit) {
+    inline fun legacyCallbackArgs(crossinline block: (Array<String>) -> Unit) {
         argCallback("allArgs", BrigadierArguments.greedyString()) { allArgs ->
             block(allArgs.split(" ").toTypedArray())
         }
@@ -226,9 +226,9 @@ open class BrigadierBuilder<B : ArgumentBuilder<FabricClientCommandSource, B>>(
      * }
      * ```
      */
-    fun literalCallback(
+    inline fun literalCallback(
         vararg names: String,
-        block: ArgContext.() -> Unit,
+        crossinline block: ArgContext.() -> Unit,
     ) = literal(*names) { callback(block) }
 
     /**
