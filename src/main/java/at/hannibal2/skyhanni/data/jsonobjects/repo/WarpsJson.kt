@@ -5,7 +5,7 @@ import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 
 data class WarpsJson(
-    // TODO: Remove and use warp_location key as the command list instead
+    // TODO: Remove and use warp_location commands instead
     @Expose @SerializedName(value = "warp_commands", alternate = ["warpCommands"]) val warpCommands: List<String>,
     @Expose @SerializedName(value = "warp_location", alternate = ["warpLocation"]) val warpLocation: Map<String, WarpLocationData>,
 )
