@@ -160,6 +160,8 @@ enum class SkyHanniRenderPipeline(
     private val internalPipeline: RenderPipeline = RenderPipelines.register(
         RenderPipeline.builder(snippet)
             .withLocation(SkyHanniMod.id(this.name.lowercase()))
+            //? if < 26.3
+            //.withShaderDefine("NO_LAYOUT")
             //? if >= 26.2 {
             .withVertexBinding(0, vFormat)
             .withPrimitiveTopology(vDrawMode)
