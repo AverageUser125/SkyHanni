@@ -68,7 +68,7 @@ class MemoryRepoFileSystem(
         progress.update("repo memory file system loadFromTgz")
 
         val newFileSystem = MemoryRepoFileSystem(logger)
-        val success = newFileSystem.loadFromTgz(progress, tgzFile)
+        val success = newFileSystem.loadFromTgzInternal(progress, tgzFile)
 
         if (success) {
             storage = newFileSystem.storage
@@ -77,6 +77,8 @@ class MemoryRepoFileSystem(
         progress.update("loadFromTgz end")
         return success
     }
+
+    private suspend fun loadFromTgzInternal(progress: ChatProgressUpdates, tgzFile: File): Boolean = super.loadFromTgz(progress, tgzFile)
 
     override fun clear() = storage.clear()
 
