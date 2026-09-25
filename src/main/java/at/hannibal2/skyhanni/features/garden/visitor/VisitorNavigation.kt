@@ -69,7 +69,6 @@ object VisitorNavigation {
         noPositionVisitors = otherVisitors
     }
 
-
     @HandleEvent
     private fun onCommandRegistration(event: CommandRegistrationEvent) {
         event.registerBrigadier("shvisitornav") {
@@ -93,12 +92,13 @@ object VisitorNavigation {
                 startNavigation(visitor)
             }
         }
+
         event.registerBrigadier("shvisitornavall") {
             description = "Navigates to all visitors on the current island"
             category = USERS_ACTIVE
 
             coroutineSimpleCallback {
-                startNavigation()
+                startAllNavigation()
             }
         }
     }
@@ -150,7 +150,7 @@ object VisitorNavigation {
         )
     }
 
-    private fun startNavigation() {
+    private fun startAllNavigation() {
         val graph = IslandGraphs.currentIslandGraph ?: return
 
         val npcNodes = graph.getNodesWithTags(NPC)
