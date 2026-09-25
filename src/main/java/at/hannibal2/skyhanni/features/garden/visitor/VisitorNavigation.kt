@@ -53,7 +53,7 @@ object VisitorNavigation {
         this.visitors = visitorsByIsland.associate { (island, visitors) ->
             val navigationData = visitors.mapNotNull { (name, visitor) ->
                 val position = visitor.position ?: run {
-                    noPositionVisitors += name
+                    otherVisitors += name
                     return@mapNotNull null
                 }
                 VisitorNavigationData(
