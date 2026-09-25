@@ -28,12 +28,13 @@ object PlatformUtils {
         FabricLoader.getInstance().isDevelopmentEnvironment
     }
 
+    // Must not use FabricLoader.getInstance().gameDir due to testing environment issues
     val gameDir: Path by lazy {
-        FabricLoader.getInstance().gameDir
+        Path.of(".").toAbsolutePath().normalize()
     }
 
     val configDir: Path by lazy {
-        FabricLoader.getInstance().configDir
+        gameDir.resolve("config")
     }
 
     val logsDir: Path by lazy {
