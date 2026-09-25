@@ -156,8 +156,8 @@ object VisitorNavigation {
 
         NavigateAllApi.navigateAll(
             nodes,
-            "Visitor",
-            LorenzColor.DARK_PURPLE.toColor(),
+            targetName = "Visitor",
+            color = LorenzColor.DARK_PURPLE.toColor(),
             onFinish = {
                 ChatUtils.chat(
                     "Reached all ${StringUtils.pluralize(nodes.size, "§aVisitor", withNumber = true)}§e."
