@@ -6,16 +6,14 @@ import at.hannibal2.skyhanni.config.commands.brigadier.BrigadierArguments
 import at.hannibal2.skyhanni.config.commands.brigadier.BrigadierUtils
 import at.hannibal2.skyhanni.data.IslandGraphs
 import at.hannibal2.skyhanni.data.IslandType
+import at.hannibal2.skyhanni.data.WarpApi
 import at.hannibal2.skyhanni.data.jsonobjects.repo.GardenJson
 import at.hannibal2.skyhanni.data.jsonobjects.repo.GardenVisitor
-import at.hannibal2.skyhanni.data.jsonobjects.repo.WarpLocationData
-import at.hannibal2.skyhanni.data.jsonobjects.repo.WarpsJson
 import at.hannibal2.skyhanni.events.RepositoryReloadEvent
 import at.hannibal2.skyhanni.features.commands.WikiManager
 import at.hannibal2.skyhanni.features.misc.pathfind.NavigateAllApi
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.ChatUtils
-import at.hannibal2.skyhanni.utils.HypixelCommands
 import at.hannibal2.skyhanni.utils.LorenzColor
 import at.hannibal2.skyhanni.utils.LorenzVec
 import at.hannibal2.skyhanni.utils.SkyBlockUtils
@@ -29,14 +27,7 @@ object VisitorNavigation {
         val name: String,
     )
 
-    private data class Warp(
-        val command: String,
-        val island: IslandType,
-        val position: LorenzVec,
-    )
-
     private var visitors = mapOf<IslandType, List<VisitorNavigationData>>()
-    private var warps: Map<IslandType, List<Warp>> = emptyMap()
     private var noPositionVisitors = setOf<String>()
 
     private val currentIslandVisitors get() = visitors[SkyBlockUtils.currentIsland].orEmpty()
@@ -44,9 +35,7 @@ object VisitorNavigation {
     @HandleEvent
     private fun onRepoReload(event: RepositoryReloadEvent) {
         val visitors = event.getConstant<GardenJson>("Garden").visitors
-        val warps = event.getConstant<WarpsJson>("Warps").warpLocation
         loadVisitors(visitors)
-        loadWarps(warps)
     }
 
     private fun loadVisitors(visitorsJson: Map<String, GardenVisitor>) {
@@ -80,15 +69,6 @@ object VisitorNavigation {
         noPositionVisitors = otherVisitors.map { it.lowercase() }.toSet()
     }
 
-    private fun loadWarps(warps: Map<String, WarpLocationData>) {
-        this.warps = warps.map { (name, warp) ->
-            Warp(
-                command = warp.commands.firstOrNull() ?: name.lowercase(),
-                island = warp.island,
-                position = LorenzVec(warp.x, warp.y, warp.z),
-            )
-        }.groupBy { it.island }
-    }
 
     @HandleEvent
     private fun onCommandRegistration(event: CommandRegistrationEvent) {
@@ -143,28 +123,23 @@ object VisitorNavigation {
             ChatUtils.userError("Visitor §a'$rawName' §ccould not be found.")
             return
         }
-        val name = visitor.name
 
-        val warp = getNearestWarp(visitor.island, visitor.position)
-
-        if (warp != null) {
-            ChatUtils.chat(
-                "§7Visitor §a'$name' §7is at §a${visitor.island.displayName}"
-            )
-            // TODO: Make this generic for the navigation system.
-            // TODO: Make the navigation start after the warp is done.
-            ChatUtils.clickableChat(
-                "§7Click §l§eHERE§r §7to warp there using §e/${warp.command}§7!",
-                onClick = {
-                    HypixelCommands.warp(warp.command)
-                },
-            )
-        } else {
-            ChatUtils.chat(
-                "§7Visitor §a'$name' §7is at §a${visitor.island.displayName}§c"
-            )
-        }
-        WikiManager.sendWikiMessage(name, autoOpen = false)
+        ChatUtils.chat(
+            "§7Visitor §a'${visitor.name}' §7is at §a${visitor.island.displayName}"
+        )
+        WarpApi.sendWarpMessage(
+            position = visitor.position,
+            island = visitor.island,
+            shouldRetry = true,
+            onWarp = {
+                startNavigation(visitor)
+            },
+            onFail = {
+                ChatUtils.chat(
+                    "§7Could not find a working warp to §a${visitor.name}§7."
+                )
+            },
+        )
     }
 
     private fun startNavigation() {
@@ -195,15 +170,10 @@ object VisitorNavigation {
 
     private fun startNavigation(visitor: VisitorNavigationData) {
         IslandGraphs.pathFind(
-            visitor.position,
-            visitor.name,
+            location = visitor.position,
+            label = visitor.name,
             color = LorenzColor.DARK_PURPLE.toColor(),
             condition = { true },
         )
-    }
-
-    private fun getNearestWarp(island: IslandType, position: LorenzVec): Warp? {
-        return warps[island]
-            ?.minByOrNull { it.position.distanceSq(position) }
     }
 }
