@@ -87,7 +87,6 @@ object WarpApi {
         }.groupBy { it.island }
     }
 
-
     @HandleEvent(onlyOnSkyblock = true)
     private fun onMessageSendToServer(event: MessageSendToServerEvent) {
         val args = event.message.lowercase().split(" ")
