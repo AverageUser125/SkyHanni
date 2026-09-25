@@ -176,7 +176,7 @@ object WarpApi {
         }
 
         ChatUtils.clickableChat(
-            "§7Click §l§eHERE§r §7to warp there using §e/${warp.command}§7!",
+            "§7Click §e§lHERE§r §7to warp there using §e/${warp.command}§7!",
             onClick = {
                 scheduledWarp = ScheduledWarp(
                     position = position,
@@ -199,7 +199,7 @@ object WarpApi {
         // Ensure only shows the message after the warp fail message
         DelayedRun.runNextTickEnd {
             ChatUtils.clickableChat(
-                "§7That warp failed. §7Click §l§eHERE§r §7to try §e/${nextWarp.command}§7 instead.",
+                "§7That warp failed. §7Click §e§lHERE§r §7to try §e/${nextWarp.command}§7 instead.",
                 onClick = retry,
             )
         }
