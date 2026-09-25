@@ -159,11 +159,7 @@ enum class SkyHanniRenderPipeline(
                 // One or the other, never both
                 blend?.let { withColorTargetState(ColorTargetState(it)) } ?: withCull?.let(this::withCull)
                 vertexShaderPath?.let { withVertexShader(SkyHanniMod.id(it)) }
-                fragmentShaderPath?.let {
-                    withFragmentShader(
-                        SkyHanniMod.id(it)
-                    )
-                }
+                fragmentShaderPath?.let { withFragmentShader(SkyHanniMod.id(it)) }
 
                 //? if >= 26.2 {
                 if (sampler != null || uniforms.isNotEmpty()) {
