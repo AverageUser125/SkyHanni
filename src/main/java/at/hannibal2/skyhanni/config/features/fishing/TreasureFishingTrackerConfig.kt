@@ -22,7 +22,10 @@ class TreasureFishingTrackerConfig {
     val position: Position = Position(20, 20)
 
     @Expose
-    @ConfigOption(name = "Show Percentage", desc = "Show percentage how often each treasure catch type got caught.")
+    @ConfigOption(
+        name = "Show Treasure Catch Share",
+        desc = "Show what percentage of all treasure catches are each catch type."
+    )
     @ConfigEditorBoolean
     val showPercentage: Property<Boolean> = Property.of(false)
 

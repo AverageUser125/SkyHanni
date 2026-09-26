@@ -87,8 +87,12 @@ object TreasureFishingTracker {
         for (catch in TreasureCatch.entries) {
             val amount = data.catchAmounts[catch] ?: 0
             val percentageSuffix = if (config.showPercentage.get()) {
-                val percentage = if (total > 0) (amount.toDouble() / total).formatPercentage() else 0.0.formatPercentage()
-                " §7$percentage"
+                val percentage = if (total > 0) {
+                    (amount.toDouble() / total).formatPercentage()
+                } else {
+                    0.0.formatPercentage()
+                }
+                " §7$percentage of treasure catches"
             } else ""
 
             addSearchString(
