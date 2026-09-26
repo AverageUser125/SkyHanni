@@ -19,7 +19,6 @@ sealed interface RepoFileSystem {
     fun write(path: String, data: ByteArray)
     fun listFiles(path: String, extension: String): List<String>
     fun listDirectories(path: String): List<String>
-    fun validatePath(relativePath: String) = Unit
     fun clear() = deleteRecursively("")
 
     /**
@@ -120,7 +119,6 @@ sealed interface RepoFileSystem {
                 progress.innerProgressStep()
                 val relativePath = entry.name.substringAfter('/', entry.name)
                 if (relativePath.isNotEmpty()) {
-                    validatePath(relativePath)
                     val data = tgzInput.readBytes()
                     if (data.isEmpty()) {
                         emptyDataCount += 1
