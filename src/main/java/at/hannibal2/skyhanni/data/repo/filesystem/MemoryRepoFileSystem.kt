@@ -10,8 +10,7 @@ import kotlinx.coroutines.DisposableHandle
 class MemoryRepoFileSystem(
     override val logger: RepoLogger,
 ) : RepoFileSystem, DisposableHandle {
-    @Volatile
-    private var storage = ConcurrentHashMap<String, ByteArray>()
+    private val storage = ConcurrentHashMap<String, ByteArray>()
 
     override fun exists(path: String) = storage.containsKey(path)
     override fun readAllBytes(path: String) = storage[path] ?: throw FileNotFoundException(path)
