@@ -25,16 +25,26 @@ object PlatformUtils {
     @JvmStatic
     @get:JvmName("isDevEnvironment")
     val isDevEnvironment: Boolean by lazy {
-        FabricLoader.getInstance().isDevelopmentEnvironment
+        runCatching {
+            FabricLoader.getInstance().isDevelopmentEnvironment
+        }.getOrDefault(false)
     }
 
-    // Must not use FabricLoader.getInstance().gameDir due to testing environment issues
     val gameDir: Path by lazy {
-        Path.of(".").toAbsolutePath().normalize()
+        runCatching {
+            FabricLoader.getInstance().gameDir
+        }.getOrDefault(
+            // This is a fallback for testing environment
+            Path.of(".").toAbsolutePath().normalize()
+        )
     }
 
     val configDir: Path by lazy {
-        gameDir.resolve("config")
+        runCatching {
+            FabricLoader.getInstance().configDir
+        }.getOrDefault(
+            gameDir.resolve("config")
+        )
     }
 
     val logsDir: Path by lazy {
