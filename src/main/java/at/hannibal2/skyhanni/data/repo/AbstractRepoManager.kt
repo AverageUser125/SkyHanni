@@ -61,8 +61,8 @@ abstract class AbstractRepoManager<E : AbstractRepoReloadEvent> {
      * For example:
      * `.minecraft/skyhanni/shrepo.meta.json`
      */
-    val commitFile: File by lazy {
-        SkyHanniMod.dataDir.resolve("$repoFolderName.meta.json")
+    private val commitStorage: RepoCommitStorage by lazy {
+        RepoCommitStorage(SkyHanniMod.dataDir.resolve("$repoFolderName.meta.json"))
     }
 
     /**
@@ -73,13 +73,6 @@ abstract class AbstractRepoManager<E : AbstractRepoReloadEvent> {
      */
     private val repoTgzFile: File by lazy {
         SkyHanniMod.dataDir.resolve("$repoFolderName.tar.gz")
-    }
-
-    /**
-     * Stores commit metadata for this repo.
-     */
-    private val commitStorage: RepoCommitStorage by lazy {
-        RepoCommitStorage(commitFile)
     }
 
     @PublishedApi
@@ -293,9 +286,6 @@ abstract class AbstractRepoManager<E : AbstractRepoReloadEvent> {
             logger.throwError("Failed to find backup resource '$backupRepoResourcePath'")
         }
 
-        progress.update("prepCleanRepoFileSystem")
-        prepCleanRepoFileSystem(progress)
-
         withContext(Dispatchers.IO) {
             Files.copy(inputStream, repoTgzFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
         }
@@ -447,6 +437,7 @@ abstract class AbstractRepoManager<E : AbstractRepoReloadEvent> {
         if (comparison.hashesMatch && !forceReset && repoTgzHasContent() && unsuccessfulConstants.isEmpty()) {
             if (command) {
                 comparison.reportRepoUpToDate()
+                shouldManuallyReload = false
             }
 
             return if (loadRepoFromTgz(progress)) {
@@ -464,9 +455,6 @@ abstract class AbstractRepoManager<E : AbstractRepoReloadEvent> {
                 comparison.reportRepoOutdated()
             } else if (forceReset) comparison.reportForceRebuild()
         }
-
-        progress.update("prepCleanRepoFileSystem")
-        prepCleanRepoFileSystem(progress)
 
         progress.update("downloadCommitTgzToFile")
         if (!gitRepo.downloadCommitTgzToFile(repoTgzFile)) {
@@ -494,15 +482,7 @@ abstract class AbstractRepoManager<E : AbstractRepoReloadEvent> {
         return FetchUnpackResult.SUCCESS
     }
 
-    private fun prepCleanRepoFileSystem(progress: ChatProgressUpdates) {
-        progress.update("clearExistingRepoFileSystem")
-        repoFileSystem.clear()
-        progress.update("done with prepCleanRepoFileSystem")
-    }
-
     private suspend fun loadRepoFromTgz(progress: ChatProgressUpdates): Boolean {
-        prepCleanRepoFileSystem(progress)
-
         progress.update("loadFromTgz")
         if (repoFileSystem.loadFromTgz(progress, repoTgzFile)) {
             progress.update("Repo tar.gz loaded successfully")
@@ -580,7 +560,7 @@ abstract class AbstractRepoManager<E : AbstractRepoReloadEvent> {
         debug("  location: ${loc.user}/${loc.repoName}@${loc.branch} (default=${loc.hasDefaultSettings()})")
         debug("  localCommit: sha=${localRepoCommit.sha ?: "none"}, time=${localRepoCommit.time ?: "none"}")
         debug("  usingBackup: $isUsingBackup")
-        debug("  tgzFile: exists=${repoTgzFile.exists()}, size=${repoTgzFile.length()}")
+        debug("  tgzFile: exists=${repoTgzFile.exists()}, size=${repoTgzFile.length()}, path=${repoTgzFile.absolutePath}")
         debug("  fileSystem: ${repoFileSystem::class.simpleName}")
         debug("  successful: ${successfulConstants.size}, failed: ${unsuccessfulConstants.size}")
         if (unsuccessfulConstants.isNotEmpty()) {

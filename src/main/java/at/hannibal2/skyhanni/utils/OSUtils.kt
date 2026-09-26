@@ -6,6 +6,7 @@ import at.hannibal2.skyhanni.utils.coroutines.CoroutineSettings
 import net.minecraft.util.Util
 import java.io.File
 import java.io.IOException
+import java.nio.file.AtomicMoveNotSupportedException
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
@@ -163,12 +164,20 @@ object OSUtils {
      */
     @Throws(IOException::class)
     fun atomicMoveFile(source: Path, target: Path) {
-        Files.move(
-            source,
-            target,
-            StandardCopyOption.ATOMIC_MOVE,
-            StandardCopyOption.REPLACE_EXISTING
-        )
+        try {
+            Files.move(
+                source,
+                target,
+                StandardCopyOption.ATOMIC_MOVE,
+                StandardCopyOption.REPLACE_EXISTING
+            )
+        } catch (_: AtomicMoveNotSupportedException) {
+            Files.move(
+                source,
+                target,
+                StandardCopyOption.REPLACE_EXISTING
+            )
+        }
     }
 
     /**
