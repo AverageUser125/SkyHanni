@@ -97,13 +97,12 @@ object TreasureFishingTracker {
             )
         }
 
-        addSearchString(" §7- §e${total.addSeparators()} §7Total Catches")
+        addSearchString(" §7- §e${total.addSeparators()} §7Total Treasure Catches")
     }
 
     @HandleEvent
     private fun onBobberCast() {
         tracker.firstUpdate()
-        if (config.enabled && isEnabled()) tracker.startSessionUptime()
     }
 
     @HandleEvent
